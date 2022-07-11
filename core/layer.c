@@ -8,10 +8,18 @@
 
 static void render_sprites(celeste_layer_t *layer, celeste_sprite_t *sprite);
 
+#ifdef _WIN64
+celeste_layer_t *celeste_layer_create(float left, float right, float bottom, float top, float _near, float _far)
+#else
 celeste_layer_t *celeste_layer_create(float left, float right, float bottom, float top, float near, float far)
+#endif
 {
     mat4 projection;
+#ifdef _WIN64
+    glm_ortho(left, right, bottom, top, _near, _far, projection);
+#else
     glm_ortho(left, right, bottom, top, near, far, projection);
+#endif
     return celeste_layer_create_custom(celeste_renderer_default(), celeste_shader_default(), projection);
 }
 
@@ -32,8 +40,13 @@ celeste_layer_t *celeste_layer_create_custom(celeste_renderer_t *renderer, celes
     layer->sprites = malloc(0);
     layer->sprites_size = 0;
 
+#ifdef _WIN64
+    layer->projection._near = (1 + projection[2][3]) / projection[2][2];
+    layer->projection._far = -(1 + projection[2][3]) / projection[2][2];
+#else
     layer->projection.near = (1 + projection[2][3]) / projection[2][2];
     layer->projection.far = -(1 + projection[2][3]) / projection[2][2];
+#endif
     layer->projection.bottom = -(1 - projection[1][3]) / projection[1][1];
     layer->projection.top = (1 - projection[1][3]) / projection[1][1];
     layer->projection.left = -(1 + projection[0][3]) / projection[0][0];

@@ -23,15 +23,18 @@
     #ifdef CELESTE_PTHREAD
         #include <pthread.h>
     #else
-        #error "Define CELESTE_PTHREAD macro!"
+        #ifdef _WIN64
+            #include <windows.h>
+            #define CELESTE_WINTHREAD
+        #else
+            #error "Define CELESTE_PTHREAD macro!"
+        #endif /* _WIN64 */
     #endif /* CELESTE_PTHREAD */
 #endif /* CELESTE_AUDIO_ASYNC */
 
 typedef struct {
 #ifdef CELESTE_GLFW
     GLFWwindow *window;
-#else
-    #error "Define CELESTE_GLFW macro!"
 #endif /* CELESTE_GLFW */
     char *wintitle;
     int   winalive;
@@ -49,15 +52,13 @@ typedef struct {
 #ifdef CELESTE_GORILLA_AUDIO
     gau_Manager *aumanager;
     ga_Mixer    *aumixer;
-#else
-    #error "Define CELESTE_GORILLA_AUDIO macro!"
 #endif /* CELESTE_GORILLA_AUDIO */
 #ifdef CELESTE_AUDIO_ASYNC
     #ifdef CELESTE_PTHREAD
         pthread_t audio_thread;
-    #else
-        #error "Define CELESTE_PTHREAD macro!"
-    #endif /* CELESTE_PTHREAD */
+    #elif defined(CELESTE_WINTHREAD) /* CELESTE_PTHREAD  */
+        HANDLE audio_thread;
+    #endif /* CELESTE_WINTHREAD */
 #endif /* CELESTE_AUDIO_ASYNC */
 } celeste_t;
 
