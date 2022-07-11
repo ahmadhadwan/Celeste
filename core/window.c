@@ -48,7 +48,6 @@ int celeste_window_create(celeste_t *celeste, const char *title)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-    /*glfwWindowHint(GLFW_X11_CLASS_NAME, "CelesteEngine");*/
 
     glfw_monitor = glfwGetPrimaryMonitor();
     glfw_vidmode = glfwGetVideoMode(glfw_monitor);
@@ -61,6 +60,9 @@ int celeste_window_create(celeste_t *celeste, const char *title)
         celeste_terminate();
         return 1;
     }
+    
+    celeste->window = window;
+    celeste_window_set_icon(CELESTE_ICON_PATH);
 
     glfwMakeContextCurrent(window);
     glfwSetWindowSizeCallback(window, window_resize);
@@ -85,7 +87,6 @@ int celeste_window_create(celeste_t *celeste, const char *title)
         /*Can load dgpu shader*/
     /*}*/
 
-    celeste->window = window;
     celeste->winalive = 1;
     celeste->default_renderer = celeste_renderer_create();
     celeste->default_shader = celeste_shader_create_const_src(default_shader_src);
@@ -135,7 +136,7 @@ void celeste_window_set_icon(const char *filepath)
     GLFWimage icon;
     int icon_bpp;
 
-    if (stat(CELESTE_ICON_PATH, &s)) {
+    if (stat(filepath, &s)) {
         CELESTE_LOG_ERROR_PATH("Failed to load icon!", filepath);
         return;
     }
