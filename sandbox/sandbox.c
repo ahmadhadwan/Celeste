@@ -10,32 +10,32 @@ static celeste_animation_t *space_animation(celeste_sprite_t *sprites, celeste_t
     float pos[3] = { -16.0f, -9.0f, 0.0f };
     float size[2] = { 32.0f, 18.0f };
 
-    celeste_sprite_create_tex(pos, size, texture_space, &(sprites[0]));
-    celeste_sprite_create_tex(pos, size, texture_space, &(sprites[1]));
-    celeste_sprite_create_tex(pos, size, texture_space, &(sprites[2]));
-    celeste_sprite_create_tex(pos, size, texture_space, &(sprites[3]));
+    celeste_sprite_create_tex(pos, size, texture_space, sprites + 0);
+    celeste_sprite_create_tex(pos, size, texture_space, sprites + 1);
+    celeste_sprite_create_tex(pos, size, texture_space, sprites + 2);
+    celeste_sprite_create_tex(pos, size, texture_space, sprites + 3);
 
     glm_vec2((float[]){ 0.0f, 0.0f }, sprites[0].uv[0]);
     glm_vec2((float[]){ 0.0f, 4.0f }, sprites[0].uv[1]);
     glm_vec2((float[]){ 1.0f, 4.0f }, sprites[0].uv[2]);
     glm_vec2((float[]){ 1.0f, 0.0f }, sprites[0].uv[3]);
 
-    glm_vec2((float[]){ 0.0f + (3.0f / 4.0f), 0.0f }, sprites[1].uv[0]);
-    glm_vec2((float[]){ 0.0f + (3.0f / 4.0f), 4.0f }, sprites[1].uv[1]);
-    glm_vec2((float[]){ 1.0f + (3.0f / 4.0f), 4.0f }, sprites[1].uv[2]);
-    glm_vec2((float[]){ 1.0f + (3.0f / 4.0f), 0.0f }, sprites[1].uv[3]);
+    glm_vec2((float[]){ 0.0f + (1.0f / 4.0f), 0.0f }, sprites[1].uv[0]);
+    glm_vec2((float[]){ 0.0f + (1.0f / 4.0f), 4.0f }, sprites[1].uv[1]);
+    glm_vec2((float[]){ 1.0f + (1.0f / 4.0f), 4.0f }, sprites[1].uv[2]);
+    glm_vec2((float[]){ 1.0f + (1.0f / 4.0f), 0.0f }, sprites[1].uv[3]);
 
     glm_vec2((float[]){ 0.0f + (2.0f / 4.0f), 0.0f }, sprites[2].uv[0]);
     glm_vec2((float[]){ 0.0f + (2.0f / 4.0f), 4.0f }, sprites[2].uv[1]);
     glm_vec2((float[]){ 1.0f + (2.0f / 4.0f), 4.0f }, sprites[2].uv[2]);
     glm_vec2((float[]){ 1.0f + (2.0f / 4.0f), 0.0f }, sprites[2].uv[3]);
 
-    glm_vec2((float[]){ 0.0f + (1.0f / 4.0f), 0.0f }, sprites[3].uv[0]);
-    glm_vec2((float[]){ 0.0f + (1.0f / 4.0f), 4.0f }, sprites[3].uv[1]);
-    glm_vec2((float[]){ 1.0f + (1.0f / 4.0f), 4.0f }, sprites[3].uv[2]);
-    glm_vec2((float[]){ 1.0f + (1.0f / 4.0f), 0.0f }, sprites[3].uv[3]);
+    glm_vec2((float[]){ 0.0f + (3.0f / 4.0f), 0.0f }, sprites[3].uv[0]);
+    glm_vec2((float[]){ 0.0f + (3.0f / 4.0f), 4.0f }, sprites[3].uv[1]);
+    glm_vec2((float[]){ 1.0f + (3.0f / 4.0f), 4.0f }, sprites[3].uv[2]);
+    glm_vec2((float[]){ 1.0f + (3.0f / 4.0f), 0.0f }, sprites[3].uv[3]);
 
-    return celeste_animation_create((celeste_sprite_t*[]){sprites, sprites + 1, sprites + 2, sprites + 3}, 4, 0.25f);
+    return celeste_animation_create((celeste_sprite_t*[]){sprites + 0, sprites + 1, sprites + 2, sprites + 3}, 4, 0.25f);
 }
 
 static celeste_animation_t *carpet_animation(celeste_sprite_t *sprites, celeste_texture_t *texture_atlas)

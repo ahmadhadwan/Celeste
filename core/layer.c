@@ -86,11 +86,6 @@ void celeste_layer_add_sprite(celeste_layer_t *layer, void *sprite)
 
 void celeste_layer_render(celeste_layer_t *layer)
 {
-    celeste_t *celeste;
-
-    celeste = celeste_get_instance();
-    layer->cursor.x = (float)(celeste->wincursor.x * (layer->projection.right * 2) / celeste->winwidth - layer->projection.right);
-    layer->cursor.y = (float)(layer->projection.top - celeste->wincursor.y * (layer->projection.top * 2) / celeste->winheight);
     layer->renderer->projection_x = layer->projection.right * 2;
     layer->renderer->projection_y = layer->projection.top * 2;
 
@@ -106,6 +101,7 @@ void celeste_layer_render(celeste_layer_t *layer)
 
 void render_sprites(celeste_layer_t *layer, celeste_sprite_t *sprite)
 {
+    celeste_t *celeste;
     switch (sprite->type)
     {
         case SPRITE:
@@ -150,6 +146,9 @@ void render_sprites(celeste_layer_t *layer, celeste_sprite_t *sprite)
                 render_sprites(layer, g->sprites[i]);
             }
 
+            celeste = celeste_get_instance();
+            layer->cursor.x = (float)(celeste->wincursor.x * (layer->projection.right * 2) / celeste->winwidth - layer->projection.right);
+            layer->cursor.y = (float)(layer->projection.top - celeste->wincursor.y * (layer->projection.top * 2) / celeste->winheight);
             glm_mat4_mulv3(g->translation, s->position, 1.0f, pos);
             if (layer->cursor.x >= pos[0] && layer->cursor.x <= (pos[0] + s->size[0])
              && layer->cursor.y >= pos[1] && layer->cursor.y <= (pos[1] + s->size[1]))
