@@ -24,6 +24,8 @@ typedef struct {
     unsigned int    texture_slots_size;
     mat4           *transformation_back;
     unsigned int    transformation_back_size;
+    float           projection_x;
+    float           projection_y;
 } celeste_renderer_t;
 
 #define RENDERER_MAX_SPRITES  (60000)

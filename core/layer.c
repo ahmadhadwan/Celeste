@@ -1,4 +1,4 @@
-#include <cglm/vec3.h>
+#include <cglm/cglm.h>
 #include <glad/glad.h>
 #include "layer.h"
 #include <stdio.h>
@@ -8,7 +8,14 @@
 
 static void render_sprites(celeste_layer_t *layer, celeste_sprite_t *sprite);
 
-celeste_layer_t *celeste_layer_create(mat4 projection)
+celeste_layer_t *celeste_layer_create(float left, float right, float bottom, float top, float near, float far)
+{
+    mat4 projection;
+    glm_ortho(left, right, bottom, top, near, far, projection);
+    return celeste_layer_create_custom(celeste_renderer_default(), celeste_shader_default(), projection);
+}
+
+celeste_layer_t *celeste_layer_create_mat4(mat4 projection)
 {
     return celeste_layer_create_custom(celeste_renderer_default(), celeste_shader_default(), projection);
 }
@@ -25,9 +32,16 @@ celeste_layer_t *celeste_layer_create_custom(celeste_renderer_t *renderer, celes
     layer->sprites = malloc(0);
     layer->sprites_size = 0;
 
+    layer->projection.near = (1 + projection[2][3]) / projection[2][2];
+    layer->projection.far = -(1 + projection[2][3]) / projection[2][2];
+    layer->projection.bottom = -(1 - projection[1][3]) / projection[1][1];
+    layer->projection.top = (1 - projection[1][3]) / projection[1][1];
+    layer->projection.left = -(1 + projection[0][3]) / projection[0][0];
+    layer->projection.right = (1 + projection[0][3]) / projection[0][0];
+
     celeste = celeste_get_instance();
-    layer->cursor.x = (float)(celeste->wincursor.x * 32.0f / celeste->winwidth - 16.0f);
-    layer->cursor.y = (float)(9.0f - celeste->wincursor.y * 18.0f / celeste->winheight);
+    layer->cursor.x = (float)(celeste->wincursor.x * (layer->projection.right * 2) / celeste->winwidth - layer->projection.right);
+    layer->cursor.y = (float)(layer->projection.top - celeste->wincursor.y * (layer->projection.top * 2) / celeste->winheight);
 
     int textures_array[32] = {
          0,  1,  2,  3,  4,  5,  6,  7,  8,  9,
@@ -62,8 +76,10 @@ void celeste_layer_render(celeste_layer_t *layer)
     celeste_t *celeste;
 
     celeste = celeste_get_instance();
-    layer->cursor.x = (float)(celeste->wincursor.x * 32.0f / celeste->winwidth - 16.0f);
-    layer->cursor.y = (float)(9.0f - celeste->wincursor.y * 18.0f / celeste->winheight);
+    layer->cursor.x = (float)(celeste->wincursor.x * (layer->projection.right * 2) / celeste->winwidth - layer->projection.right);
+    layer->cursor.y = (float)(layer->projection.top - celeste->wincursor.y * (layer->projection.top * 2) / celeste->winheight);
+    layer->renderer->projection_x = layer->projection.right * 2;
+    layer->renderer->projection_y = layer->projection.top * 2;
 
     celeste_shader_activate(layer->shader);
     celeste_renderer_begin(layer->renderer);

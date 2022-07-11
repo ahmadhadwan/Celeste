@@ -56,7 +56,6 @@ static celeste_animation_t *carpet_animation(celeste_sprite_t *sprites, celeste_
 int main()
 {
     celeste_t *clst;
-    mat4 projection;
     celeste_layer_t *layer;
     celeste_texture_t *texture_atlas, *texture_space, *texture_celeste;
 
@@ -87,8 +86,7 @@ int main()
     if (celeste_window_create(clst, "Celeste Engine Sandbox"))
         return 1;
 
-    glm_ortho(-16.0f, 16.0f, -9.0f, 9.0f, 1.0f, -1.0f, projection);
-    layer = celeste_layer_create(projection);
+    layer = celeste_layer_create(-16.0f, 16.0f, -9.0f, 9.0f, 1.0f, -1.0f);
 
     texture_atlas = celeste_texture_create("res/textures/atlas_48x.png");
     texture_space = celeste_texture_create("res/textures/space8_4-frames.png");

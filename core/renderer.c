@@ -58,6 +58,8 @@ celeste_renderer_t* celeste_renderer_create()
     renderer->transformation_back = malloc(sizeof(mat4));
     glm_mat4_identity(*(renderer->transformation_back));
     renderer->transformation_back_size = 1;
+    renderer->projection_x = 1.0f;
+    renderer->projection_y = 1.0f;
     return renderer;
 }
 
@@ -201,8 +203,8 @@ void celeste_renderer_submit_label(celeste_renderer_t* renderer, celeste_label_t
         ts = renderer->texture_slots_size;
     }
 
-    float scaleX = screen_width / 32.0f;
-    float scaleY = screen_height / 18.0f;
+    float scaleX = screen_width / renderer->projection_x;
+    float scaleY = screen_height / renderer->projection_y;
 
     float x = position[0];
 

@@ -11,13 +11,15 @@ typedef struct {
     celeste_shader_t   *shader;
     void              **sprites;
     unsigned int        sprites_size;
+    struct { float left, right, bottom, top, near, far; } projection;
     struct {
         double x;
         double y;
     } cursor;
 } celeste_layer_t;
 
-celeste_layer_t *celeste_layer_create(mat4 projection);
+celeste_layer_t *celeste_layer_create(float left, float right, float bottom, float top, float near, float far);
+celeste_layer_t *celeste_layer_create_mat4(mat4 projection);
 celeste_layer_t *celeste_layer_create_custom(celeste_renderer_t *renderer, celeste_shader_t *shader, mat4 projection);
 void celeste_layer_destroy(celeste_layer_t *layer);
 
