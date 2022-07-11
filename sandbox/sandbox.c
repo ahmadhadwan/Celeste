@@ -119,11 +119,6 @@ int main()
     celeste_scene_add_layer(scene, layer);
     clst->scene = scene;
 
-    celeste_sprite_t *sprite = malloc(1000 * sizeof(celeste_sprite_t));
-    for (int i = 0; i < 1000; i++) {
-        celeste_sprite_create_tex((float[]){ -60.0f, 0.0f, 0.0f }, (float[]){ 8.0f, 8.0f }, texture_celeste, sprite + i);
-    }
-
     audio = celeste_audio_create("res/audio/fss.ogg", 1);
     celeste_audio_play(audio);
 
@@ -177,8 +172,6 @@ int main()
     }
 
     celeste_audio_destroy(audio);
-
-    free(sprite);
 
     celeste_animation_destroy(space_anim);
     celeste_animation_destroy(carpet_anim);
