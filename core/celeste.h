@@ -38,6 +38,7 @@ typedef struct {
 #endif /* CELESTE_GLFW */
     char *wintitle;
     int   winalive;
+    int   winfocused;
     int   winwidth;
     int   winheight;
     struct {

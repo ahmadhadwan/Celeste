@@ -33,10 +33,10 @@ static const char *default_shader_src = "#type vertex\n#version 330 core\n"
 "case 30:texColor=texture(textures[29],fs_in.uv);break;case 31:texColor=texture(textures[30],fs_in.uv);break;"
 "case 32:texColor=texture(textures[31],fs_in.uv);break;default:color=fs_in.color;return;}color=texColor*fs_in.color;}";
 
-/*static int opengl_extension_exists(const char *opengl_extension);*/
 static void window_close_callback(GLFWwindow *glfw_window);
 static void window_resize(GLFWwindow *glfw_window, int width, int height);
 static void cursor_position_callback(GLFWwindow *glfw_window, double xpos, double ypos);
+static void window_focus_callback(GLFWwindow* window, int focused);
 
 int celeste_window_create(celeste_t *celeste, const char *title)
 {
@@ -48,6 +48,8 @@ int celeste_window_create(celeste_t *celeste, const char *title)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+    glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
     glfw_monitor = glfwGetPrimaryMonitor();
     glfw_vidmode = glfwGetVideoMode(glfw_monitor);
@@ -60,7 +62,7 @@ int celeste_window_create(celeste_t *celeste, const char *title)
         celeste_terminate();
         return 1;
     }
-    
+
     celeste->window = window;
     celeste_window_set_icon(CELESTE_ICON_PATH);
 
@@ -68,10 +70,10 @@ int celeste_window_create(celeste_t *celeste, const char *title)
     glfwSetWindowSizeCallback(window, window_resize);
     glfwSetCursorPosCallback(window, cursor_position_callback);
     glfwSetWindowCloseCallback(window, window_close_callback);
-    /* glfwSetWindowFocusCallback(window, window_focus_callback); */
+    glfwSetWindowFocusCallback(window, window_focus_callback);
     glfwSwapInterval(0);
 
-    if (!gladLoadGL())
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         CELESTE_LOG_ERROR("Failed to initialize GLAD!");
         celeste_window_destroy();
@@ -83,13 +85,12 @@ int celeste_window_create(celeste_t *celeste, const char *title)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     printf("%s %s\nOpenGL Version %s\n", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION));
-    /*if (opengl_extension_exists("GL_NV_shader_buffer_load")) {*/
-        /*Can load dgpu shader*/
-    /*}*/
 
     celeste->winalive = 1;
+    celeste->winfocused = 1;
     celeste->default_renderer = celeste_renderer_create();
     celeste->default_shader = celeste_shader_create_const_src(default_shader_src);
+    glfwShowWindow(window);
     return CELESTE_OK;
 }
 
@@ -190,24 +191,6 @@ void celeste_window_set_cursor_mode(int mode)
     glfwSetInputMode(celeste_get_instance()->window, GLFW_CURSOR, mode);
 }
 
-/*
-int opengl_extension_exists(const char *opengl_ext)
-{
-    GLint n, i;
-    const char *ext;
-
-    glGetIntegerv(GL_NUM_EXTENSIONS, &n);
-    for (i = 0; i < n; i++)
-    {
-        ext = (const char*)glGetStringi(GL_EXTENSIONS, i);
-        if (!strcmp(ext, opengl_ext))
-            return 1;
-    }
-
-    return 0;
-}
-*/
-
 void window_close_callback(GLFWwindow* glfw_window)
 {
     celeste_get_instance()->winalive = 0;
@@ -231,4 +214,9 @@ void cursor_position_callback(GLFWwindow* glfw_window, double xpos, double ypos)
     celeste = celeste_get_instance();
     celeste->wincursor.x = xpos;
     celeste->wincursor.y = ypos;
+}
+
+void window_focus_callback(GLFWwindow* window, int focused)
+{
+    celeste_get_instance()->winfocused = focused;
 }
