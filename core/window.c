@@ -143,6 +143,7 @@ void celeste_window_set_icon(const char *filepath)
 
     icon.pixels = stbi_load(filepath, &icon.width, &icon.height, &icon_bpp, STBI_rgb_alpha);
     glfwSetWindowIcon(celeste_get_instance()->window, 1, &icon);
+    free(icon.pixels);
 }
 
 void celeste_window_set_system_cursor(unsigned int cursor)

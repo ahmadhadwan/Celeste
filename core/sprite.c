@@ -14,8 +14,8 @@ static void default_uv(vec2 uv[4])
 void celeste_sprite_create_tex(vec3 position, vec2 size, celeste_texture_t *texture, celeste_sprite_t *sprite)
 {
     sprite->type = SPRITE;
-    glm_vec3(position, sprite->position);
-    glm_vec2(size, sprite->size);
+    glm_vec3_copy(position, sprite->position);
+    glm_vec2_copy(size, sprite->size);
     default_uv(sprite->uv);
     sprite->tid = texture->id;
     sprite->color = 0xFFFFFFFF;
@@ -24,25 +24,25 @@ void celeste_sprite_create_tex(vec3 position, vec2 size, celeste_texture_t *text
 void celeste_sprite_create_tex_from_atlas(vec3 position, vec2 size, celeste_texture_t *texture_atlas, vec2 offset, vec2 texsize, celeste_sprite_t *sprite)
 {
     sprite->type = SPRITE;
-    glm_vec3(position, sprite->position);
-    glm_vec2(size, sprite->size);
+    glm_vec3_copy(position, sprite->position);
+    glm_vec2_copy(size, sprite->size);
 
-    glm_vec2((float[]){
+    glm_vec2_copy((float[]){
             (offset[0]       * texsize[0]) / texture_atlas->width,
             (offset[1]       * texsize[1]) / texture_atlas->height
     }, sprite->uv[0]);
 
-    glm_vec2((float[]){
+    glm_vec2_copy((float[]){
             (offset[0]       * texsize[0]) / texture_atlas->width,
             ((offset[1] + 3) * texsize[1]) / texture_atlas->height
     }, sprite->uv[1]);
 
-    glm_vec2((float[]){
+    glm_vec2_copy((float[]){
             ((offset[0] + 3) * texsize[0]) / texture_atlas->width,
             ((offset[1] + 3) * texsize[1]) / texture_atlas->height
     }, sprite->uv[2]);
 
-    glm_vec2((float[]){
+    glm_vec2_copy((float[]){
             ((offset[0] + 3) * texsize[0]) / texture_atlas->width,
             (offset[1]       * texsize[1]) / texture_atlas->height
     }, sprite->uv[3]);
@@ -54,8 +54,8 @@ void celeste_sprite_create_tex_from_atlas(vec3 position, vec2 size, celeste_text
 void celeste_sprite_create_col(vec3 position, vec2 size, unsigned int color, celeste_sprite_t *sprite)
 {
     sprite->type = SPRITE;
-    glm_vec3(position, sprite->position);
-    glm_vec2(size, sprite->size);
+    glm_vec3_copy(position, sprite->position);
+    glm_vec2_copy(size, sprite->size);
     default_uv(sprite->uv);
     sprite->tid = 0;
     sprite->color = color;
@@ -64,7 +64,7 @@ void celeste_sprite_create_col(vec3 position, vec2 size, unsigned int color, cel
 void celeste_label_create(vec3 position, char *text, celeste_font_t *font, celeste_label_t *label)
 {
     label->type = LABEL;
-    glm_vec3(position, label->position);
+    glm_vec3_copy(position, label->position);
     default_uv(label->uv);
     label->font = font;
     label->text = text;
@@ -74,7 +74,7 @@ void celeste_label_create(vec3 position, char *text, celeste_font_t *font, celes
 void celeste_label_create_col(vec3 position, char *text, celeste_font_t *font, unsigned int color, celeste_label_t *label)
 {
     label->type = LABEL;
-    glm_vec3(position, label->position);
+    glm_vec3_copy(position, label->position);
     default_uv(label->uv);
     label->font = font;
     label->text = text;

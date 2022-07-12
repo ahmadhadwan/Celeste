@@ -28,6 +28,7 @@ celeste_audio_t *celeste_audio_create(const char *filepath, int loop)
 void celeste_audio_destroy(celeste_audio_t *audio)
 {
     ga_sound_release(audio->sound);
+    ga_handle_destroy(audio->handle);
     free(audio);
 }
 
@@ -89,5 +90,4 @@ void setFlagAndDestroyOnFinish(ga_Handle *in_handle, void *in_context)
 {
     gc_int32* flag = (gc_int32*)(in_context);
     *flag = 1;
-    ga_handle_destroy(in_handle);
 }

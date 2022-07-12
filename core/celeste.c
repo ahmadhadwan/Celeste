@@ -35,6 +35,7 @@ celeste_t *celeste_init()
     gc_initialize(0);
     celeste->aumanager = gau_manager_create();
     celeste->aumixer = gau_manager_mixer(celeste->aumanager);
+    celeste_instance = celeste;
 
 #ifdef CELESTE_AUDIO_ASYNC
     #ifdef CELESTE_PTHREAD
@@ -44,7 +45,6 @@ celeste_t *celeste_init()
     #endif /* CELESTE_WINTHREAD */
 #endif /* CELESTE_AUDIO_ASYNC */
 
-    celeste_instance = celeste;
     return celeste;
 }
 

@@ -1,5 +1,6 @@
 #include "../../core/gapi.h"
 #include "../../core/audio.h"
+#include "../../core/camera.h"
 #include "../../core/celeste.h"
 #include "../../core/common.h"
 #include "../../core/layer.h"

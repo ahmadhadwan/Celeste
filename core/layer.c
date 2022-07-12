@@ -8,27 +8,31 @@
 
 static void render_sprites(celeste_layer_t *layer, celeste_sprite_t *sprite);
 
-#ifdef _WIN64
-celeste_layer_t *celeste_layer_create(float left, float right, float bottom, float top, float _near, float _far)
-#else
-celeste_layer_t *celeste_layer_create(float left, float right, float bottom, float top, float near, float far)
-#endif
+celeste_layer_t *celeste_layer_create(float left, float right, float bottom, float top, float near_z, float far_z)
 {
     mat4 projection;
-#ifdef _WIN64
-    glm_ortho(left, right, bottom, top, _near, _far, projection);
-#else
-    glm_ortho(left, right, bottom, top, near, far, projection);
-#endif
-    return celeste_layer_create_custom(celeste_renderer_default(), celeste_shader_default(), projection);
+    glm_ortho(left, right, bottom, top, near_z, far_z, projection);
+    return celeste_layer_create_custom(celeste_renderer_default(), celeste_shader_default(), NULL, projection);
 }
 
 celeste_layer_t *celeste_layer_create_mat4(mat4 projection)
 {
-    return celeste_layer_create_custom(celeste_renderer_default(), celeste_shader_default(), projection);
+    return celeste_layer_create_custom(celeste_renderer_default(), celeste_shader_default(), NULL, projection);
 }
 
-celeste_layer_t *celeste_layer_create_custom(celeste_renderer_t *renderer, celeste_shader_t *shader, mat4 projection)
+celeste_layer_t *celeste_layer_create_camera(celeste_camera_t *camera, float left, float right, float bottom, float top, float near_z, float far_z)
+{
+    mat4 projection;
+    glm_ortho(left, right, bottom, top, near_z, far_z, projection);
+    return celeste_layer_create_custom(celeste_renderer_default(), celeste_shader_default(), camera, projection);
+}
+
+celeste_layer_t *celeste_layer_create_camera_mat4(celeste_camera_t *camera, mat4 projection)
+{
+    return celeste_layer_create_custom(celeste_renderer_default(), celeste_shader_default(), camera, projection);
+}
+
+celeste_layer_t *celeste_layer_create_custom(celeste_renderer_t *renderer, celeste_shader_t *shader, celeste_camera_t *camera, mat4 projection)
 {
     celeste_layer_t *layer;
     celeste_t *celeste;
@@ -40,17 +44,14 @@ celeste_layer_t *celeste_layer_create_custom(celeste_renderer_t *renderer, celes
     layer->sprites = malloc(0);
     layer->sprites_size = 0;
 
-#ifdef _WIN64
-    layer->projection._near = (1 + projection[2][3]) / projection[2][2];
-    layer->projection._far = -(1 + projection[2][3]) / projection[2][2];
-#else
-    layer->projection.near = (1 + projection[2][3]) / projection[2][2];
-    layer->projection.far = -(1 + projection[2][3]) / projection[2][2];
-#endif
+    layer->camera = camera;
+
+    layer->projection.near_z =  (1 + projection[2][3]) / projection[2][2];
+    layer->projection.far_z  = -(1 + projection[2][3]) / projection[2][2];
     layer->projection.bottom = -(1 - projection[1][3]) / projection[1][1];
-    layer->projection.top = (1 - projection[1][3]) / projection[1][1];
-    layer->projection.left = -(1 + projection[0][3]) / projection[0][0];
-    layer->projection.right = (1 + projection[0][3]) / projection[0][0];
+    layer->projection.top    =  (1 - projection[1][3]) / projection[1][1];
+    layer->projection.left   = -(1 + projection[0][3]) / projection[0][0];
+    layer->projection.right  =  (1 + projection[0][3]) / projection[0][0];
 
     celeste = celeste_get_instance();
     layer->cursor.x = (float)(celeste->wincursor.x * (layer->projection.right * 2) / celeste->winwidth - layer->projection.right);
@@ -86,15 +87,24 @@ void celeste_layer_add_sprite(celeste_layer_t *layer, void *sprite)
 
 void celeste_layer_render(celeste_layer_t *layer)
 {
+    mat4 view;
     layer->renderer->projection_x = layer->projection.right * 2;
     layer->renderer->projection_y = layer->projection.top * 2;
 
     celeste_shader_activate(layer->shader);
     celeste_renderer_begin(layer->renderer);
 
+    if (layer->camera)
+    {
+        glm_translate_make(view, layer->camera->position);
+        celeste_renderer_push(layer->renderer, view);
+    }
+
     for (unsigned int i = 0; i < layer->sprites_size; i++)
         render_sprites(layer, (celeste_sprite_t*)layer->sprites[i]);
 
+    if (layer->camera)
+        celeste_renderer_pop(layer->renderer);
     celeste_renderer_end();
     celeste_renderer_flush(layer->renderer);
 }
@@ -149,7 +159,8 @@ void render_sprites(celeste_layer_t *layer, celeste_sprite_t *sprite)
             celeste = celeste_get_instance();
             layer->cursor.x = (float)(celeste->wincursor.x * (layer->projection.right * 2) / celeste->winwidth - layer->projection.right);
             layer->cursor.y = (float)(layer->projection.top - celeste->wincursor.y * (layer->projection.top * 2) / celeste->winheight);
-            glm_mat4_mulv3(g->translation, s->position, 1.0f, pos);
+
+            glm_mat4_mulv3(layer->renderer->transformation_back[layer->renderer->transformation_back_size - 1], s->position, 1.0f, pos);
             if (layer->cursor.x >= pos[0] && layer->cursor.x <= (pos[0] + s->size[0])
              && layer->cursor.y >= pos[1] && layer->cursor.y <= (pos[1] + s->size[1]))
             {

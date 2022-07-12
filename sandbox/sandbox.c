@@ -56,7 +56,8 @@ static celeste_animation_t *carpet_animation(celeste_sprite_t *sprites, celeste_
 int main()
 {
     celeste_t *clst;
-    celeste_layer_t *layer;
+    celeste_camera_t camera;
+    celeste_layer_t *layer, *layer_debug;
     celeste_texture_t *texture_atlas, *texture_space, *texture_celeste;
 
     celeste_animation_t *space_anim, *carpet_anim;
@@ -86,7 +87,9 @@ int main()
     if (celeste_window_create(clst, "Celeste Engine Sandbox"))
         return 1;
 
-    layer = celeste_layer_create(-16.0f, 16.0f, -9.0f, 9.0f, 1.0f, -1.0f);
+    celeste_camera_create((float[]){ 0.0f, 0.0f, 0.0f }, &camera);
+    layer = celeste_layer_create_camera(&camera, -16.0f, 16.0f, -9.0f, 9.0f, 1.0f, -1.0f);
+    layer_debug = celeste_layer_create(-16.0f, 16.0f, -9.0f, 9.0f, 1.0f, -1.0f);
 
     texture_atlas = celeste_texture_create("res/textures/atlas_48x.png");
     texture_space = celeste_texture_create("res/textures/space8_4-frames.png");
@@ -112,12 +115,12 @@ int main()
     celeste_layer_add_sprite(layer, &button);
 
     celeste_label_create((float[]){ -16.0f, 8.0f, 0.0f }, fps_text, font, &fps);
-
-    celeste_layer_add_sprite(layer, &fps);
+    celeste_layer_add_sprite(layer_debug, &fps);
 
     scene = celeste_scene_create();
-    celeste_scene_add_layer(scene, layer);
     clst->scene = scene;
+    celeste_scene_add_layer(scene, layer);
+    celeste_scene_add_layer(scene, layer_debug);
 
     audio = celeste_audio_create("res/audio/fss.ogg", 1);
     celeste_audio_play(audio);
@@ -169,6 +172,18 @@ int main()
                 clst->winalive = 0;
                 break;
         }
+
+        if (glfwGetKey(clst->window, GLFW_KEY_W) == GLFW_PRESS)
+            camera.position[1] += 0.01f;
+        if (glfwGetKey(clst->window, GLFW_KEY_S) == GLFW_PRESS)
+            camera.position[1] -= 0.01f;
+        if (glfwGetKey(clst->window, GLFW_KEY_A) == GLFW_PRESS)
+            camera.position[0] -= 0.01f;
+        if (glfwGetKey(clst->window, GLFW_KEY_D) == GLFW_PRESS)
+            camera.position[0] += 0.01f;
+        
+        if (glfwGetKey(clst->window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+            clst->winalive = 0;
     }
 
     celeste_audio_destroy(audio);
