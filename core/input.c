@@ -22,11 +22,10 @@ void celeste_key_remove_callback(int key)
         {
             memmove(celeste->keys + i, celeste->keys + i + 1, (celeste->keys_count - i) * sizeof(celeste_key_t));
             celeste->keys = realloc(celeste->keys, (celeste->keys_count - 1) * sizeof(celeste_key_t));
+            celeste->keys_count--;
             break;
         }
     }
-
-    celeste->keys_count--;
 }
 
 int celeste_key(int key)
