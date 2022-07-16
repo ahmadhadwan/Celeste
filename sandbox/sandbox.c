@@ -53,6 +53,11 @@ static celeste_animation_t *carpet_animation(celeste_sprite_t *sprites, celeste_
     return celeste_animation_create((celeste_sprite_t*[]){sprites, sprites + 1}, 2, 0.75f);
 }
 
+static void destroy_window(void *winalive)
+{
+    *((int*)winalive) = 0;
+}
+
 int main()
 {
     celeste_t *clst;
@@ -133,6 +138,8 @@ int main()
     }
 #endif /* __linux__ */
 
+    celeste_key_add_callback((celeste_key_t){CELESTE_KEY_ESCAPE, destroy_window, &(clst->winalive)});
+
     prevtime = celeste_get_time();
     frames = 0;
     while (clst->winalive)
@@ -148,7 +155,7 @@ int main()
         {
             prevtime = celeste_get_time();
             sprintf(fps_text, "%d fps", frames);
-            printf("%d fps\n", frames);
+            CELESTE_LOG("%d fps\n", frames);
             frames = 0;
         }
 
@@ -173,17 +180,14 @@ int main()
                 break;
         }
 
-        if (glfwGetKey(clst->window, GLFW_KEY_W) == GLFW_PRESS)
+        if (celeste_key(CELESTE_KEY_W))
             camera.position[1] += 0.01f;
-        if (glfwGetKey(clst->window, GLFW_KEY_S) == GLFW_PRESS)
+        if (celeste_key(CELESTE_KEY_S))
             camera.position[1] -= 0.01f;
-        if (glfwGetKey(clst->window, GLFW_KEY_A) == GLFW_PRESS)
+        if (celeste_key(CELESTE_KEY_A))
             camera.position[0] -= 0.01f;
-        if (glfwGetKey(clst->window, GLFW_KEY_D) == GLFW_PRESS)
+        if (celeste_key(CELESTE_KEY_D))
             camera.position[0] += 0.01f;
-        
-        if (glfwGetKey(clst->window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-            clst->winalive = 0;
     }
 
     celeste_audio_destroy(audio);

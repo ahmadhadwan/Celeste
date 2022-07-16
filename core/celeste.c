@@ -32,6 +32,9 @@ celeste_t *celeste_init()
     celeste->winalive = celeste->winheight = celeste->winwidth = 0;
     celeste->wincursor.x = celeste->wincursor.y = 0.0;
 
+    celeste->keys = malloc(0);
+    celeste->keys_count = 0;
+
     gc_initialize(0);
     celeste->aumanager = gau_manager_create();
     celeste->aumixer = gau_manager_mixer(celeste->aumanager);
@@ -72,6 +75,7 @@ void celeste_terminate()
     celeste_renderer_destroy(celeste->default_renderer);
     glfwDestroyWindow(celeste->window);
     glfwTerminate();
+    free(celeste->keys);
     free(celeste);
     celeste_instance = NULL;
 }

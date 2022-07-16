@@ -12,6 +12,8 @@
     #error "Define CELESTE_GLFW macro!"
 #endif /* CELESTE_GLFW */
 
+#include "input.h"
+
 #ifdef CELESTE_GORILLA_AUDIO
     #include <gorilla/ga.h>
     #include <gorilla/gau.h>
@@ -49,6 +51,9 @@ typedef struct {
     celeste_renderer_t *default_renderer;
     celeste_shader_t   *default_shader;
     celeste_scene_t    *scene;
+
+    celeste_key_t      *keys;
+    int                 keys_count;
 
 #ifdef CELESTE_GORILLA_AUDIO
     gau_Manager *aumanager;

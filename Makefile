@@ -85,22 +85,22 @@ $(OBJS_DIR)%.o: $(SANDBOX_DIR)%.c
 	$(CC) -c $(CFLAGS) -o $@ $<
 
 $(EXT_OBJS_DIR)%.o: $(EXT_DIR)glad/%.c
-	$(CC) -c -Ofast -I$(EXT_DIR) -o $@ $<
+	$(CC) -c -Ofast -DNDEBUG -I$(EXT_DIR) -o $@ $<
 
 $(EXT_OBJS_DIR)%.o: $(EXT_DIR)stb/%.c
-	$(CC) -c -Ofast -I$(EXT_DIR) -o $@ $<
+	$(CC) -c -Ofast -DNDEBUG -I$(EXT_DIR) -o $@ $<
 
 $(EXT_OBJS_DIR)%.o: $(EXT_DIR)freetype-gl/%.c
-	$(CC) -c -Ofast -I$(EXT_DIR) -I$(FREETYPE2_DIR) -o $@ $<
+	$(CC) -c -Ofast -DNDEBUG -I$(EXT_DIR) -I$(FREETYPE2_DIR) -o $@ $<
 
 $(EXT_OBJS_DIR)%.o: $(EXT_DIR)gorilla/%.c
-	$(CC) -c -Ofast -DENABLE_OPENAL -I$(EXT_DIR) -o $@ $<
+	$(CC) -c -Ofast -DNDEBUG -DENABLE_OPENAL -I$(EXT_DIR) -o $@ $<
 
 $(EXT_OBJS_DIR)%.o: $(EXT_DIR)gorilla/common/%.c
-	$(CC) -c -Ofast -DENABLE_OPENAL -I$(EXT_DIR) -o $@ $<
+	$(CC) -c -Ofast -DNDEBUG -DENABLE_OPENAL -I$(EXT_DIR) -o $@ $<
 
 $(EXT_OBJS_DIR)%.o: $(EXT_DIR)gorilla/devices/%.c
-	$(CC) -c -Wno-incompatible-pointer-types -Ofast -DENABLE_OPENAL -I$(EXT_DIR) -o $@ $<
+	$(CC) -c -Wno-incompatible-pointer-types -Ofast -DNDEBUG -DENABLE_OPENAL -I$(EXT_DIR) -o $@ $<
 
 # Windows
 win: windirs $(WINCELESTE_CORE) $(WINSANDBOX)
@@ -118,28 +118,28 @@ $(WINOBJS_DIR)%.o: $(SANDBOX_DIR)%.c
 	$(WINCC) -c $(WINCFLAGS) -o $@ $<
 
 $(WINEXT_OBJS_DIR)%.o: $(EXT_DIR)glad/%.c
-	$(WINCC) -c -Ofast -I$(EXT_DIR) -o $@ $<
+	$(WINCC) -c -Ofast -DNDEBUG -I$(EXT_DIR) -o $@ $<
 
 $(WINEXT_OBJS_DIR)%.o: $(EXT_DIR)stb/%.c
-	$(WINCC) -c -Ofast -I$(EXT_DIR) -o $@ $<
+	$(WINCC) -c -Ofast -DNDEBUG -I$(EXT_DIR) -o $@ $<
 
 $(WINEXT_OBJS_DIR)%.o: $(EXT_DIR)freetype-gl/%.c
-	$(WINCC) -c -Ofast -I$(EXT_DIR) -I$(WINFREETYPE2_DIR) -o $@ $<
+	$(WINCC) -c -Ofast -DNDEBUG -I$(EXT_DIR) -I$(WINFREETYPE2_DIR) -o $@ $<
 
 $(WINEXT_OBJS_DIR)%.o: $(EXT_DIR)gorilla/%.c
-	$(WINCC) -c -Ofast -DENABLE_OPENAL -I$(EXT_DIR) -o $@ $<
+	$(WINCC) -c -Ofast -DNDEBUG -DENABLE_OPENAL -I$(EXT_DIR) -o $@ $<
 
 $(WINEXT_OBJS_DIR)%.o: $(EXT_DIR)gorilla/common/%.c
-	$(WINCC) -c -Ofast -I$(EXT_DIR) -o $@ $<
+	$(WINCC) -c -Ofast -DNDEBUG -I$(EXT_DIR) -o $@ $<
 
 $(WINEXT_OBJS_DIR)%.o: $(EXT_DIR)gorilla/devices/%.c
-	$(WINCC) -c -Wno-incompatible-pointer-types -Ofast -I$(EXT_DIR) -o $@ $<
+	$(WINCC) -c -Wno-incompatible-pointer-types -Ofast -DNDEBUG -I$(EXT_DIR) -o $@ $<
 
 $(WINEXT_OBJS_DIR)%.o: $(EXT_DIR)ogg/%.c
-	$(WINCC) -c -Ofast -I$(EXT_DIR) -o $@ $<
+	$(WINCC) -c -Ofast -DNDEBUG -I$(EXT_DIR) -o $@ $<
 
 $(WINEXT_OBJS_DIR)%.o: $(EXT_DIR)vorbis/%.c
-	$(WINCC) -c -Ofast -I$(EXT_DIR) -I$(EXT_DIR)vorbis/ -o $@ $<
+	$(WINCC) -c -Ofast -DNDEBUG -I$(EXT_DIR) -I$(EXT_DIR)vorbis/ -o $@ $<
 
 dirs:
 	@if [ ! -d $(BIN_DIR) ]; then echo "Creating $(BIN_DIR) directory.." ; mkdir $(BIN_DIR); fi

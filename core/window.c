@@ -37,6 +37,7 @@ static void window_close_callback(GLFWwindow *glfw_window);
 static void window_resize(GLFWwindow *glfw_window, int width, int height);
 static void cursor_position_callback(GLFWwindow *glfw_window, double xpos, double ypos);
 static void window_focus_callback(GLFWwindow* window, int focused);
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 int celeste_window_create(celeste_t *celeste, const char *title)
 {
@@ -71,6 +72,7 @@ int celeste_window_create(celeste_t *celeste, const char *title)
     glfwSetCursorPosCallback(window, cursor_position_callback);
     glfwSetWindowCloseCallback(window, window_close_callback);
     glfwSetWindowFocusCallback(window, window_focus_callback);
+    glfwSetKeyCallback(window, key_callback);
     glfwSwapInterval(0);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -219,4 +221,19 @@ void cursor_position_callback(GLFWwindow* glfw_window, double xpos, double ypos)
 void window_focus_callback(GLFWwindow* window, int focused)
 {
     celeste_get_instance()->winfocused = focused;
+}
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    celeste_t* celeste;
+
+    celeste = celeste_get_instance();
+    for (int i = 0; i < celeste->keys_count; i++)
+    {
+        if (celeste->keys[i].celeste_key == key && action != GLFW_RELEASE)
+        {
+            celeste->keys[i].function(celeste->keys[i].arg);
+            break;
+        }
+    }
 }
