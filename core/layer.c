@@ -96,7 +96,8 @@ void celeste_layer_render(celeste_layer_t *layer)
 
     if (layer->camera)
     {
-        glm_translate_make(view, layer->camera->position);
+        vec3 inverted_position = { -layer->camera->position[0], -layer->camera->position[1], layer->camera->position[2] };
+        glm_translate_make(view, inverted_position);
         celeste_renderer_push(layer->renderer, view);
     }
 
