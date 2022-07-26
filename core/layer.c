@@ -165,23 +165,23 @@ void render_sprites(celeste_layer_t *layer, celeste_sprite_t *sprite)
             if (layer->cursor.x >= pos[0] && layer->cursor.x <= (pos[0] + s->size[0])
              && layer->cursor.y >= pos[1] && layer->cursor.y <= (pos[1] + s->size[1]))
             {
-                if (b->status == CELESTE_BUTTON_STATUS_FOCUSED)
+                if (b->status == CELESTE_STATUS_FOCUSED)
                 {
                     if (celeste_mouse_button_clicked(CELESTE_MOUSE_LEFT)) {
-                        b->status = CELESTE_BUTTON_STATUS_CLICKED;
+                        b->status = CELESTE_STATUS_CLICKED;
                     }
                 }
                 else { /* First frame of the cursor colliding with the button */
                     if (celeste_mouse_button_clicked(CELESTE_MOUSE_LEFT)) {
-                        b->status = CELESTE_BUTTON_STATUS_NONE;
+                        b->status = CELESTE_STATUS_NONE;
                     }
                     else {
-                        b->status = CELESTE_BUTTON_STATUS_FOCUSED;
+                        b->status = CELESTE_STATUS_FOCUSED;
                     }
                 }
             }
             else {
-                b->status = CELESTE_BUTTON_STATUS_NONE;
+                b->status = CELESTE_STATUS_NONE;
             }
 
             celeste_renderer_pop(layer->renderer);

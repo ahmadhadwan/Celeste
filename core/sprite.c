@@ -130,6 +130,6 @@ void celeste_group_add_sprite(celeste_group_t *group, void *sprite)
 void celeste_button_create(celeste_group_t *group, celeste_button_t *button)
 {
     button->type = BUTTON;
-    button->status = CELESTE_BUTTON_STATUS_NONE;
+    button->status = CELESTE_STATUS_NONE;
     button->group = group;
 }

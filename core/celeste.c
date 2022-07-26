@@ -73,8 +73,10 @@ void celeste_terminate()
 
     celeste_shader_destroy(celeste->default_shader);
     celeste_renderer_destroy(celeste->default_renderer);
+
     glfwDestroyWindow(celeste->window);
     glfwTerminate();
+
     free(celeste->keys);
     free(celeste);
     celeste_instance = NULL;

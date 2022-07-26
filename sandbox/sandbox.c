@@ -161,7 +161,7 @@ int main()
 
         switch (button.status)
         {
-            case CELESTE_BUTTON_STATUS_NONE:
+            case CELESTE_STATUS_NONE:
                 button_col.color = 0x3A55555;
                 button_label.color = 0xFFFFFFFF;
                 if (celeste_mouse_button_clicked(CELESTE_MOUSE_LEFT))
@@ -171,11 +171,11 @@ int main()
                 if (celeste_mouse_button_clicked(CELESTE_MOUSE_MIDDLE))
                     celeste_audio_set_gain(audio, 1.0f);
                 break;
-            case CELESTE_BUTTON_STATUS_FOCUSED:
+            case CELESTE_STATUS_FOCUSED:
                 button_col.color = 0x6FFFFF00;
                 button_label.color = 0x88BBBBBB;
                 break;
-            case CELESTE_BUTTON_STATUS_CLICKED:
+            case CELESTE_STATUS_CLICKED:
                 clst->winalive = 0;
                 break;
         }

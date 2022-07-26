@@ -42,9 +42,9 @@ typedef struct {
     mat4               translation;
 } celeste_group_t;
 
-#define CELESTE_BUTTON_STATUS_NONE     0x00
-#define CELESTE_BUTTON_STATUS_FOCUSED  0x01
-#define CELESTE_BUTTON_STATUS_CLICKED  0x02
+#define CELESTE_STATUS_NONE     0x00
+#define CELESTE_STATUS_FOCUSED  0x01
+#define CELESTE_STATUS_CLICKED  0x02
 
 typedef struct {
     int                type;

@@ -173,9 +173,8 @@ void celeste_renderer_submit_label(celeste_renderer_t* renderer, celeste_label_t
     glm_vec3(label->position, position);
     celeste_font_t *font = label->font;
     char *text = label->text;
-    celeste_t* celeste = celeste_get_instance();
-    int screen_width = celeste->winwidth;
-    int screen_height = celeste->winheight;
+    int screen_width = 1920;
+    int screen_height = 1080;
     int color = label->color;
 
     int ts = 0;

@@ -34,11 +34,11 @@ static const char *default_shader_src = "#type vertex\n#version 330 core\n"
 "case 32:texColor=texture(textures[31],fs_in.uv);break;default:color=fs_in.color;return;}color=texColor*fs_in.color;}";
 
 static void window_close_callback(GLFWwindow *glfw_window);
-static void window_resize(GLFWwindow *glfw_window, int width, int height);
-static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-static void cursor_position_callback(GLFWwindow *glfw_window, double xpos, double ypos);
-static void window_focus_callback(GLFWwindow* window, int focused);
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+static void window_resize(GLFWwindow *window, int width, int height);
+static void framebuffer_size_callback(GLFWwindow *window, int width, int height);
+static void cursor_position_callback(GLFWwindow *window, double xpos, double ypos);
+static void window_focus_callback(GLFWwindow *window, int focused);
+static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 
 int celeste_window_create(celeste_t *celeste, const char *title)
 {
@@ -175,7 +175,7 @@ void celeste_window_set_custom_cursor(celeste_cursor_t *cursor)
     glfwSetCursor(celeste_get_instance()->window, (GLFWcursor*)cursor);
 }
 
-void celeste_window_screenshot(celeste_t* celeste, const char* filepath)
+void celeste_window_screenshot(celeste_t *celeste, const char *filepath)
 {
     unsigned char pixels[4 * celeste->winwidth * celeste->winheight];
 
@@ -195,12 +195,12 @@ void celeste_window_set_cursor_mode(int mode)
     glfwSetInputMode(celeste_get_instance()->window, GLFW_CURSOR, mode);
 }
 
-void window_close_callback(GLFWwindow* glfw_window)
+void window_close_callback(GLFWwindow *window)
 {
     celeste_get_instance()->winalive = 0;
 }
 
-void window_resize(GLFWwindow* glfw_window, int width, int height)
+void window_resize(GLFWwindow *window, int width, int height)
 {
     celeste_t *celeste;
 
@@ -209,12 +209,12 @@ void window_resize(GLFWwindow* glfw_window, int width, int height)
     celeste->winheight = height;
 }
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
     glViewport(0, 0, width, height);
 }
 
-void cursor_position_callback(GLFWwindow* glfw_window, double xpos, double ypos)
+void cursor_position_callback(GLFWwindow *window, double xpos, double ypos)
 {
     celeste_t* celeste;
 
@@ -223,12 +223,12 @@ void cursor_position_callback(GLFWwindow* glfw_window, double xpos, double ypos)
     celeste->wincursor.y = ypos;
 }
 
-void window_focus_callback(GLFWwindow* window, int focused)
+void window_focus_callback(GLFWwindow *window, int focused)
 {
     celeste_get_instance()->winfocused = focused;
 }
 
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
     celeste_t* celeste;
 
