@@ -2,7 +2,7 @@
 #define __CELESTE_WINDOW_H__
 
 #include "celeste.h"
-#include "macros.h"
+#include "input.h"
 
 typedef struct celeste_cursor celeste_cursor_t;
 
