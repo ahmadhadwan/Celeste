@@ -35,6 +35,7 @@ static const char *default_shader_src = "#type vertex\n#version 330 core\n"
 
 static void window_close_callback(GLFWwindow *glfw_window);
 static void window_resize(GLFWwindow *glfw_window, int width, int height);
+static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 static void cursor_position_callback(GLFWwindow *glfw_window, double xpos, double ypos);
 static void window_focus_callback(GLFWwindow* window, int focused);
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -68,9 +69,10 @@ int celeste_window_create(celeste_t *celeste, const char *title)
     celeste_window_set_icon(CELESTE_ICON_PATH);
 
     glfwMakeContextCurrent(window);
-    glfwSetWindowSizeCallback(window, window_resize);
-    glfwSetCursorPosCallback(window, cursor_position_callback);
     glfwSetWindowCloseCallback(window, window_close_callback);
+    glfwSetWindowSizeCallback(window, window_resize);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetCursorPosCallback(window, cursor_position_callback);
     glfwSetWindowFocusCallback(window, window_focus_callback);
     glfwSetKeyCallback(window, key_callback);
     glfwSwapInterval(0);
@@ -202,11 +204,14 @@ void window_resize(GLFWwindow* glfw_window, int width, int height)
 {
     celeste_t *celeste;
 
-    glViewport(0, 0, width, height);
-
     celeste = celeste_get_instance();
     celeste->winwidth = width;
     celeste->winheight = height;
+}
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    glViewport(0, 0, width, height);
 }
 
 void cursor_position_callback(GLFWwindow* glfw_window, double xpos, double ypos)
