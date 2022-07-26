@@ -125,6 +125,10 @@ void celeste_wait_event(celeste_t *celeste)
             gau_manager_update(celeste->aumanager);
             gc_thread_sleep(1);
         }
+    #ifdef CELESTE_PTHREAD
         return NULL;
+    #elif defined(CELESTE_WINTHREAD) /* CELESTE_PTHREAD */
+        return (DWORD)0;
+    #endif /* CELESTE_WINTHREAD */
     }
 #endif /* CELESTE_AUDIO_ASYNC */

@@ -134,7 +134,7 @@ int main()
     {
         struct rusage ru;
         getrusage(RUSAGE_SELF, &ru);
-        printf("Max RAM Usage: %ld Kb\n", ru.ru_maxrss);
+        CELESTE_LOG("Max RAM Usage: %ld Kb\n", ru.ru_maxrss);
     }
 #endif /* __linux__ */
 
@@ -182,10 +182,10 @@ int main()
 
         if (celeste_key(CELESTE_KEY_W))
             camera.position[1] += 0.01f;
-        if (celeste_key(CELESTE_KEY_S))
-            camera.position[1] -= 0.01f;
         if (celeste_key(CELESTE_KEY_A))
             camera.position[0] -= 0.01f;
+        if (celeste_key(CELESTE_KEY_S))
+            camera.position[1] -= 0.01f;
         if (celeste_key(CELESTE_KEY_D))
             camera.position[0] += 0.01f;
     }
