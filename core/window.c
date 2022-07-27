@@ -79,7 +79,6 @@ int celeste_window_create(celeste_t *celeste, const char *title)
     glfwSetWindowFocusCallback(window, window_focus_callback);
     glfwSetKeyCallback(window, key_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
-    glfwSetCharCallback(window, character_callback);
     glfwSetScrollCallback(window, mouse_scroll_callback);
     glfwSwapInterval(0);
 
@@ -274,7 +273,7 @@ void character_callback(GLFWwindow *window, unsigned int codepoint)
     celeste_t *celeste;
 
     celeste = celeste_get_instance();
-    if (celeste->input_listener && celeste->input_listener_len < celeste->input_listener_max_len - 1)
+    if (celeste->input_listener_len < celeste->input_listener_max_len - 1)
     {
         celeste->input_listener[celeste->input_listener_len] = (char)codepoint;
         celeste->input_listener_len++;

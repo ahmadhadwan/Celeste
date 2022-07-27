@@ -17,10 +17,7 @@ celeste_t *celeste_init()
 {
     celeste_t *celeste;
 
-    if (celeste_instance) {
-        CELESTE_LOG_ERROR("Celeste was already initialized!");
-        return NULL;
-    }
+    CELESTE_ASSERT(celeste_instance == NULL && "Celeste was already initialized!");
 
     if (!glfwInit()) {
         CELESTE_LOG_ERROR("Failed to initialize GLFW!");
@@ -96,11 +93,8 @@ void celeste_terminate()
 
 celeste_t *celeste_get_instance()
 {
-    if (celeste_instance)
-        return celeste_instance;
-
-    CELESTE_LOG_ERROR("Celeste isn't initialized! aborting!");
-    exit(1);
+    CELESTE_ASSERT(celeste_instance && "Celeste isn't initialized!");
+    return celeste_instance;
 }
 
 double celeste_get_time()
