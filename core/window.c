@@ -33,12 +33,15 @@ static const char *default_shader_src = "#type vertex\n#version 330 core\n"
 "case 30:texColor=texture(textures[29],fs_in.uv);break;case 31:texColor=texture(textures[30],fs_in.uv);break;"
 "case 32:texColor=texture(textures[31],fs_in.uv);break;default:color=fs_in.color;return;}color=texColor*fs_in.color;}";
 
-static void window_close_callback(GLFWwindow *glfw_window);
-static void window_resize(GLFWwindow *window, int width, int height);
+static void window_close_callback    (GLFWwindow *window);
+static void window_resize_callback   (GLFWwindow *window, int width, int height);
 static void framebuffer_size_callback(GLFWwindow *window, int width, int height);
-static void cursor_position_callback(GLFWwindow *window, double xpos, double ypos);
-static void window_focus_callback(GLFWwindow *window, int focused);
-static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
+static void cursor_position_callback (GLFWwindow *window, double xpos, double ypos);
+static void window_focus_callback    (GLFWwindow *window, int focused);
+static void key_callback             (GLFWwindow *window, int key, int scancode, int action, int mods);
+static void mouse_button_callback    (GLFWwindow *window, int button, int action, int mods);
+static void character_callback       (GLFWwindow *window, unsigned int codepoint);
+static void mouse_scroll_callback    (GLFWwindow* window, double xoffset, double yoffset);
 
 int celeste_window_create(celeste_t *celeste, const char *title)
 {
@@ -70,11 +73,14 @@ int celeste_window_create(celeste_t *celeste, const char *title)
 
     glfwMakeContextCurrent(window);
     glfwSetWindowCloseCallback(window, window_close_callback);
-    glfwSetWindowSizeCallback(window, window_resize);
+    glfwSetWindowSizeCallback(window, window_resize_callback);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, cursor_position_callback);
     glfwSetWindowFocusCallback(window, window_focus_callback);
     glfwSetKeyCallback(window, key_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
+    glfwSetCharCallback(window, character_callback);
+    glfwSetScrollCallback(window, mouse_scroll_callback);
     glfwSwapInterval(0);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -88,7 +94,7 @@ int celeste_window_create(celeste_t *celeste, const char *title)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    printf("%s %s\nOpenGL Version %s\n", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_VERSION));
+    CELESTE_LOG("%s %s\nOpenGL v%d.%d\n", glGetString(GL_VENDOR), glGetString(GL_RENDERER), GLVersion.major, GLVersion.minor);
 
     celeste->winalive = 1;
     celeste->winfocused = 1;
@@ -185,14 +191,19 @@ void celeste_window_screenshot(celeste_t *celeste, const char *filepath)
     stbi_write_png(filepath, celeste->winwidth, celeste->winheight, 4, pixels, celeste->winwidth * 4);
 }
 
-int celeste_mouse_button_clicked(int button)
-{
-    return glfwGetMouseButton(celeste_get_instance()->window, button);
-}
-
 void celeste_window_set_cursor_mode(int mode)
 {
     glfwSetInputMode(celeste_get_instance()->window, GLFW_CURSOR, mode);
+}
+
+void celeste_window_start_listening()
+{
+    glfwSetCharCallback(celeste_get_instance()->window, character_callback);
+}
+
+void celeste_window_stop_listening()
+{
+    glfwSetCharCallback(celeste_get_instance()->window, NULL);
 }
 
 void window_close_callback(GLFWwindow *window)
@@ -200,7 +211,7 @@ void window_close_callback(GLFWwindow *window)
     celeste_get_instance()->winalive = 0;
 }
 
-void window_resize(GLFWwindow *window, int width, int height)
+void window_resize_callback(GLFWwindow *window, int width, int height)
 {
     celeste_t *celeste;
 
@@ -235,10 +246,48 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
     celeste = celeste_get_instance();
     for (int i = 0; i < celeste->keys_count; i++)
     {
-        if (celeste->keys[i].celeste_key == key && action != GLFW_RELEASE)
+        if (celeste->keys[i].key == key && action != GLFW_RELEASE)
         {
             celeste->keys[i].function(celeste->keys[i].arg);
             break;
         }
+    }
+}
+
+void mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
+{
+    celeste_t* celeste;
+
+    celeste = celeste_get_instance();
+    for (int i = 0; i < celeste->buttons_count; i++)
+    {
+        if (celeste->buttons[i].button == button && action != GLFW_RELEASE)
+        {
+            celeste->buttons[i].function(celeste->buttons[i].arg);
+            break;
+        }
+    }
+}
+
+void character_callback(GLFWwindow *window, unsigned int codepoint)
+{
+    celeste_t *celeste;
+
+    celeste = celeste_get_instance();
+    if (celeste->input_listener && celeste->input_listener_len < celeste->input_listener_max_len - 1)
+    {
+        celeste->input_listener[celeste->input_listener_len] = (char)codepoint;
+        celeste->input_listener_len++;
+    }
+}
+
+void mouse_scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    celeste_t* celeste;
+
+    celeste = celeste_get_instance();
+    for (int i = 0; i < celeste->scroll_listeners_count; i++)
+    {
+        *(celeste->scroll_listeners[i]) += yoffset;
     }
 }

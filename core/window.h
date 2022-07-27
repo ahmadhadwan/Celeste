@@ -22,8 +22,9 @@ void celeste_window_set_custom_cursor(celeste_cursor_t *cursor);
 
 void celeste_window_screenshot(celeste_t *celeste, const char *filepath);
 
-int celeste_mouse_button_clicked(int button);
-
 void celeste_window_set_cursor_mode(int mode);
+
+void celeste_window_start_listening();
+void celeste_window_stop_listening();
 
 #endif /* __CELESTE_WINDOW_H__ */

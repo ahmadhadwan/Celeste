@@ -55,6 +55,16 @@ typedef struct {
     celeste_key_t      *keys;
     int                 keys_count;
 
+    celeste_mouse_button_t *buttons;
+    int                     buttons_count;
+
+    char *input_listener;
+    int   input_listener_len;
+    int   input_listener_max_len;
+
+    double                **scroll_listeners;
+    int                     scroll_listeners_count;
+
 #ifdef CELESTE_GORILLA_AUDIO
     gau_Manager *aumanager;
     ga_Mixer    *aumixer;

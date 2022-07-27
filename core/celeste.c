@@ -35,6 +35,16 @@ celeste_t *celeste_init()
     celeste->keys = malloc(0);
     celeste->keys_count = 0;
 
+    celeste->buttons = malloc(0);
+    celeste->buttons_count = 0;
+
+    celeste->input_listener = NULL;
+    celeste->input_listener_len = 0;
+    celeste->input_listener_max_len = 0;
+
+    celeste->scroll_listeners = malloc(0);
+    celeste->scroll_listeners_count = 0;
+
     gc_initialize(0);
     celeste->aumanager = gau_manager_create();
     celeste->aumixer = gau_manager_mixer(celeste->aumanager);
@@ -77,6 +87,8 @@ void celeste_terminate()
     glfwDestroyWindow(celeste->window);
     glfwTerminate();
 
+    free(celeste->scroll_listeners);
+    free(celeste->buttons);
     free(celeste->keys);
     free(celeste);
     celeste_instance = NULL;

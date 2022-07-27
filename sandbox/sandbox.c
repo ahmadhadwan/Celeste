@@ -58,6 +58,11 @@ static void destroy_window(void *winalive)
     *((int*)winalive) = 0;
 }
 
+static void pointless(void *arg)
+{
+    CELESTE_LOG("THIS CALL WAS POINTLESS (pointless pointer = %p)\n", arg);
+}
+
 int main()
 {
     celeste_t *clst;
@@ -84,6 +89,9 @@ int main()
 
     char fps_text[20];
     celeste_scene_t *scene;
+    double pointless_double;
+    char pointless_str[1024];
+    celeste_label_t pointless_label;
 
     clst = celeste_init();
     if (!clst)
@@ -125,7 +133,6 @@ int main()
     scene = celeste_scene_create();
     clst->scene = scene;
     celeste_scene_add_layer(scene, layer);
-    celeste_scene_add_layer(scene, layer_debug);
 
     audio = celeste_audio_create("res/audio/fss.ogg", 1);
     celeste_audio_play(audio);
@@ -138,7 +145,15 @@ int main()
     }
 #endif /* __linux__ */
 
+    pointless_double = 0.0;
+
     celeste_key_add_callback((celeste_key_t){CELESTE_KEY_ESCAPE, destroy_window, &(clst->winalive)});
+    celeste_mouse_button_add_callback((celeste_mouse_button_t){CELESTE_MOUSE_RIGHT, pointless, NULL});
+    celeste_scroll_add_listener(&pointless_double);
+    celeste_input_set_listener(pointless_str, 1024);
+
+    celeste_label_create((float[]){ -16.0f, -8.5f, 0.0f }, pointless_str, font, &pointless_label);
+    celeste_layer_add_sprite(layer, &pointless_label);
 
     prevtime = celeste_get_time();
     frames = 0;
@@ -148,6 +163,9 @@ int main()
 
         celeste_scene_render(clst->scene);
 
+        if (celeste_key(CELESTE_KEY_LEFT_SHIFT))
+            celeste_layer_render(layer_debug);
+
         celeste_update(clst);
 
         frames++;
@@ -156,6 +174,9 @@ int main()
             prevtime = celeste_get_time();
             sprintf(fps_text, "%d fps", frames);
             CELESTE_LOG("%d fps\n", frames);
+            celeste_mouse_button_remove_callback(CELESTE_MOUSE_RIGHT);
+            celeste_scroll_remove_listener(&pointless_double);
+            CELESTE_LOG("yoffset: %lf\n", pointless_double);
             frames = 0;
         }
 
@@ -164,11 +185,11 @@ int main()
             case CELESTE_STATUS_NONE:
                 button_col.color = 0x3A55555;
                 button_label.color = 0xFFFFFFFF;
-                if (celeste_mouse_button_clicked(CELESTE_MOUSE_LEFT))
+                if (celeste_mouse_button(CELESTE_MOUSE_LEFT))
                     celeste_audio_set_gain(audio, 1.5f);
-                if (celeste_mouse_button_clicked(CELESTE_MOUSE_RIGHT))
+                if (celeste_mouse_button(CELESTE_MOUSE_RIGHT))
                     celeste_audio_set_gain(audio, 0.25f);
-                if (celeste_mouse_button_clicked(CELESTE_MOUSE_MIDDLE))
+                if (celeste_mouse_button(CELESTE_MOUSE_MIDDLE))
                     celeste_audio_set_gain(audio, 1.0f);
                 break;
             case CELESTE_STATUS_FOCUSED:
@@ -180,13 +201,13 @@ int main()
                 break;
         }
 
-        if (celeste_key(CELESTE_KEY_W))
+        if (celeste_key(CELESTE_KEY_UP/*CELESTE_KEY_W*/))
             camera.position[1] += 0.01f;
-        if (celeste_key(CELESTE_KEY_A))
+        if (celeste_key(CELESTE_KEY_LEFT/*CELESTE_KEY_A*/))
             camera.position[0] -= 0.01f;
-        if (celeste_key(CELESTE_KEY_S))
+        if (celeste_key(CELESTE_KEY_DOWN/*CELESTE_KEY_S*/))
             camera.position[1] -= 0.01f;
-        if (celeste_key(CELESTE_KEY_D))
+        if (celeste_key(CELESTE_KEY_RIGHT/*CELESTE_KEY_D*/))
             camera.position[0] += 0.01f;
     }
 

@@ -167,12 +167,12 @@ void render_sprites(celeste_layer_t *layer, celeste_sprite_t *sprite)
             {
                 if (b->status == CELESTE_STATUS_FOCUSED)
                 {
-                    if (celeste_mouse_button_clicked(CELESTE_MOUSE_LEFT)) {
+                    if (celeste_mouse_button(CELESTE_MOUSE_LEFT)) {
                         b->status = CELESTE_STATUS_CLICKED;
                     }
                 }
                 else { /* First frame of the cursor colliding with the button */
-                    if (celeste_mouse_button_clicked(CELESTE_MOUSE_LEFT)) {
+                    if (celeste_mouse_button(CELESTE_MOUSE_LEFT)) {
                         b->status = CELESTE_STATUS_NONE;
                     }
                     else {

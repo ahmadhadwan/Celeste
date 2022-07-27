@@ -138,7 +138,7 @@
 #define CELESTE_CURSOR_MODE_HIDDEN   0x00034003
 
 typedef struct {
-    int celeste_key;
+    int key;
     void (*function)(void *arg);
     void *arg;
 } celeste_key_t;
@@ -147,5 +147,22 @@ void celeste_key_add_callback(celeste_key_t key);
 void celeste_key_remove_callback(int key);
 
 int celeste_key(int key);
+
+typedef struct {
+    int button;
+    void (*function)(void *arg);
+    void *arg;
+} celeste_mouse_button_t;
+
+void celeste_mouse_button_add_callback(celeste_mouse_button_t button);
+void celeste_mouse_button_remove_callback(int button);
+
+int celeste_mouse_button(int button);
+
+void celeste_scroll_add_listener(double *listener);
+void celeste_scroll_remove_listener(double *listener);
+
+void celeste_input_set_listener(char *listener, int max_len);
+void celeste_input_remove_listener();
 
 #endif /* __CELESTE_INPUT_H__ */
