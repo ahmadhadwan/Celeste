@@ -14,12 +14,7 @@
 
 #include "input.h"
 
-#ifdef CELESTE_GORILLA_AUDIO
-    #include <gorilla/ga.h>
-    #include <gorilla/gau.h>
-#else
-    #error "Define CELESTE_GORILLA_AUDIO macro!"
-#endif /* CELESTE_GORILLA_AUDIO */
+#include "audio.h"
 
 #ifdef CELESTE_AUDIO_ASYNC
     #ifdef CELESTE_PTHREAD
