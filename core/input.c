@@ -129,6 +129,16 @@ void listener_delete()
     if (!celeste->input_listener_len)
         return;
 
-    celeste->input_listener_len--;
-    celeste->input_listener[celeste->input_listener_len] = 0;
+    if (celeste_key(CELESTE_KEY_LEFT_CONTROL) || celeste_key(CELESTE_KEY_RIGHT_CONTROL))
+    {
+        do {
+            celeste->input_listener_len--;
+            celeste->input_listener[celeste->input_listener_len] = 0;
+        } while (celeste->input_listener_len && celeste->input_listener[celeste->input_listener_len - 1] != ' ');
+    }
+    else
+    {
+        celeste->input_listener_len--;
+        celeste->input_listener[celeste->input_listener_len] = 0;
+    }
 }
