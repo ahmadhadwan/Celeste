@@ -1,0 +1,12 @@
+#include <cglm/cglm.h>
+#include "../../core/gapi.h"
+#include "../../core/audio.h"
+#include "../../core/camera.h"
+#include "../../core/celeste.h"
+#include "../../core/common.h"
+#include "../../core/layer.h"
+#include "../../core/input.h"
+#include "../../core/renderer.h"
+#include "../../core/scene.h"
+#include "../../core/sprite.h"
+#include "../../core/window.h"

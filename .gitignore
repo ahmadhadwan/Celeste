@@ -1,0 +1,6 @@
+bin/sandbox
+res/audio/
+res/fonts/
+res/shader/
+res/textures/
+*.o

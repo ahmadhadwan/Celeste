@@ -1,0 +1,10 @@
+create bin/libceleste-linux64.a
+addlib bin/libceleste.a
+addlib bin/libfreetype_2_10c.a
+addlib /usr/lib/x86_64-linux-gnu/libpng.a
+addlib /usr/lib/x86_64-linux-gnu/libz.a
+addlib /usr/lib/x86_64-linux-gnu/libvorbisfile.a
+addlib /usr/lib/x86_64-linux-gnu/libvorbis.a
+addlib /usr/lib/x86_64-linux-gnu/libogg.a
+save
+end
