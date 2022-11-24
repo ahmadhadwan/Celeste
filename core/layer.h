@@ -30,6 +30,15 @@ CLSTlayer *clstLayer(float right, float top);
 CLSTlayer *clstLayerMat4(mat4 projection);
 
 /*
+ * Creates a layer with a projection ortho matrix
+ * created using the passed args, and a shader.
+ *
+ * returns CLSTlayer pointer,
+ * which must be destroyed by clstLayerDestroy().
+ */
+CLSTlayer *clstLayerShader(float right, float top, CLSTshader *shader);
+
+/*
  * Creates a layer with a camera, and projection
  * ortho matrix created using the passed args.
  *

@@ -176,6 +176,20 @@ int main()
     vec2 right_size = { 1.0f, 18.0f };
     CLSTbody *right = clstBody(1, 0, 1, 0, &right_pos, &right_size);
 
+    CLSTframebuffer *fb;
+    CLSTtexture *fbtex;
+    fb = clstFrameBuffer();
+    fbtex = clstTextureInline(NULL, 1920, 1080, 24);
+    clstFrameBufferAttachTexture(fb, fbtex);
+    clstFrameBufferAttachRenderBuffer(fb, NULL);
+
+    CLSTsprite fbsprite;
+    clstSprite((float[]){-16.0f, -9.0f}, (float[]){32.0f, 18.0f}, fbtex, &fbsprite);
+    CLSTshader *fbshader = clstShader("res/shaders/fb.glsl");
+    CLSTlayer *fblayer;
+    fblayer = clstLayerShader(16.0f, 9.0f, fbshader);
+    clstLayerAddSprite(fblayer, &fbsprite);
+
     clst->world_gravity = 12.0f;
 
     clst->last_physics_update = prevtime = prevtime2 = clstTime();
@@ -183,16 +197,21 @@ int main()
     frames = 0;
     float speed = 8.0f;
     float jump = 18.0f;
-    /*int pantoright = 1;*/
+    int pantoright = 1;
     int vsync = 0;
     while (clst->window.alive)
     {
         clstWindowClear();
 
+        clstFrameBufferBind(fb);
         clstSceneRender(clst->scene);
 
         if (clstKey(CELESTE_KEY_LEFT_SHIFT))
             clstLayerRender(layer_debug);
+
+        clstFrameBufferUnbind();
+
+        clstLayerRender(fblayer);
 
         if (!clst->window.focused)
             clstWaitEv(clst);
@@ -207,7 +226,7 @@ int main()
             clstClickRemoveCallback(CELESTE_MOUSE_RIGHT);
             frames = 0;
         }
-        /*
+
         if ((clstTime() - prevtime2) >= 0.1)
         {
             prevtime2 = clstTime();
@@ -224,7 +243,6 @@ int main()
 
             clstAudioPlayerSetPan(audio_player, pan);
         }
-        */
 
         switch (button.status)
         {
@@ -282,6 +300,11 @@ int main()
             clstWindowSwapInterval(vsync);
         }
     }
+
+    clstShaderDestroy(fbshader);
+    clstLayerDestroy(fblayer);
+    clstTextureDestroy(fbtex);
+    clstFrameBufferDestroy(fb);
 
     clstAudioPlayerDestroy(audio_player);
     clstAudioDestroy(audio);

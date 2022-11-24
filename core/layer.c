@@ -25,6 +25,13 @@ CLSTlayer *clstLayerMat4(mat4 projection)
     return clstLayerCustom(clstRendererDefault(), clstShaderDefault(), NULL, projection);
 }
 
+CLSTlayer *clstLayerShader(float right, float top, CLSTshader *shader)
+{
+    mat4 projection;
+    glm_ortho(-right, right, -top, top, 1.0f, -1.0f, projection);
+    return clstLayerCustom(clstRendererDefault(), shader, NULL, projection);
+}
+
 CLSTlayer *clstLayerCamera(CLSTcamera *camera, float right, float top)
 {
     mat4 projection;

@@ -5,14 +5,17 @@
 #include <cglm/vec3.h>
 #include <cglm/vec4.h>
 #include <cglm/mat4.h>
+#include "common.h"
 
 #ifndef __CELESTE_INTERNAL_GAPI_H__
-    typedef struct CLSTbuffer      CLSTbuffer;
-    typedef struct CLSTindexbuffer CLSTindexbuffer;
-    typedef struct CLSTvertexarray CLSTvertexarray;
-    typedef struct CLSTshader      CLSTshader;
-    typedef struct CLSTtexture     CLSTtexture;
-    typedef struct CLSTfont        CLSTfont;
+    typedef struct CLSTbuffer       CLSTbuffer;
+    typedef struct CLSTindexbuffer  CLSTindexbuffer;
+    typedef struct CLSTvertexarray  CLSTvertexarray;
+    typedef struct CLSTshader       CLSTshader;
+    typedef struct CLSTtexture      CLSTtexture;
+    typedef struct CLSTfont         CLSTfont;
+    typedef struct CLSTframebuffer  CLSTframebuffer;
+    typedef struct CLSTrenderbuffer CLSTrenderbuffer;
 #endif /* __CELESTE_INTERNAL_GAPI_H__ */
 
 /*
@@ -117,6 +120,16 @@ CLSTtexture *clstTexture(char *filepath);
 CLSTtexture *clstTextureMem(unsigned char *buffer, unsigned int bufsize);
 
 /*
+ * Creates a texture from inline data.
+ *
+ * On success it returns a CLSTtexture pointer,
+ * which must be destroyed by clstTextureDestroy().
+ *
+ * On error it returns NULL.
+ */
+CLSTtexture *clstTextureInline(unsigned char *pixels, unsigned int width, unsigned int height, unsigned int bpp);
+
+/*
  * Destroys the texture, and frees its memory.
  */
 void clstTextureDestroy(CLSTtexture *texture);
@@ -165,6 +178,20 @@ CLSTfont *clstFontMem(unsigned char *buffer, unsigned int bufsize, float size);
 /*
  * Destroys the font, and frees its memory.
  */
-void clstFontDestroy(CLSTfont* font);
+void clstFontDestroy(CLSTfont *font);
+
+CLSTframebuffer *clstFrameBuffer();
+
+void clstFrameBufferDestroy(CLSTframebuffer *framebuffer);
+
+void clstFrameBufferBind(CLSTframebuffer *framebuffer);
+
+void clstFrameBufferUnbind();
+
+void clstFrameBufferAttachTexture(CLSTframebuffer *framebuffer, CLSTtexture *texture);
+
+void clstFrameBufferAttachRenderBuffer(CLSTframebuffer *framebuffer, CLSTrenderbuffer *renderbuffer);
+
+CLSTresult clstFrameBufferComplete(CLSTframebuffer *framebuffer);
 
 #endif /* __CELESTE_GAPI_H__ */

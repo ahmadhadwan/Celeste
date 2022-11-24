@@ -9,7 +9,7 @@
 #include <string.h>
 #include <sys/stat.h>
 
-static GLuint opengl_texture_create(unsigned char *pixels, unsigned int width, unsigned int height);
+static GLuint opengl_texture_create(unsigned char *pixels, unsigned int width, unsigned int height, GLenum format);
 
 CLSTbuffer *clstBuffer(float *vertices, unsigned int count, unsigned int component_count)
 {
@@ -328,7 +328,7 @@ CLSTtexture *clstTexture(char *filepath)
         return NULL;
 
     texture = malloc(sizeof(CLSTtexture));
-    texture->id = opengl_texture_create(pixels, width, height);
+    texture->id = opengl_texture_create(pixels, width, height, GL_RGBA);
     texture->width = width;
     texture->height = height;
 
@@ -348,11 +348,22 @@ CLSTtexture *clstTextureMem(unsigned char *buffer, unsigned int bufsize)
         return NULL;
 
     texture = malloc(sizeof(CLSTtexture));
-    texture->id = opengl_texture_create(pixels, width, height);
+    texture->id = opengl_texture_create(pixels, width, height, GL_RGBA);
     texture->width = width;
     texture->height = height;
 
     stbi_image_free(pixels);
+    return texture;
+}
+
+CLSTtexture *clstTextureInline(unsigned char *pixels, unsigned int width, unsigned int height, unsigned int bpp)
+{
+    CLSTtexture *texture;
+
+    texture = malloc(sizeof(CLSTtexture));
+    texture->id = opengl_texture_create(pixels, width, height, bpp == 32 ? GL_RGBA : GL_RGB);
+    texture->width = width;
+    texture->height = height;
     return texture;
 }
 
@@ -411,7 +422,61 @@ void clstFontDestroy(CLSTfont *font)
     free(font);
 }
 
-GLuint opengl_texture_create(unsigned char *pixels, unsigned int width, unsigned int height)
+CLSTframebuffer *clstFrameBuffer()
+{
+    CLSTframebuffer *framebuffer;
+
+    framebuffer = malloc(sizeof(CLSTframebuffer));
+    glGenFramebuffers(1, &(framebuffer->id));
+    return framebuffer;
+}
+
+void clstFrameBufferDestroy(CLSTframebuffer *framebuffer)
+{
+    glDeleteRenderbuffers(1, &(framebuffer->rbo));
+    glDeleteFramebuffers(1, &(framebuffer->id));
+    free(framebuffer);
+}
+
+void clstFrameBufferBind(CLSTframebuffer *framebuffer)
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->id);
+}
+
+void clstFrameBufferUnbind()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void clstFrameBufferAttachTexture(CLSTframebuffer *framebuffer, CLSTtexture *texture)
+{
+    clstFrameBufferBind(framebuffer);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture->id, 0);
+    clstFrameBufferUnbind();
+}
+
+void clstFrameBufferAttachRenderBuffer(CLSTframebuffer *framebuffer, CLSTrenderbuffer *renderbuffer)
+{
+    clstFrameBufferBind(framebuffer);
+    
+    /* TODO */
+    unsigned int rbo;
+    glGenRenderbuffers(1, &rbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo); 
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, clstInstance()->window.width, clstInstance()->window.height);  
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    framebuffer->rbo = rbo;
+    
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+    clstFrameBufferUnbind();
+}
+
+CLSTresult clstFrameBufferComplete(CLSTframebuffer *framebuffer)
+{
+    return glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE ? CELESTE_OK : !CELESTE_OK;
+}
+
+GLuint opengl_texture_create(unsigned char *pixels, unsigned int width, unsigned int height, GLenum format)
 {
     GLuint id;
 
@@ -423,9 +488,9 @@ GLuint opengl_texture_create(unsigned char *pixels, unsigned int width, unsigned
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, pixels);
 
-    glGenerateMipmap(GL_TEXTURE_2D);
+    /*glGenerateMipmap(GL_TEXTURE_2D);*/
 
     glBindTexture(GL_TEXTURE_2D, 0);
     return id;

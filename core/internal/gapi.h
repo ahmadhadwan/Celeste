@@ -35,6 +35,15 @@ typedef struct {
     texture_font_t  *ftfont;
 } CLSTfont;
 
+typedef struct {
+    unsigned int id;
+    unsigned int rbo;
+} CLSTframebuffer;
+
+typedef struct {
+    unsigned int id;
+} CLSTrenderbuffer;
+
 CLSTbuffer* clstBuffer(float* vertices, unsigned int count, unsigned int component_count);
 void clstBufferDestroy(CLSTbuffer* buffer);
 

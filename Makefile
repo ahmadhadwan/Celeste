@@ -74,7 +74,7 @@ WINCELESTE_CORE_FULL=$(WINBIN_DIR)libceleste-win64.a
 WINSANDBOX_OBJS=$(addprefix $(WINOBJS_DIR), $(notdir $(SANDBOX_SRCS:.c=.o)))
 WINSANDBOX=$(WINBIN_DIR)sandbox.exe
 
-all: dirs $(CELESTE_CORE) $(CELESTE_CORE_FULL)
+all: dirs $(CELESTE_CORE) $(CELESTE_CORE_FULL) $(SANDBOX)
 
 $(CELESTE_CORE_FULL): $(CELESTE_CORE)
 	$(AR) -M <libceleste-linux64.mri
@@ -110,7 +110,7 @@ $(EXT_OBJS_DIR)%.o: $(EXT_DIR)gorilla/devices/%.c
 	$(CC) -c -Wno-incompatible-pointer-types -Ofast -DNDEBUG -DENABLE_OPENAL -I$(EXT_DIR) -o $@ $<
 
 # Windows
-win: windirs $(WINCELESTE_CORE) $(WINCELESTE_CORE_FULL)
+win: windirs $(WINCELESTE_CORE) $(WINCELESTE_CORE_FULL) $(WINSANDBOX)
 
 $(WINCELESTE_CORE_FULL): $(WINCELESTE_CORE)
 	$(WINAR) -M <libceleste-win64.mri
