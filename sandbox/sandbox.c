@@ -1,4 +1,6 @@
 #include <celeste/celeste.h>
+#define CELESTE_LOADER_IMPLEMENTATION
+#include <celeste/loader.h>
 #include <cglm/cglm.h>
 #include <stdio.h>
 #include <string.h>
@@ -13,6 +15,7 @@
     #include "../res/audio/space.c"
 #endif /* CELESTE_PACK_RESOURCES */
 
+#include "../res/shaders/fb.c"
 #include "../res/icons/celeste_48x48.h"
 
 static CLSTanimation *space_animation(CLSTsprite *sprites, CLSTtexture *texture_space)
@@ -52,6 +55,7 @@ static void pointless(void *arg)
 int main()
 {
     CLST *clst;
+    CLSTloader *loader;
     CLSTcamera camera;
     CLSTlayer *layer, *layer_debug;
     CLSTtexture *texture_atlas, *texture_space, *texture_celeste;
@@ -185,10 +189,12 @@ int main()
 
     CLSTsprite fbsprite;
     clstSprite((float[]){-16.0f, -9.0f}, (float[]){32.0f, 18.0f}, fbtex, &fbsprite);
-    CLSTshader *fbshader = clstShader("res/shaders/fb.glsl");
+    CLSTshader *fbshader = clstShaderSrc(fb_glsl);
     CLSTlayer *fblayer;
     fblayer = clstLayerShader(16.0f, 9.0f, fbshader);
     clstLayerAddSprite(fblayer, &fbsprite);
+
+    clstAudioPlayerSetPitch(audio_player, 0.6f);
 
     clst->world_gravity = 12.0f;
 
@@ -203,15 +209,18 @@ int main()
     {
         clstWindowClear();
 
-        clstFrameBufferBind(fb);
+        if (clstKey(CELESTE_KEY_LEFT_CONTROL))
+            clstFrameBufferBind(fb);
+
         clstSceneRender(clst->scene);
 
         if (clstKey(CELESTE_KEY_LEFT_SHIFT))
             clstLayerRender(layer_debug);
 
-        clstFrameBufferUnbind();
-
-        clstLayerRender(fblayer);
+        if (clstKey(CELESTE_KEY_LEFT_CONTROL)) {
+            clstFrameBufferUnbind();
+            clstLayerRender(fblayer);
+        }
 
         if (!clst->window.focused)
             clstWaitEv(clst);
@@ -237,9 +246,9 @@ int main()
                 pantoright = 1;
 
             if (pantoright)
-                pan += 0.1f;
+                pan += 0.01f;
             else
-                pan -= 0.1f;
+                pan -= 0.01f;
 
             clstAudioPlayerSetPan(audio_player, pan);
         }
@@ -249,12 +258,6 @@ int main()
             case BUTTON_STATUS_NONE:
                 button_col.color = 0x3A55555;
                 button_label.color = 0xFFFFFFFF;
-                if (clstClick(CELESTE_MOUSE_LEFT))
-                    clstAudioPlayerSetGain(audio_player, 1.5f);
-                if (clstClick(CELESTE_MOUSE_RIGHT))
-                    clstAudioPlayerSetGain(audio_player, 0.25f);
-                if (clstClick(CELESTE_MOUSE_MIDDLE))
-                    clstAudioPlayerSetGain(audio_player, 1.0f);
                 break;
             case BUTTON_STATUS_FOCUSED:
                 button_col.color = 0x6FFFFF00;

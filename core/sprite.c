@@ -62,8 +62,10 @@ static void draw_button(CLSTrenderer *renderer, CLSTbutton *button)
     sprite = button->sprite;
     sprite->draw(renderer, sprite);
 
-    glm_mat4_copy(renderer->transformation_back[renderer->transformation_back_size - 1], button->translation);
+    if (button->disabled)
+        return;
 
+    glm_mat4_copy(renderer->transformation_back[renderer->transformation_back_size - 1], button->translation);
     clstButtonEv(button, renderer->projection_x, renderer->projection_y);
 }
 
@@ -177,6 +179,11 @@ void clstGroupDestroy(CLSTgroup *group)
     free(group);
 }
 
+void clstGroupPosition(CLSTgroup *group, vec2 position)
+{
+    glm_translate_make(group->translation, (vec3){ position[0], position[1], 0.0f });
+}
+
 void clstGroupAddSprite(CLSTgroup *group, void *sprite)
 {
     group->sprites = realloc(group->sprites, (group->sprites_count + 1) * sizeof(CLSTsprite *));
@@ -188,6 +195,7 @@ void clstButton(CLSTsprite *sprite, CLSTbutton *button)
 {
     button->draw = (draw_func)draw_button;
     button->status = BUTTON_STATUS_NONE;
+    button->disabled = 0;
     button->sprite = sprite;
     glm_mat4_zero(button->translation);
 }
@@ -203,21 +211,34 @@ void clstButtonEv(CLSTbutton *button, float projection_x, float projection_y)
     cursor[1] = (float)((projection_y * 0.5f) - celeste->window.cursor.y * projection_y / celeste->window.height);
 
     glm_mat4_mulv3(button->translation, (vec3){ button->sprite->position[0], button->sprite->position[1], 0.0f }, 1.0f, pos);
-    if (clstCollisionRectanglePoint((vec2 *)&pos, &(button->sprite->size), (vec2){ cursor[0], cursor[1] }))
+    if (!clstCollisionRectanglePoint((vec2 *)&pos, &(button->sprite->size), (vec2){ cursor[0], cursor[1] }))
     {
-        if (button->status == BUTTON_STATUS_FOCUSED)
-        {
-            if (clstClick(CELESTE_MOUSE_LEFT)) {
-                button->status = BUTTON_STATUS_CLICKED;
-            }
+        button->status = BUTTON_STATUS_NONE;
+        return;
+    }
+
+    if (button->status == BUTTON_STATUS_NONE)
+    {
+        if (clstClick(CELESTE_MOUSE_LEFT)) {
+            button->status = BUTTON_STATUS_NONE;
         }
-        else { /* First frame of the cursor colliding with the button */
-            if (clstClick(CELESTE_MOUSE_LEFT)) {
-                button->status = BUTTON_STATUS_NONE;
-            }
-            else {
-                button->status = BUTTON_STATUS_FOCUSED;
-            }
+        else {
+            button->status = BUTTON_STATUS_FOCUSED;
+        }
+    }
+    else if (button->status == BUTTON_STATUS_FOCUSED)
+    {
+        if (clstClick(CELESTE_MOUSE_LEFT)) {
+            button->status = BUTTON_STATUS_CLICKED;
+        }
+    }
+    else if (button->status == BUTTON_STATUS_CLICKED)
+    {
+        if (clstClick(CELESTE_MOUSE_LEFT)) {
+            button->status = BUTTON_STATUS_CLICKED;
+        }
+        else {
+            button->status = BUTTON_STATUS_RELEASED;
         }
     }
     else {

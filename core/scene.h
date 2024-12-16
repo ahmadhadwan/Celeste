@@ -12,7 +12,7 @@ typedef struct {
  * Creates a scene.
  *
  * returns a CLSTscene pointer which,
- * must be destroyed by celeste_scene_destroy().
+ * must be destroyed by clstSceneDestroy().
  */
 CLSTscene *clstScene();
 

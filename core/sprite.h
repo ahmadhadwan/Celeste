@@ -6,9 +6,10 @@
 #include <cglm/mat4.h>
 #include "gapi.h"
 
-#define BUTTON_STATUS_NONE     0x00
-#define BUTTON_STATUS_FOCUSED  0x01
-#define BUTTON_STATUS_CLICKED  0x02
+#define BUTTON_STATUS_NONE     0
+#define BUTTON_STATUS_FOCUSED  1
+#define BUTTON_STATUS_CLICKED  2
+#define BUTTON_STATUS_RELEASED 3
 
 typedef void (*draw_func)(void *renderer, void *renderable);
 
@@ -49,6 +50,7 @@ typedef struct {
 typedef struct {
     draw_func   draw;
     int         status;
+    int         disabled;
     CLSTsprite *sprite;
     mat4        translation;
 } CLSTbutton;
@@ -103,6 +105,11 @@ CLSTgroup *clstGroup(vec2 position);
  * Destroys the group, and frees its memory.
  */
 void clstGroupDestroy(CLSTgroup *group);
+
+/*
+ * Changes a group's position.
+ */
+void clstGroupPosition(CLSTgroup *group, vec2 position);
 
 /*
  * Adds a sprite to the group.
