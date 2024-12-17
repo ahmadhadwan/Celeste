@@ -29,6 +29,13 @@ void clstSceneAddLayer(CLSTscene *scene, CLSTlayer *layer)
     clstListAdd(scene->layers, layer);
 }
 
+CLSTlayer *clstSceneGetLayer(CLSTscene *scene)
+{
+    if (scene->layers->count == 0)
+        return NULL;
+    return scene->layers->items[0];
+}
+
 void clstSceneAddTexture(CLSTscene *scene, CLSTtexture *texture)
 {
     clstListAdd(scene->textures, texture);
@@ -82,6 +89,9 @@ CLSTaudio *clstSceneGetAudio(CLSTscene *scene, char *audio_name)
 
 void clstSceneRender(CLSTscene *scene)
 {
+    CLSTlayer **layers;
+
+    layers = scene->layers->items;
     for (int i = 0; i < scene->layers->count; i++)
-        clstLayerRender(scene->layers->items[i]);
+        clstLayerRender(layers[i]);
 }
