@@ -2,36 +2,33 @@
 #include <cglm/cglm.h>
 #include <stdio.h>
 #include <string.h>
-#ifdef __linux__
-    #include <sys/resource.h>
-#endif /* __linux__ */
 
 #include "../res/shaders/fb.c"
 #include "../res/icons/celeste_48x48.h"
 
-static CLSTanimation *space_animation(CLSTsprite *sprites, CLSTtexture *texture_space)
-{
-    vec2 pos = { -16.0f, -9.0f };
-    vec2 size = { 32.0f, 18.0f };
+// static CLSTanimation *space_animation(CLSTsprite *sprites, CLSTtexture *texture_space)
+// {
+//     vec2 pos = { -16.0f, -9.0f };
+//     vec2 size = { 32.0f, 18.0f };
 
-    clstSpriteTexAtlas(pos, size, texture_space, (vec2){ 0, 0 }, (vec2){ clstTextureWidth(texture_space) / 4.0f, clstTextureHeight(texture_space) }, sprites);
-    clstSpriteTexAtlas(pos, size, texture_space, (vec2){ 1, 0 }, (vec2){ clstTextureWidth(texture_space) / 4.0f, clstTextureHeight(texture_space) }, sprites + 1);
-    clstSpriteTexAtlas(pos, size, texture_space, (vec2){ 2, 0 }, (vec2){ clstTextureWidth(texture_space) / 4.0f, clstTextureHeight(texture_space) }, sprites + 2);
-    clstSpriteTexAtlas(pos, size, texture_space, (vec2){ 3, 0 }, (vec2){ clstTextureWidth(texture_space) / 4.0f, clstTextureHeight(texture_space) }, sprites + 3);
+//     clstSpriteTexAtlas(pos, size, texture_space, (vec2){ 0, 0 }, (vec2){ clstTextureWidth(texture_space) / 4.0f, clstTextureHeight(texture_space) }, sprites);
+//     clstSpriteTexAtlas(pos, size, texture_space, (vec2){ 1, 0 }, (vec2){ clstTextureWidth(texture_space) / 4.0f, clstTextureHeight(texture_space) }, sprites + 1);
+//     clstSpriteTexAtlas(pos, size, texture_space, (vec2){ 2, 0 }, (vec2){ clstTextureWidth(texture_space) / 4.0f, clstTextureHeight(texture_space) }, sprites + 2);
+//     clstSpriteTexAtlas(pos, size, texture_space, (vec2){ 3, 0 }, (vec2){ clstTextureWidth(texture_space) / 4.0f, clstTextureHeight(texture_space) }, sprites + 3);
 
-    return clstAnimation((CLSTsprite*[]){sprites, sprites + 1, sprites + 2, sprites + 3}, 4, 0.25f);
-}
+//     return clstAnimation((CLSTsprite*[]){sprites, sprites + 1, sprites + 2, sprites + 3}, 4, 0.25f);
+// }
 
-static CLSTanimation *carpet_animation(CLSTsprite *sprites, CLSTtexture *texture_atlas)
-{
-    vec2 pos = { -8.0f, -6.0f };
-    vec2 size = { 16.0f, 16.0f };
+// static CLSTanimation *carpet_animation(CLSTsprite *sprites, CLSTtexture *texture_atlas)
+// {
+//     vec2 pos = { -8.0f, -6.0f };
+//     vec2 size = { 16.0f, 16.0f };
 
-    clstSpriteTexAtlas(pos, size, texture_atlas, (vec2){ 16, 10 }, (vec2){ 48.0f, 48.0f }, sprites);
-    clstSpriteTexAtlas(pos, size, texture_atlas, (vec2){ 16, 10 + 3 }, (vec2){ 48.0f, 48.0f }, sprites + 1);
+//     clstSpriteTexAtlas(pos, size, texture_atlas, (vec2){ 16, 10 }, (vec2){ 48.0f, 48.0f }, sprites);
+//     clstSpriteTexAtlas(pos, size, texture_atlas, (vec2){ 16, 10 + 3 }, (vec2){ 48.0f, 48.0f }, sprites + 1);
 
-    return clstAnimation((CLSTsprite*[]){sprites, sprites + 1}, 2, 0.75f);
-}
+//     return clstAnimation((CLSTsprite*[]){sprites, sprites + 1}, 2, 0.75f);
+// }
 
 static void destroy_window(void *winalive)
 {
@@ -47,13 +44,12 @@ int main()
 {
     CLST *clst;
     CLSTloader *loader;
-    CLSTcamera camera;
     CLSTlayer *layer, *layer_debug;
 
-    CLSTanimation *space_anim, *carpet_anim;
-    CLSTsprite space[4];
+    // CLSTanimation *space_anim, *carpet_anim;
+    // CLSTsprite space[4];
 
-    CLSTsprite carpet, carpet2, celeste;
+    // CLSTsprite carpet, carpet2;
     CLSTlabel fps;
 
     CLSTbutton button;
@@ -82,20 +78,20 @@ int main()
     scene = clstScene();
     clst->scene = scene;
 
-    clstCameraOrtho((vec2){ 0.0f, 0.0f }, &camera);
-    layer = clstLayerCamera(&camera, 16.0f, 9.0f);
+    layer = clstLayerCameraSave(clstCameraOrtho((vec2){ 0.0f, 0.0f }), 16.0f, 9.0f);
+    clstSceneAddLayer(scene, layer);
     layer_debug = clstLayer(16.0f, 9.0f);
 
     clstLoaderLoadData(loader);
 
-    space_anim = space_animation(space, clstSceneGetTexture(scene, "space_4frames"));
-    clstLayerAddSprite(layer, space_anim);
+    // space_anim = space_animation(space, clstSceneGetTexture(scene, "space_4frames"));
+    // clstLayerAddSprite(layer, space_anim);
 
-    carpet_anim = carpet_animation((CLSTsprite[]){carpet, carpet2}, clstSceneGetTexture(scene, "atlas_48x"));
-    clstLayerAddSprite(layer, carpet_anim);
+    // carpet_anim = carpet_animation((CLSTsprite[]){carpet, carpet2}, clstSceneGetTexture(scene, "atlas_48x"));
+    // clstLayerAddSprite(layer, carpet_anim);
 
-    clstSprite((vec2){ -4.0f, 1.0f }, (vec2){ 8.0f, 8.0f }, clstSceneGetTexture(scene, "celeste_icon"), &celeste);
-    clstLayerAddSprite(layer, &celeste);
+    // clstSpriteSave((vec2){ -4.0f, 1.0f }, (vec2){ 8.0f, 8.0f }, clstSceneGetTexture(scene, "celeste_icon"), &celeste);
+    // clstLayerAddSprite(layer, &celeste);
 
     button_group = clstGroup((vec2){ -4.0f, -7.5f });
     clstSpriteCol((vec2){ 0.0f, 0.0f }, (vec2){ 8.0f, 4.0f }, 0x3A555555, &button_col);
@@ -109,18 +105,8 @@ int main()
     clstLabel((vec2){ -15.5f, 8.0f }, fps_text, clstSceneGetFont(scene, "ThaleahFat-72"), &fps);
     clstLayerAddSprite(layer_debug, &fps);
 
-    clstSceneAddLayer(scene, layer);
-
     audio_player = clstAudioPlayer(clstSceneGetAudio(scene, "space"), 1, 0);
     clstAudioPlayerPlay(audio_player);
-
-#ifdef __linux__
-    {
-        struct rusage ru;
-        getrusage(RUSAGE_SELF, &ru);
-        CELESTE_LOG("Max RAM Usage: %ld Kb\n", ru.ru_maxrss);
-    }
-#endif /* __linux__ */
 
     clstKeyAddCallback((CLSTkey){CELESTE_KEY_ESCAPE, destroy_window, &(clst->window.alive)});
     clstClickAddCallback((CLSTclick){CELESTE_MOUSE_RIGHT, pointless, NULL});
@@ -299,8 +285,8 @@ int main()
     clstBodyDestroy(left);
     clstBodyDestroy(right);
 
-    clstAnimationDestroy(space_anim);
-    clstAnimationDestroy(carpet_anim);
+    // clstAnimationDestroy(space_anim);
+    // clstAnimationDestroy(carpet_anim);
 
     clstSceneDestroy(scene);
     clstLayerDestroy(layer_debug);

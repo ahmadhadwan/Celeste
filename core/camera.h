@@ -12,6 +12,6 @@ typedef CLSTcameraortho CLSTcamera;
 /*
  * Creates a camera with the position arg.
  */
-void clstCameraOrtho(vec2 position, CLSTcameraortho *camera);
+CLSTcameraortho *clstCameraOrtho(vec2 position);
 
 #endif /* __CELESTE_CAMERA_H__ */

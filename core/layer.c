@@ -75,6 +75,7 @@ CLSTlayer *clstLayerCustom(CLSTrenderer *renderer, CLSTshader *shader, CLSTcamer
 
 void clstLayerDestroy(CLSTlayer *layer)
 {
+    free(layer->camera);
     free(layer->sprites);
     free(layer);
 }

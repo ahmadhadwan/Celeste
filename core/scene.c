@@ -87,8 +87,6 @@ void clstSceneAddAudio(CLSTscene *scene, CLSTaudio *audio)
 
 CLSTaudio *clstSceneGetAudio(CLSTscene *scene, char *audio_name)
 {
-    CELESTE_LOG("audio_count: %d\n", scene->audio_count);
-    CELESTE_LOG("audio[0]->name: %s\n", (scene->audio[0])->name);
     for (int i = 0; i < scene->audio_count; i++) {
         if (strcmp((scene->audio[i])->name, audio_name) == 0)
             return scene->audio[i];
