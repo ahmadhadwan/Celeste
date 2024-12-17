@@ -18,6 +18,7 @@ typedef struct {
         ga_Memory  *memory;
     };
 #endif /* CELESTE_GORILLA_AUDIO */
+    char *name;
 } CLSTaudio;
 
 typedef struct {

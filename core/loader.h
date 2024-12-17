@@ -4,8 +4,7 @@
 #include <stdint.h>
 #include "celeste.h"
 
-#define CLST_FILE_MAGIC_NUMBER  0x04200615
-#define CLST_LOADABLE_TYPE_SIZE 1
+#define CELESTE_FILE_MAGIC_NUMBER  0x04200615
 
 typedef struct {
     char    *name;
@@ -15,10 +14,12 @@ typedef struct {
 } CLSTloadable;
 
 typedef enum {
-    CLST_TEXTURE_FILE = 1,
-    CLST_TEXTURE_BIN  = 2,
-    CLST_FONT_FILE    = 3,
-    CLST_FONT_BIN     = 4,
+    CELESTE_TEXTURE_FILE = 1,
+    CELESTE_TEXTURE_BIN  = 2,
+    CELESTE_FONT_FILE    = 3,
+    CELESTE_FONT_BIN     = 4,
+    CELESTE_AUDIO_FILE   = 5,
+    CELESTE_AUDIO_BIN    = 6,
 } CLSTloadabletype;
 
 typedef struct {
@@ -41,5 +42,8 @@ CLSTtexture *clstTextureMemSave(uint8_t *buffer, uint32_t bufsize, char *name);
 
 CLSTfont *clstFontSave(char *filepath, float size, char *name);
 CLSTfont *clstFontMemSave(uint8_t *buffer, uint32_t bufsize, float size, char *name);
+
+CLSTaudio *clstAudioSave(const char *filepath, char *name);
+CLSTaudio *clstAudioMemSave(unsigned char *buffer, unsigned int bufsize, char *name);
 
 #endif /* __CELESTE_LOADER_H__ */

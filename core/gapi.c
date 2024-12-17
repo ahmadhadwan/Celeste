@@ -408,7 +408,8 @@ CLSTfont *clstFont(const char *filepath, float size, char *name)
     font->size = size;
     font->ftatlas = texture_atlas_new(512, 512, 1);
     font->ftfont = texture_font_new_from_file(font->ftatlas, size, filepath);
-    font->name = name;
+    font->name = malloc(strlen(name) + 1);
+    strcpy(font->name, name);
     return font;
 }
 
@@ -420,7 +421,8 @@ CLSTfont *clstFontMem(unsigned char *buffer, unsigned int bufsize, float size, c
     font->size = size;
     font->ftatlas = texture_atlas_new(512, 512, 1);
     font->ftfont = texture_font_new_from_memory(font->ftatlas, size, buffer, bufsize);
-    font->name = name;
+    font->name = malloc(strlen(name) + 1);
+    strcpy(font->name, name);
     return font;
 }
 
@@ -428,6 +430,7 @@ void clstFontDestroy(CLSTfont *font)
 {
     texture_atlas_delete(font->ftatlas);
     texture_font_delete(font->ftfont);
+    free(font->name);
     free(font);
 }
 

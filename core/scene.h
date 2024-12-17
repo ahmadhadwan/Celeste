@@ -2,6 +2,7 @@
 #define __CELESTE_SCENE_H__
 
 #include "layer.h"
+#include "audio.h"
 
 typedef struct {
     unsigned int   layers_count;
@@ -12,6 +13,9 @@ typedef struct {
 
     uint32_t       fonts_count;
     CLSTfont     **fonts;
+
+    uint32_t       audio_count;
+    CLSTaudio    **audio;
 } CLSTscene;
 
 /*
@@ -51,6 +55,16 @@ void clstSceneAddFont(CLSTscene *scene, CLSTfont *font);
  * Gets a font from a font name.
  */
 CLSTfont *clstSceneGetFont(CLSTscene *scene, char *font_name);
+
+/*
+ * Adds an audio to the scene.
+ */
+void clstSceneAddAudio(CLSTscene *scene, CLSTaudio *audio);
+
+/*
+ * Gets an audio from an audio name.
+ */
+CLSTaudio *clstSceneGetAudio(CLSTscene *scene, char *audio_name);
 
 /*
  * Renders each sprite in each layer in the scene.

@@ -6,13 +6,6 @@
     #include <sys/resource.h>
 #endif /* __linux__ */
 
-#ifdef CELESTE_PACK_RESOURCES
-    #include "../res/fonts/ThaleahFat.c"
-    #include "../res/textures/atlas_48x.c"
-    #include "../res/textures/space8_4-frames.c"
-    #include "../res/audio/space.c"
-#endif /* CELESTE_PACK_RESOURCES */
-
 #include "../res/shaders/fb.c"
 #include "../res/icons/celeste_48x48.h"
 
@@ -68,7 +61,6 @@ int main()
     CLSTsprite button_col;
     CLSTlabel button_label;
 
-    CLSTaudio *audio;
     CLSTaudioplayer *audio_player;
 
     double prevtime, prevtime2;
@@ -93,15 +85,6 @@ int main()
     clstCameraOrtho((vec2){ 0.0f, 0.0f }, &camera);
     layer = clstLayerCamera(&camera, 16.0f, 9.0f);
     layer_debug = clstLayer(16.0f, 9.0f);
-
-#ifdef CELESTE_PACK_RESOURCES
-    texture_atlas = clstTextureMem(atlas_48x_png, sizeof(atlas_48x_png) / sizeof(unsigned char));
-    texture_space = clstTextureMem(space8_4_frames_png, sizeof(space8_4_frames_png) / sizeof(unsigned char));
-    font = clstFontMem(ThaleahFat_ttf, sizeof(ThaleahFat_ttf) / sizeof(unsigned char), 72.0f);
-    audio = clstAudioMem(space_ogg, sizeof(space_ogg) / sizeof(unsigned char));
-#else
-    audio = clstAudio("res/audio/space.ogg");
-#endif /* CELESTE_PACK_RESOURCES */
 
     clstLoaderLoadData(loader);
 
@@ -128,7 +111,7 @@ int main()
 
     clstSceneAddLayer(scene, layer);
 
-    audio_player = clstAudioPlayer(audio, 1, 0);
+    audio_player = clstAudioPlayer(clstSceneGetAudio(scene, "space"), 1, 0);
     clstAudioPlayerPlay(audio_player);
 
 #ifdef __linux__
@@ -308,7 +291,6 @@ int main()
     clstFrameBufferDestroy(fb);
 
     clstAudioPlayerDestroy(audio_player);
-    clstAudioDestroy(audio);
 
     clstBodyDestroy(body1);
     clstBodyDestroy(body2);

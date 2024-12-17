@@ -18,7 +18,7 @@
  *
  * On error it returns NULL.
  */
-CLSTaudio *clstAudio(const char *filepath);
+CLSTaudio *clstAudio(const char *filepath, char *name);
 
 /*
  * Creates a CLSTaudio from memory.
@@ -29,7 +29,7 @@ CLSTaudio *clstAudio(const char *filepath);
  *
  * On error it returns NULL.
  */
-CLSTaudio *clstAudioMem(unsigned char *buffer, unsigned int bufsize);
+CLSTaudio *clstAudioMem(unsigned char *buffer, unsigned int bufsize, char *name);
 
 /*
  * Destroys a CLSTaudio and frees its memory.

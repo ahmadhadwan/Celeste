@@ -13,7 +13,7 @@ CLSTtexture *clstTextureSave(char *filepath, char *name)
     data_size = strlen(filepath) + 1;
     data = malloc(data_size);
     memcpy(data, filepath, data_size);
-    clstLoadable(name, data, data_size, CLST_TEXTURE_FILE);
+    clstLoadable(name, data, data_size, CELESTE_TEXTURE_FILE);
     free(data);
     return clstTexture(filepath, name);
 }
@@ -24,7 +24,7 @@ CLSTtexture *clstTextureMemSave(uint8_t *buffer, uint32_t bufsize, char *name)
 
     data = malloc(bufsize);
     memcpy(data, buffer, bufsize);
-    clstLoadable(name, buffer, bufsize, CLST_TEXTURE_BIN);
+    clstLoadable(name, buffer, bufsize, CELESTE_TEXTURE_BIN);
     free(data);
     return clstTextureMem(buffer, bufsize, name);
 }
@@ -38,7 +38,7 @@ CLSTfont *clstFontSave(char *filepath, float size, char *name)
     data = malloc(data_size);
     memcpy(data, &size, sizeof(float));
     memcpy(data + sizeof(float), filepath, data_size - sizeof(float));
-    clstLoadable(name, data, data_size, CLST_FONT_FILE);
+    clstLoadable(name, data, data_size, CELESTE_FONT_FILE);
     free(data);
     return clstFont(filepath, size, name);
 }
@@ -49,9 +49,33 @@ CLSTfont *clstFontMemSave(uint8_t *buffer, uint32_t bufsize, float size, char *n
 
     data = malloc(bufsize);
     memcpy(data, buffer, bufsize);
-    clstLoadable(name, buffer, bufsize, CLST_TEXTURE_BIN);
+    clstLoadable(name, buffer, bufsize, CELESTE_FONT_BIN);
     free(data);
     return clstFontMem(buffer, bufsize, size, name);
+}
+
+CLSTaudio *clstAudioSave(const char *filepath, char *name)
+{
+    void *data;
+    uint32_t data_size;
+
+    data_size = strlen(filepath) + 1;
+    data = malloc(data_size);
+    memcpy(data, filepath, data_size);
+    clstLoadable(name, data, data_size, CELESTE_AUDIO_FILE);
+    free(data);
+    return clstAudio(filepath, name);
+}
+
+CLSTaudio *clstAudioMemSave(unsigned char *buffer, unsigned int bufsize, char *name)
+{
+    void *data;
+
+    data = malloc(bufsize);
+    memcpy(data, buffer, bufsize);
+    clstLoadable(name, buffer, bufsize, CELESTE_AUDIO_BIN);
+    free(data);
+    return clstAudioMem(buffer, bufsize, name);
 }
 
 CLSTloader *clstLoader(char *filepath)
@@ -87,7 +111,7 @@ void clstLoaderDestroy(CLSTloader *loader)
 void clstLoaderSaveData(CLSTloader *loader)
 {
     FILE *fp;
-    uint32_t start = CLST_FILE_MAGIC_NUMBER;
+    uint32_t start = CELESTE_FILE_MAGIC_NUMBER;
 
     fp = fopen(loader->filepath, "w");
 
@@ -124,7 +148,7 @@ void clstLoaderLoadData(CLSTloader *loader)
     fread(data, sizeof(uint8_t), s.st_size, fp);
 
     magic_number = *((uint32_t *)data);
-    if (magic_number != CLST_FILE_MAGIC_NUMBER) {
+    if (magic_number != CELESTE_FILE_MAGIC_NUMBER) {
         // TODO ERROR
         exit(1);
     }
@@ -150,25 +174,35 @@ void clstLoaderLoadData(CLSTloader *loader)
         data_offset += sizeof(uint32_t);
         switch (type)
         {
-            case CLST_TEXTURE_FILE:
+            case CELESTE_TEXTURE_FILE:
                 CELESTE_LOG("Loading texture `%s` from `%s`!\n", name, (data + data_offset));
                 clstSceneAddTexture(clst->scene, clstTexture((char *)(data + data_offset), name));
-                clstLoadable(name, data + data_offset, data_size, CLST_TEXTURE_FILE);
+                clstLoadable(name, data + data_offset, data_size, CELESTE_TEXTURE_FILE);
                 break;
-            case CLST_TEXTURE_BIN:
+            case CELESTE_TEXTURE_BIN:
                 CELESTE_LOG("Loading texture `%s`!\n", name);
                 clstSceneAddTexture(clst->scene, clstTextureMem((data + data_offset), data_size, name));
-                clstLoadable(name, data + data_offset, data_size, CLST_TEXTURE_BIN);
+                clstLoadable(name, data + data_offset, data_size, CELESTE_TEXTURE_BIN);
                 break;
-            case CLST_FONT_FILE:
+            case CELESTE_FONT_FILE:
                 CELESTE_LOG("Loading font `%s` from `%s`!\n", name, (data + data_offset + sizeof(float)));
                 clstSceneAddFont(clst->scene, clstFont((char *)(data + data_offset + sizeof(float)), *((float*)(data + data_offset)), name));
-                clstLoadable(name, data + data_offset, data_size, CLST_FONT_FILE);
+                clstLoadable(name, data + data_offset, data_size, CELESTE_FONT_FILE);
                 break;
-            case CLST_FONT_BIN:
+            case CELESTE_FONT_BIN:
                 CELESTE_LOG("Loading font `%s`!\n", name);
                 clstSceneAddFont(clst->scene, clstFontMem(data + data_offset + sizeof(float), data_size - sizeof(float), *((float*)(data + data_offset)), name));
-                clstLoadable(name, data + data_offset, data_size, CLST_FONT_BIN);
+                clstLoadable(name, data + data_offset, data_size, CELESTE_FONT_BIN);
+                break;
+            case CELESTE_AUDIO_FILE:
+                CELESTE_LOG("Loading audio `%s` from `%s`!\n", name, (data + data_offset));
+                clstSceneAddAudio(clst->scene, clstAudio((char *)(data + data_offset), name));
+                clstLoadable(name, data + data_offset, data_size, CELESTE_AUDIO_FILE);
+                break;
+            case CELESTE_AUDIO_BIN:
+                CELESTE_LOG("Loading audio `%s`!\n", name);
+                clstSceneAddAudio(clst->scene, clstAudioMem((data + data_offset), data_size, name));
+                clstLoadable(name, data + data_offset, data_size, CELESTE_AUDIO_BIN);
                 break;
             default:
                 // ERROR

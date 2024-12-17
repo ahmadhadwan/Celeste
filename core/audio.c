@@ -9,7 +9,7 @@
 static const char *file_ext(const char *filepath);
 static void destroy_on_finish(ga_Handle *in_handle, void *in_context);
 
-CLSTaudio *clstAudio(const char *filepath)
+CLSTaudio *clstAudio(const char *filepath, char *name)
 {
     CLSTaudio *audio;
     const char *ext;
@@ -32,10 +32,12 @@ CLSTaudio *clstAudio(const char *filepath)
     audio = malloc(sizeof(CLSTaudio));
     audio->type = CELESTE_AUDIO_TYPE_FILE;
     audio->sound = sound;
+    audio->name = malloc(strlen(name) + 1);
+    strcpy(audio->name, name);
     return audio;
 }
 
-CLSTaudio *clstAudioMem(unsigned char *buffer, unsigned int bufsize)
+CLSTaudio *clstAudioMem(unsigned char *buffer, unsigned int bufsize, char *name)
 {
     CLSTaudio *audio;
     ga_Memory *mem;
@@ -50,6 +52,8 @@ CLSTaudio *clstAudioMem(unsigned char *buffer, unsigned int bufsize)
     audio = malloc(sizeof(CLSTaudio));
     audio->type = CELESTE_AUDIO_TYPE_MEMORY;
     audio->memory = mem;
+    audio->name = malloc(strlen(name) + 1);
+    strcpy(audio->name, name);
     return audio;
 }
 
@@ -59,6 +63,7 @@ void clstAudioDestroy(CLSTaudio *audio)
         ga_memory_release(audio->memory);
     else
         ga_sound_release(audio->sound);
+    free(audio->name);
     free(audio);
 }
 

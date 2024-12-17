@@ -1,6 +1,8 @@
 #include "internal/gapi.h"
+#include "internal/audio.h"
 #include "scene.h"
 #include <string.h>
+#include <stdio.h>
 
 CLSTscene *clstScene()
 {
@@ -11,11 +13,17 @@ CLSTscene *clstScene()
     scene->textures = NULL;
     scene->fonts_count = 0;
     scene->fonts = NULL;
+    scene->audio_count = 0;
+    scene->audio = NULL;
     return scene;
 }
 
 void clstSceneDestroy(CLSTscene *scene)
 {
+    for (int i = 0; i < scene->audio_count; i++)
+        clstAudioDestroy(scene->audio[i]);
+    free(scene->audio);
+
     for (int i = 0; i < scene->fonts_count; i++)
         clstFontDestroy(scene->fonts[i]);
     free(scene->fonts);
@@ -56,7 +64,7 @@ CLSTtexture *clstSceneGetTexture(CLSTscene *scene, char *texture_name)
 
 void clstSceneAddFont(CLSTscene *scene, CLSTfont *font)
 {
-    scene->fonts = realloc(scene->fonts, (scene->fonts_count + 1) * sizeof(CLSTtexture *));
+    scene->fonts = realloc(scene->fonts, (scene->fonts_count + 1) * sizeof(CLSTfont *));
     scene->fonts[scene->fonts_count] = font;
     scene->fonts_count++;
 }
@@ -67,6 +75,25 @@ CLSTfont *clstSceneGetFont(CLSTscene *scene, char *font_name)
         if (strcmp((scene->fonts[i])->name, font_name) == 0)
             return scene->fonts[i];
     }
+    return NULL;
+}
+
+void clstSceneAddAudio(CLSTscene *scene, CLSTaudio *audio)
+{
+    scene->audio = realloc(scene->audio, (scene->audio_count + 1) * sizeof(CLSTaudio *));
+    scene->audio[scene->audio_count] = audio;
+    scene->audio_count++;
+}
+
+CLSTaudio *clstSceneGetAudio(CLSTscene *scene, char *audio_name)
+{
+    CELESTE_LOG("audio_count: %d\n", scene->audio_count);
+    CELESTE_LOG("audio[0]->name: %s\n", (scene->audio[0])->name);
+    for (int i = 0; i < scene->audio_count; i++) {
+        if (strcmp((scene->audio[i])->name, audio_name) == 0)
+            return scene->audio[i];
+    }
+
     return NULL;
 }
 
