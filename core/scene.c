@@ -17,10 +17,10 @@ CLSTscene *clstScene()
 
 void clstSceneDestroy(CLSTscene *scene)
 {
-    clstListDestroy(scene->audio,    (clstItemDestroyer)clstAudioDestroy);
-    clstListDestroy(scene->fonts,    (clstItemDestroyer)clstFontDestroy);
-    clstListDestroy(scene->textures, (clstItemDestroyer)clstTextureDestroy);
-    clstListDestroy(scene->layers,   (clstItemDestroyer)clstLayerDestroy);
+    clstListDestroy(scene->audio,    (CLSTitemdestroy)clstAudioDestroy);
+    clstListDestroy(scene->fonts,    (CLSTitemdestroy)clstFontDestroy);
+    clstListDestroy(scene->textures, (CLSTitemdestroy)clstTextureDestroy);
+    clstListDestroy(scene->layers,   (CLSTitemdestroy)clstLayerDestroy);
     free(scene);
 }
 

@@ -49,7 +49,7 @@ CLSTfont *clstFontMemSave(uint8_t *buffer, uint32_t bufsize, float size, char *n
 CLSTaudio *clstAudioSave(const char *filepath, char *name);
 CLSTaudio *clstAudioMemSave(unsigned char *buffer, unsigned int bufsize, char *name);
 
-void clstSpriteSave(vec2 position, vec2 size, CLSTtexture *texture, CLSTsprite *sprite);
+CLSTsprite *clstSpriteSave(vec2 position, vec2 size, CLSTtexture *texture);
 CLSTlayer *clstLayerCameraSave(CLSTcamera *camera, float right, float top);
 
 #endif /* __CELESTE_LOADER_H__ */

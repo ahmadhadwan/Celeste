@@ -6,10 +6,10 @@ CLSTlist *clstListCreate()
     return calloc(1, sizeof(CLSTlist));
 }
 
-void clstListDestroy(CLSTlist *list, clstItemDestroyer destroyer)
+void clstListDestroy(CLSTlist *list, CLSTitemdestroy destroy)
 {
     for (int i = 0; i < list->count; i++)
-        destroyer(list->items[i]);
+        destroy(list->items[i]);
     free(list->items);
     free(list);
 }

@@ -81,7 +81,7 @@ CLSTaudio *clstAudioMemSave(unsigned char *buffer, unsigned int bufsize, char *n
     return clstAudioMem(buffer, bufsize, name);
 }
 
-void clstSpriteSave(vec2 position, vec2 size, CLSTtexture *texture, CLSTsprite *sprite)
+CLSTsprite *clstSpriteSave(vec2 position, vec2 size, CLSTtexture *texture)
 {
     void *data;
     uint32_t data_size;
@@ -93,7 +93,7 @@ void clstSpriteSave(vec2 position, vec2 size, CLSTtexture *texture, CLSTsprite *
     memcpy(data + (sizeof(vec2) * 2), texture->name, strlen(texture->name) + 1);
     clstLoadable("Sp", data, data_size, CELESTE_SPRITE);
     free(data);
-    clstSprite(position, size, texture, sprite);
+    return clstSprite(position, size, texture);
 }
 
 CLSTlayer *clstLayerCameraSave(CLSTcamera *camera, float right, float top)
@@ -244,7 +244,6 @@ void clstLoaderLoadData(CLSTloader *loader)
                 break;
             case CELESTE_SPRITE:
                 vec2 pos, size;
-                CLSTsprite *sprite;
                 pos[0]  = *((float*)(data + data_offset + sizeof(float) * 0));
                 pos[1]  = *((float*)(data + data_offset + sizeof(float) * 1));
                 size[0] = *((float*)(data + data_offset + sizeof(float) * 2));
@@ -252,9 +251,10 @@ void clstLoaderLoadData(CLSTloader *loader)
 
                 CELESTE_LOG("Loading sprite `%s` at `%2.2f, %2.2f`, size `%2.2f, %2.2f`!\n", name, pos[0], pos[1], size[0], size[1]);
 
-                sprite = malloc(sizeof(CLSTsprite)); // MEMORY LEAK // TODO: FIX AFTER ADDING LAYERS //
-                clstSprite(pos, size, clstSceneGetTexture(clst->scene, (char *)(data + data_offset + sizeof(float) * 4)), sprite);
-                clstLayerAddSprite(clstSceneGetLayer(clst->scene), sprite);
+                clstLayerAddSprite(
+                    clstSceneGetLayer(clst->scene),
+                    clstSprite(pos, size, clstSceneGetTexture(clst->scene, (char *)(data + data_offset + sizeof(float) * 4)))
+                );
                 clstLoadable(name, data + data_offset, data_size, CELESTE_SPRITE);
                 break;
             case CELESTE_LAYER:

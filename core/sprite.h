@@ -5,80 +5,92 @@
 #include <cglm/vec3.h>
 #include <cglm/mat4.h>
 #include "gapi.h"
+#include "list.h"
 
-#define BUTTON_STATUS_NONE     0
-#define BUTTON_STATUS_FOCUSED  1
-#define BUTTON_STATUS_CLICKED  2
-#define BUTTON_STATUS_RELEASED 3
-
-typedef void (*draw_func)(void *renderer, void *renderable);
+typedef void (*CLSTdrawfunc)(void *renderer, void *renderable);
 
 typedef struct {
-    draw_func    draw;
+    CLSTdrawfunc draw;
     vec2         position;
     vec2         size;
     vec2         uv[4];
     CLSTtexture *texture;
-    unsigned int color;
+    uint32_t     color;
 } CLSTsprite;
 
 typedef struct {
-    draw_func    draw;
+    CLSTdrawfunc draw;
     vec2         position;
     vec2         uv[4];
     CLSTfont    *font;
     char        *text;
-    unsigned int color;
+    uint32_t     color;
 } CLSTlabel;
 
 typedef struct {
-    draw_func    draw;
-    unsigned int frames_count;
-    unsigned int current_frame;
+    CLSTdrawfunc draw;
+    uint32_t     frames_count;
+    uint32_t     current_frame;
     CLSTsprite **frames;
     double       frame_time;
     double       last_animation_time;
 } CLSTanimation;
 
 typedef struct {
-    draw_func    draw;
-    unsigned int sprites_count;
-    CLSTsprite **sprites;
+    CLSTdrawfunc draw;
+    CLSTlist    *sprites;
     mat4         translation;
 } CLSTgroup;
 
+typedef enum {
+    CELESTE_BUTTON_STATUS_NONE     = 0,
+    CELESTE_BUTTON_STATUS_FOCUSED  = 1,
+    CELESTE_BUTTON_STATUS_CLICKED  = 2,
+    CELESTE_BUTTON_STATUS_RELEASED = 3,
+} CLSTbuttonstatus;
+
 typedef struct {
-    draw_func   draw;
-    int         status;
-    int         disabled;
-    CLSTsprite *sprite;
-    mat4        translation;
+    CLSTdrawfunc draw;
+    uint32_t     status;
+    uint32_t     disabled;
+    CLSTsprite  *sprite;
+    mat4         translation;
 } CLSTbutton;
 
 /*
  * Creates a textured sprite.
  */
-void clstSprite(vec2 position, vec2 size, CLSTtexture *texture, CLSTsprite *sprite);
+CLSTsprite *clstSprite(vec2 position, vec2 size, CLSTtexture *texture);
 
 /*
  * Creates a textured sprite from an atlas.
  */
-void clstSpriteTexAtlas(vec2 position, vec2 size, CLSTtexture *texture_atlas, vec2 offset, vec2 texsize, CLSTsprite *sprite);
+CLSTsprite *clstSpriteTexAtlas(vec2 position, vec2 size, CLSTtexture *texture_atlas, vec2 offset, vec2 texsize);
 
 /*
  * Creates a colored sprite.
  */
-void clstSpriteCol(vec2 position, vec2 size, unsigned int color, CLSTsprite *sprite);
+CLSTsprite *clstSpriteCol(vec2 position, vec2 size, uint32_t color);
+
+/*
+ * Destroys the sprite, and frees its memory.
+*/
+void clstSpriteDestroy(CLSTsprite *sprite);
 
 /*
  * Creates a label from the text with the font.
  */
-void clstLabel(vec2 position, char *text, CLSTfont *font, CLSTlabel *label);
+CLSTlabel *clstLabel(vec2 position, char *text, CLSTfont *font);
 
 /*
  * Creates a colored label from the text with the font.
  */
-void clstLabelCol(vec2 position, char *text, CLSTfont *font, unsigned int color, CLSTlabel *label);
+CLSTlabel *clstLabelCol(vec2 position, char *text, CLSTfont *font, uint32_t color);
+
+/*
+ * Destroys the label, and frees its memory.
+*/
+void clstLabelDestroy(CLSTlabel *label);
 
 /*
  * Creates an animation.
@@ -86,7 +98,7 @@ void clstLabelCol(vec2 position, char *text, CLSTfont *font, unsigned int color,
  * returns a CLSTanimation pointer,
  * which must be destroyed by clstAnimationDestroy().
  */
-CLSTanimation *clstAnimation(CLSTsprite **frames, int frames_count, double frame_time);
+CLSTanimation *clstAnimation(CLSTsprite **frames, uint32_t frames_count, double frame_time);
 
 /*
  * Destroys the animation, and frees its memory.
@@ -114,12 +126,17 @@ void clstGroupPosition(CLSTgroup *group, vec2 position);
 /*
  * Adds a sprite to the group.
  */
-void clstGroupAddSprite(CLSTgroup *group, void *sprite);
+void clstGroupAddRenderable(CLSTgroup *group, void *renderable);
 
 /*
  * Creates a button.
  */
-void clstButton(CLSTsprite *sprite, CLSTbutton *button);
+CLSTbutton *clstButton(CLSTsprite *sprite);
+
+/*
+ * Destroys the button, and frees its memory.
+ */
+void clstButtonDestroy(CLSTbutton *button);
 
 /*
  * Checks for a button event.

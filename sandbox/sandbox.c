@@ -6,29 +6,33 @@
 #include "../res/shaders/fb.c"
 #include "../res/icons/celeste_48x48.h"
 
-// static CLSTanimation *space_animation(CLSTsprite *sprites, CLSTtexture *texture_space)
-// {
-//     vec2 pos = { -16.0f, -9.0f };
-//     vec2 size = { 32.0f, 18.0f };
+static CLSTanimation *space_animation(CLSTtexture *texture_space)
+{
+    vec2 pos = { -16.0f, -9.0f };
+    vec2 size = { 32.0f, 18.0f };
+    vec2 texsize = { clstTextureWidth(texture_space) / 4.0f, clstTextureHeight(texture_space) };
+    CLSTsprite *s1, *s2, *s3, *s4;
 
-//     clstSpriteTexAtlas(pos, size, texture_space, (vec2){ 0, 0 }, (vec2){ clstTextureWidth(texture_space) / 4.0f, clstTextureHeight(texture_space) }, sprites);
-//     clstSpriteTexAtlas(pos, size, texture_space, (vec2){ 1, 0 }, (vec2){ clstTextureWidth(texture_space) / 4.0f, clstTextureHeight(texture_space) }, sprites + 1);
-//     clstSpriteTexAtlas(pos, size, texture_space, (vec2){ 2, 0 }, (vec2){ clstTextureWidth(texture_space) / 4.0f, clstTextureHeight(texture_space) }, sprites + 2);
-//     clstSpriteTexAtlas(pos, size, texture_space, (vec2){ 3, 0 }, (vec2){ clstTextureWidth(texture_space) / 4.0f, clstTextureHeight(texture_space) }, sprites + 3);
+    s1 = clstSpriteTexAtlas(pos, size, texture_space, (vec2){ 0, 0 }, texsize);
+    s2 = clstSpriteTexAtlas(pos, size, texture_space, (vec2){ 1, 0 }, texsize);
+    s3 = clstSpriteTexAtlas(pos, size, texture_space, (vec2){ 2, 0 }, texsize);
+    s4 = clstSpriteTexAtlas(pos, size, texture_space, (vec2){ 3, 0 }, texsize);
 
-//     return clstAnimation((CLSTsprite*[]){sprites, sprites + 1, sprites + 2, sprites + 3}, 4, 0.25f);
-// }
+    return clstAnimation((CLSTsprite*[]){s1, s2, s3, s4}, 4, 0.25);
+}
 
-// static CLSTanimation *carpet_animation(CLSTsprite *sprites, CLSTtexture *texture_atlas)
-// {
-//     vec2 pos = { -8.0f, -6.0f };
-//     vec2 size = { 16.0f, 16.0f };
+static CLSTanimation *carpet_animation(CLSTtexture *texture_atlas)
+{
+    vec2 pos = { -8.0f, -6.0f };
+    vec2 size = { 16.0f, 16.0f };
+    vec2 texsize = { 48.0f, 48.0f };
+    CLSTsprite *s1, *s2;
 
-//     clstSpriteTexAtlas(pos, size, texture_atlas, (vec2){ 16, 10 }, (vec2){ 48.0f, 48.0f }, sprites);
-//     clstSpriteTexAtlas(pos, size, texture_atlas, (vec2){ 16, 10 + 3 }, (vec2){ 48.0f, 48.0f }, sprites + 1);
+    s1 = clstSpriteTexAtlas(pos, size, texture_atlas, (vec2){ 16, 10 }, texsize);
+    s2 = clstSpriteTexAtlas(pos, size, texture_atlas, (vec2){ 16, 10 + 3 }, texsize);
 
-//     return clstAnimation((CLSTsprite*[]){sprites, sprites + 1}, 2, 0.75f);
-// }
+    return clstAnimation((CLSTsprite*[]){s1, s2}, 2, 0.75);
+}
 
 static void destroy_window(void *winalive)
 {
@@ -44,18 +48,17 @@ int main()
 {
     CLST *clst;
     CLSTloader *loader;
+    CLSTscene *scene;
     CLSTlayer *layer_debug;
 
-    // CLSTanimation *space_anim, *carpet_anim;
-    // CLSTsprite space[4];
+    CLSTanimation *space_anim, *carpet_anim;
 
-    // CLSTsprite carpet, carpet2;
-    CLSTlabel fps;
+    CLSTlabel *fps;
 
-    CLSTbutton button;
+    CLSTbutton *button;
     CLSTgroup *button_group;
-    CLSTsprite button_col;
-    CLSTlabel button_label;
+    CLSTsprite *button_col;
+    CLSTlabel *button_label;
 
     CLSTaudioplayer *audio_player;
 
@@ -63,9 +66,8 @@ int main()
     unsigned int frames;
 
     char fps_text[20];
-    CLSTscene *scene;
     char pointless_str[1024];
-    CLSTlabel pointless_label;
+    CLSTlabel *pointless_label;
 
     clst = clstInit();
     if (clst == NULL)
@@ -82,26 +84,26 @@ int main()
 
     clstLoaderLoadData(loader);
 
-    // space_anim = space_animation(space, clstSceneGetTexture(scene, "space_4frames"));
-    // clstLayerAddSprite(layer, space_anim);
+    space_anim = space_animation(clstSceneGetTexture(scene, "space_4frames"));
+    clstLayerAddSprite(clstSceneGetLayer(scene), space_anim);
 
-    // carpet_anim = carpet_animation((CLSTsprite[]){carpet, carpet2}, clstSceneGetTexture(scene, "atlas_48x"));
-    // clstLayerAddSprite(layer, carpet_anim);
+    carpet_anim = carpet_animation(clstSceneGetTexture(scene, "atlas_48x"));
+    clstLayerAddSprite(clstSceneGetLayer(scene), carpet_anim);
 
-    // clstSpriteSave((vec2){ -4.0f, 1.0f }, (vec2){ 8.0f, 8.0f }, clstSceneGetTexture(scene, "celeste_icon"), &celeste);
-    // clstLayerAddSprite(layer, &celeste);
+    clstSpriteSave((vec2){ -4.0f, 1.0f }, (vec2){ 8.0f, 8.0f }, clstSceneGetTexture(scene, "celeste_icon"));
 
     button_group = clstGroup((vec2){ -4.0f, -7.5f });
-    clstSpriteCol((vec2){ 0.0f, 0.0f }, (vec2){ 8.0f, 4.0f }, 0x3A555555, &button_col);
-    clstButton(&button_col, &button);
-    clstGroupAddSprite(button_group, &button);
-    clstLabelCol((vec2){ 3.0f, 2.0f }, "Quit", clstSceneGetFont(scene, "ThaleahFat-72"), 0xFFFFFFFF, &button_label);
-    clstGroupAddSprite(button_group, &button_label);
+    button_col = clstSpriteCol((vec2){ 0.0f, 0.0f }, (vec2){ 8.0f, 4.0f }, 0x3A555555);
+    button = clstButton(button_col);
+    clstGroupAddRenderable(button_group, button);
+    
+    button_label = clstLabelCol((vec2){ 3.0f, 2.0f }, "Quit", clstSceneGetFont(scene, "ThaleahFat-72"), 0xFFFFFFFF);
+    clstGroupAddRenderable(button_group, button_label);
     clstLayerAddSprite(clstSceneGetLayer(scene), button_group);
 
     memset(fps_text, 0, sizeof(fps_text));
-    clstLabel((vec2){ -15.5f, 8.0f }, fps_text, clstSceneGetFont(scene, "ThaleahFat-72"), &fps);
-    clstLayerAddSprite(layer_debug, &fps);
+    fps = clstLabel((vec2){ -15.5f, 8.0f }, fps_text, clstSceneGetFont(scene, "ThaleahFat-72"));
+    clstLayerAddSprite(layer_debug, fps);
 
     audio_player = clstAudioPlayer(clstSceneGetAudio(scene, "space"), 1, 0);
     clstAudioPlayerPlay(audio_player);
@@ -111,25 +113,25 @@ int main()
     clstInputSetListener(pointless_str, 1024);
 
     memset(pointless_str, 0, sizeof(pointless_str));
-    clstLabel((vec2){ -15.5f, -8.5f }, pointless_str, clstSceneGetFont(scene, "ThaleahFat-72"), &pointless_label);
-    clstLayerAddSprite(clstSceneGetLayer(scene), &pointless_label);
+    pointless_label = clstLabel((vec2){ -15.5f, -8.5f }, pointless_str, clstSceneGetFont(scene, "ThaleahFat-72"));
+    clstLayerAddSprite(clstSceneGetLayer(scene), pointless_label);
 
-    CLSTsprite quad1, quad2;
+    CLSTsprite *quad1, *quad2;
     char colliding[10];
-    CLSTlabel colliding_label;
-    clstSpriteCol((vec2){ -10.0f, -2.0f }, (vec2){ 4.0f, 4.0f }, 0xFFFFFF00, &quad1);
-    clstSpriteCol((vec2){   8.0f, -2.0f }, (vec2){ 4.0f, 4.0f }, 0xFF0000FF, &quad2);
+    CLSTlabel *colliding_label;
+    quad1 = clstSpriteCol((vec2){ -10.0f, -2.0f }, (vec2){ 4.0f, 4.0f }, 0xFFFFFF00);
+    quad2 = clstSpriteCol((vec2){   8.0f, -2.0f }, (vec2){ 4.0f, 4.0f }, 0xFF0000FF);
     memset(colliding, 0, sizeof(colliding));
-    clstLabel((vec2){ -2.0f, 8.0f }, colliding, clstSceneGetFont(scene, "ThaleahFat-72"), &colliding_label);
-    clstLayerAddSprite(clstSceneGetLayer(scene), &quad1);
-    clstLayerAddSprite(clstSceneGetLayer(scene), &quad2);
-    clstLayerAddSprite(clstSceneGetLayer(scene), &colliding_label);
+    colliding_label = clstLabel((vec2){ -2.0f, 8.0f }, colliding, clstSceneGetFont(scene, "ThaleahFat-72"));
+    clstLayerAddSprite(clstSceneGetLayer(scene), quad1);
+    clstLayerAddSprite(clstSceneGetLayer(scene), quad2);
+    clstLayerAddSprite(clstSceneGetLayer(scene), colliding_label);
 
-    CLSTbody *body1 = clstBody(0, 1, 1, 1, (vec2*)&(quad1.position), &(quad1.size));
-    CLSTbody *body2 = clstBody(0, 0, 1, 0, (vec2*)&(quad2.position), &(quad2.size));
+    CLSTbody *body1 = clstBody(0, 1, 1, 1, &(quad1->position), &(quad1->size));
+    CLSTbody *body2 = clstBody(0, 0, 1, 0, &(quad2->position), &(quad2->size));
 
     vec2 button_pos = { -4.0f, -7.5f };
-    CLSTbody *button_body = clstBody(0, 0, 1, 0, &button_pos, &(button_col.size));
+    CLSTbody *button_body = clstBody(0, 0, 1, 0, &button_pos, &(button_col->size));
 
     vec2 floor_pos = { -16.0f, -10.0f };
     vec2 floor_size = { 32.0f, 1.0f };
@@ -150,8 +152,8 @@ int main()
     clstFrameBufferAttachTexture(fb, fbtex);
     clstFrameBufferAttachRenderBuffer(fb, NULL);
 
-    CLSTsprite fbsprite;
-    clstSprite((float[]){-16.0f, -9.0f}, (float[]){32.0f, 18.0f}, fbtex, &fbsprite);
+    CLSTsprite *fbsprite;
+    fbsprite = clstSprite((float[]){-16.0f, -9.0f}, (float[]){32.0f, 18.0f}, fbtex);
     CLSTshader *fbshader = clstShaderSrc(fb_glsl);
     CLSTlayer *fblayer;
     fblayer = clstLayerShader(16.0f, 9.0f, fbshader);
@@ -218,17 +220,17 @@ int main()
             clstAudioPlayerSetPan(audio_player, pan);
         }
 
-        switch (button.status)
+        switch (button->status)
         {
-            case BUTTON_STATUS_NONE:
-                button_col.color = 0x3A55555;
-                button_label.color = 0xFFFFFFFF;
+            case CELESTE_BUTTON_STATUS_NONE:
+                button_col->color = 0x3A55555;
+                button_label->color = 0xFFFFFFFF;
                 break;
-            case BUTTON_STATUS_FOCUSED:
-                button_col.color = 0x6FFFFF00;
-                button_label.color = 0x88BBBBBB;
+            case CELESTE_BUTTON_STATUS_FOCUSED:
+                button_col->color = 0x6FFFFF00;
+                button_label->color = 0x88BBBBBB;
                 break;
-            case BUTTON_STATUS_CLICKED:
+            case CELESTE_BUTTON_STATUS_CLICKED:
                 clst->window.alive = 0;
                 break;
         }
@@ -246,10 +248,10 @@ int main()
 
         if (clstCollisionRectangles(body1->position, body1->size, button_body->position, button_body->size))
         {
-            button_col.color = 0x6FFFFF00;
-            button_label.color = 0x88BBBBBB;
+            button_col->color = 0x6FFFFF00;
+            button_label->color = 0x88BBBBBB;
 
-            if (clstKey(CELESTE_KEY_SPACE) && (*body1->position)[1] >= button_pos[1] + button_col.size[1])
+            if (clstKey(CELESTE_KEY_SPACE) && (*body1->position)[1] >= button_pos[1] + button_col->size[1])
                 body1->velocity[1] = jump;
         }
 
@@ -283,8 +285,8 @@ int main()
     clstBodyDestroy(left);
     clstBodyDestroy(right);
 
-    // clstAnimationDestroy(space_anim);
-    // clstAnimationDestroy(carpet_anim);
+    clstAnimationDestroy(space_anim);
+    clstAnimationDestroy(carpet_anim);
 
     clstSceneDestroy(scene);
     clstLayerDestroy(layer_debug);

@@ -8,10 +8,10 @@ typedef struct {
     void   **items;
 } CLSTlist;
 
-typedef void (*clstItemDestroyer)(void *item);
+typedef void (*CLSTitemdestroy)(void *item);
 
 CLSTlist *clstListCreate();
-void clstListDestroy(CLSTlist *list, clstItemDestroyer destroyer);
+void clstListDestroy(CLSTlist *list, CLSTitemdestroy destroyer);
 
 void clstListAdd(CLSTlist *list, void *item);
 
