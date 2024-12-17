@@ -7,13 +7,11 @@
 
 static CLST *celeste_instance = NULL;
 
-#ifdef CELESTE_AUDIO_ASYNC
-    #ifdef CELESTE_PTHREAD
-        static void *audio_manager_update(void *arg);
-    #elif defined(CELESTE_WINTHREAD) /* CELESTE_PTHREAD */
-        static DWORD WINAPI audio_manager_update(LPVOID arg);
-    #endif /* CELESTE_WINTHREAD */
-#endif /* CELESTE_AUDIO_ASYNC */
+#ifdef CELESTE_PTHREAD
+    static void *audio_manager_update(void *arg);
+#elif defined(CELESTE_WINTHREAD) /* CELESTE_PTHREAD */
+    static DWORD WINAPI audio_manager_update(LPVOID arg);
+#endif /* CELESTE_WINTHREAD */
 
 void clstPhysicsUpdate(CLST *celeste);
 
@@ -62,13 +60,11 @@ CLST *clstInit()
     celeste->aumixer = gau_manager_mixer(celeste->aumanager);
     celeste_instance = celeste;
 
-#ifdef CELESTE_AUDIO_ASYNC
-    #ifdef CELESTE_PTHREAD
-        pthread_create(&(celeste->audio_thread), NULL, &audio_manager_update, NULL);
-    #elif defined(CELESTE_WINTHREAD) /* CELESTE_PTHREAD */
-        celeste->audio_thread = CreateThread(NULL, 0, audio_manager_update, NULL, 0, NULL);
-    #endif /* CELESTE_WINTHREAD */
-#endif /* CELESTE_AUDIO_ASYNC */
+#ifdef CELESTE_PTHREAD
+    pthread_create(&(celeste->audio_thread), NULL, &audio_manager_update, NULL);
+#elif defined(CELESTE_WINTHREAD) /* CELESTE_PTHREAD */
+    celeste->audio_thread = CreateThread(NULL, 0, audio_manager_update, NULL, 0, NULL);
+#endif /* CELESTE_WINTHREAD */
 
     return celeste;
 }
@@ -81,14 +77,12 @@ void clstTerminate()
     celeste = clstInstance();
     aumanager = celeste->aumanager;
 
-#ifdef CELESTE_AUDIO_ASYNC
-        celeste->aumanager = NULL;
-    #ifdef CELESTE_PTHREAD
-        pthread_join(celeste->audio_thread, NULL);
-    #elif defined(CELESTE_WINTHREAD) /* CELESTE_PTHREAD */
-        WaitForSingleObject(celeste->audio_thread, INFINITE);
-    #endif /* CELESTE_WINTHREAD */
-#endif /* CELESTE_AUDIO_ASYNC */
+    celeste->aumanager = NULL;
+#ifdef CELESTE_PTHREAD
+    pthread_join(celeste->audio_thread, NULL);
+#elif defined(CELESTE_WINTHREAD) /* CELESTE_PTHREAD */
+    WaitForSingleObject(celeste->audio_thread, INFINITE);
+#endif /* CELESTE_WINTHREAD */
 
     gau_manager_destroy(aumanager);
     gc_shutdown();
@@ -123,9 +117,6 @@ void clstUpdate(CLST *celeste)
     glfwPollEvents();
 
     clstPhysicsUpdate(celeste);
-#ifndef CELESTE_AUDIO_ASYNC
-    gau_manager_update(celeste->aumanager);
-#endif /* CELESTE_AUDIO_ASYNC */
 }
 
 void clstWaitEv(CLST *celeste)
@@ -134,25 +125,23 @@ void clstWaitEv(CLST *celeste)
     glfwWaitEvents();
 }
 
-#ifdef CELESTE_AUDIO_ASYNC
-    #ifdef CELESTE_PTHREAD
-        void *audio_manager_update(void *arg)
-    #elif defined(CELESTE_WINTHREAD) /* CELESTE_PTHREAD */
-        DWORD WINAPI audio_manager_update(LPVOID arg)
-    #endif /* CELESTE_WINTHREAD */
-    {
-        CLST *celeste;
+#ifdef CELESTE_PTHREAD
+    void *audio_manager_update(void *arg)
+#elif defined(CELESTE_WINTHREAD) /* CELESTE_PTHREAD */
+    DWORD WINAPI audio_manager_update(LPVOID arg)
+#endif /* CELESTE_WINTHREAD */
+{
+    CLST *celeste;
 
-        celeste = clstInstance();
-        while (celeste->aumanager)
-        {
-            gau_manager_update(celeste->aumanager);
-            gc_thread_sleep(1);
-        }
-    #ifdef CELESTE_PTHREAD
-        return NULL;
-    #elif defined(CELESTE_WINTHREAD) /* CELESTE_PTHREAD */
-        return (DWORD)0;
-    #endif /* CELESTE_WINTHREAD */
+    celeste = clstInstance();
+    while (celeste->aumanager)
+    {
+        gau_manager_update(celeste->aumanager);
+        gc_thread_sleep(1);
     }
-#endif /* CELESTE_AUDIO_ASYNC */
+#ifdef CELESTE_PTHREAD
+    return NULL;
+#elif defined(CELESTE_WINTHREAD) /* CELESTE_PTHREAD */
+    return (DWORD)0;
+#endif /* CELESTE_WINTHREAD */
+}

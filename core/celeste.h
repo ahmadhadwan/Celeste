@@ -9,19 +9,17 @@
 #include "scene.h"
 #include "window.h"
 
-#ifdef CELESTE_AUDIO_ASYNC
-    #ifdef CELESTE_PTHREAD
-        #include <pthread.h>
+#ifdef CELESTE_PTHREAD
+    #include <pthread.h>
+#else
+    #ifdef _WIN32
+        #include <windows.h>
+        #define CELESTE_WINTHREAD
+        #define pthread_t HANDLE
     #else
-        #ifdef _WIN32
-            #include <windows.h>
-            #define CELESTE_WINTHREAD
-            #define pthread_t HANDLE
-        #else
-            #error "Define CELESTE_PTHREAD macro!"
-        #endif /* _WIN32 */
-    #endif /* CELESTE_PTHREAD */
-#endif /* CELESTE_AUDIO_ASYNC */
+        #error "Define CELESTE_PTHREAD macro!"
+    #endif /* _WIN32 */
+#endif /* CELESTE_PTHREAD */
 
 typedef struct {
     CLSTwindow    window;
@@ -47,9 +45,7 @@ typedef struct {
 
     void        *aumanager;
     void        *aumixer;
-#ifdef CELESTE_AUDIO_ASYNC
     pthread_t    audio_thread;
-#endif /* CELESTE_AUDIO_ASYNC */
 } CLST;
 
 /*
