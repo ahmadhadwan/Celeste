@@ -1,5 +1,6 @@
 #include "internal/gapi.h"
 #include "internal/audio.h"
+#include "internal/layer.h"
 #include "scene.h"
 #include <string.h>
 #include <stdio.h>
@@ -29,11 +30,26 @@ void clstSceneAddLayer(CLSTscene *scene, CLSTlayer *layer)
     clstListAdd(scene->layers, layer);
 }
 
-CLSTlayer *clstSceneGetLayer(CLSTscene *scene)
+CLSTlayer *clstSceneGetLayer(CLSTscene *scene, char *layer_name)
 {
-    if (scene->layers->count == 0)
+    CLSTlayer **layers;
+
+    layers = (CLSTlayer **)scene->layers->items;
+    for (int i = 0; i < scene->layers->count; i++) {
+        if (strcmp(layers[i]->name, layer_name) == 0)
+            return layers[i];
+    }
+    return NULL;
+}
+
+CLSTlayer *clstSceneGetLastLayer(CLSTscene *scene)
+{
+    if (scene->layers->count == 0) {
+        CELESTE_ASSERT(scene->layers->count != 0 && "No layer available to fetch from the scene!");
         return NULL;
-    return scene->layers->items[0];
+    }
+    
+    return ((CLSTlayer **)scene->layers->items)[scene->layers->count - 1];
 }
 
 void clstSceneAddTexture(CLSTscene *scene, CLSTtexture *texture)

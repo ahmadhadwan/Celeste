@@ -91,12 +91,12 @@ CLSTsprite *clstSpriteSave(vec2 position, vec2 size, CLSTtexture *texture)
     memcpy(data, position, sizeof(vec2));
     memcpy(data + sizeof(vec2), size, sizeof(vec2));
     memcpy(data + (sizeof(vec2) * 2), texture->name, strlen(texture->name) + 1);
-    clstLoadable("Sp", data, data_size, CELESTE_SPRITE);
+    clstLoadable("Sprite", data, data_size, CELESTE_SPRITE);
     free(data);
     return clstSprite(position, size, texture);
 }
 
-CLSTlayer *clstLayerCameraSave(CLSTcamera *camera, float right, float top)
+CLSTlayer *clstLayerCameraSave(CLSTcamera *camera, float right, float top, char *name)
 {
     void *data;
     uint32_t data_size;
@@ -108,9 +108,9 @@ CLSTlayer *clstLayerCameraSave(CLSTcamera *camera, float right, float top)
     memcpy(data, cam->position, sizeof(vec2));
     memcpy(data + sizeof(vec2), &right, sizeof(float));
     memcpy(data + sizeof(vec2) + sizeof(float), &top, sizeof(float));
-    clstLoadable("Layer", data, data_size, CELESTE_LAYER);
+    clstLoadable(name, data, data_size, CELESTE_LAYER);
     free(data);
-    return clstLayerCamera(camera, right, top);
+    return clstLayerCamera(camera, right, top, name);
 }
 
 CLSTloader *clstLoader(char *filepath)
@@ -252,7 +252,7 @@ void clstLoaderLoadData(CLSTloader *loader)
                 CELESTE_LOG("Loading sprite `%s` at `%2.2f, %2.2f`, size `%2.2f, %2.2f`!\n", name, pos[0], pos[1], size[0], size[1]);
 
                 clstLayerAddSprite(
-                    clstSceneGetLayer(clst->scene),
+                    clstSceneGetLastLayer(clst->scene),
                     clstSprite(pos, size, clstSceneGetTexture(clst->scene, (char *)(data + data_offset + sizeof(float) * 4)))
                 );
                 clstLoadable(name, data + data_offset, data_size, CELESTE_SPRITE);
@@ -267,7 +267,7 @@ void clstLoaderLoadData(CLSTloader *loader)
 
                 CELESTE_LOG("Loading layer `%s` `%2.2f, %2.2f`!\n", name, right, top);
 
-                clstSceneAddLayer(clst->scene, clstLayerCamera(clstCameraOrtho(campos), right, top));
+                clstSceneAddLayer(clst->scene, clstLayerCamera(clstCameraOrtho(campos), right, top, name));
                 clstLoadable(name, data + data_offset, data_size, CELESTE_LAYER);
                 break;
             default:

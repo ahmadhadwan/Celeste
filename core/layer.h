@@ -18,7 +18,7 @@
  * returns CLSTlayer pointer,
  * which must be destroyed by clstLayerDestroy().
  */
-CLSTlayer *clstLayer(float right, float top);
+CLSTlayer *clstLayer(float right, float top, char *name);
 
 /*
  * Creates a layer with the arg
@@ -27,7 +27,7 @@ CLSTlayer *clstLayer(float right, float top);
  * returns CLSTlayer pointer,
  * which must be destroyed by clstLayerDestroy().
  */
-CLSTlayer *clstLayerMat4(mat4 projection);
+CLSTlayer *clstLayerMat4(mat4 projection, char *name);
 
 /*
  * Creates a layer with a projection ortho matrix
@@ -36,7 +36,7 @@ CLSTlayer *clstLayerMat4(mat4 projection);
  * returns CLSTlayer pointer,
  * which must be destroyed by clstLayerDestroy().
  */
-CLSTlayer *clstLayerShader(float right, float top, CLSTshader *shader);
+CLSTlayer *clstLayerShader(float right, float top, CLSTshader *shader, char *name);
 
 /*
  * Creates a layer with a camera, and projection
@@ -45,7 +45,7 @@ CLSTlayer *clstLayerShader(float right, float top, CLSTshader *shader);
  * returns CLSTlayer pointer,
  * which must be destroyed by clstLayerDestroy().
  */
-CLSTlayer *clstLayerCamera(CLSTcamera *camera, float right, float top);
+CLSTlayer *clstLayerCamera(CLSTcamera *camera, float right, float top, char *name);
 
 /*
  * Creates a layer with a camera, and with
@@ -54,7 +54,7 @@ CLSTlayer *clstLayerCamera(CLSTcamera *camera, float right, float top);
  * returns CLSTlayer pointer,
  * which must be destroyed by clstLayerDestroy().
  */
-CLSTlayer *clstLayerCameraMat4(CLSTcamera *camera, mat4 projection);
+CLSTlayer *clstLayerCameraMat4(CLSTcamera *camera, mat4 projection, char *name);
 
 /*
  * Creates a layer with a custom renderer,
@@ -63,7 +63,7 @@ CLSTlayer *clstLayerCameraMat4(CLSTcamera *camera, mat4 projection);
  * returns CLSTlayer pointer,
  * which must be destroyed by clstLayerDestroy().
  */
-CLSTlayer *clstLayerCustom(CLSTrenderer *renderer, CLSTshader *shader, CLSTcamera *camera, mat4 projection);
+CLSTlayer *clstLayerCustom(CLSTrenderer *renderer, CLSTshader *shader, CLSTcamera *camera, mat4 projection, char *name);
 
 /*
  * Destroys the layer, and frees its memory.

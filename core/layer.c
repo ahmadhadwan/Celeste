@@ -10,41 +10,42 @@
 #include "physics.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "sprite.h"
 #include "window.h"
 
-CLSTlayer *clstLayer(float right, float top)
+CLSTlayer *clstLayer(float right, float top, char *name)
 {
     mat4 projection;
     glm_ortho(-right, right, -top, top, 1.0f, -1.0f, projection);
-    return clstLayerCustom(clstRendererDefault(), clstShaderDefault(), NULL, projection);
+    return clstLayerCustom(clstRendererDefault(), clstShaderDefault(), NULL, projection, name);
 }
 
-CLSTlayer *clstLayerMat4(mat4 projection)
+CLSTlayer *clstLayerMat4(mat4 projection, char *name)
 {
-    return clstLayerCustom(clstRendererDefault(), clstShaderDefault(), NULL, projection);
+    return clstLayerCustom(clstRendererDefault(), clstShaderDefault(), NULL, projection, name);
 }
 
-CLSTlayer *clstLayerShader(float right, float top, CLSTshader *shader)
-{
-    mat4 projection;
-    glm_ortho(-right, right, -top, top, 1.0f, -1.0f, projection);
-    return clstLayerCustom(clstRendererDefault(), shader, NULL, projection);
-}
-
-CLSTlayer *clstLayerCamera(CLSTcamera *camera, float right, float top)
+CLSTlayer *clstLayerShader(float right, float top, CLSTshader *shader, char *name)
 {
     mat4 projection;
     glm_ortho(-right, right, -top, top, 1.0f, -1.0f, projection);
-    return clstLayerCustom(clstRendererDefault(), clstShaderDefault(), camera, projection);
+    return clstLayerCustom(clstRendererDefault(), shader, NULL, projection, name);
 }
 
-CLSTlayer *clstLayerCameraMat4(CLSTcamera *camera, mat4 projection)
+CLSTlayer *clstLayerCamera(CLSTcamera *camera, float right, float top, char *name)
 {
-    return clstLayerCustom(clstRendererDefault(), clstShaderDefault(), camera, projection);
+    mat4 projection;
+    glm_ortho(-right, right, -top, top, 1.0f, -1.0f, projection);
+    return clstLayerCustom(clstRendererDefault(), clstShaderDefault(), camera, projection, name);
 }
 
-CLSTlayer *clstLayerCustom(CLSTrenderer *renderer, CLSTshader *shader, CLSTcamera *camera, mat4 projection)
+CLSTlayer *clstLayerCameraMat4(CLSTcamera *camera, mat4 projection, char *name)
+{
+    return clstLayerCustom(clstRendererDefault(), clstShaderDefault(), camera, projection, name);
+}
+
+CLSTlayer *clstLayerCustom(CLSTrenderer *renderer, CLSTshader *shader, CLSTcamera *camera, mat4 projection, char *name)
 {
     CLSTlayer *layer;
     GLuint textures_uni;
@@ -53,10 +54,10 @@ CLSTlayer *clstLayerCustom(CLSTrenderer *renderer, CLSTshader *shader, CLSTcamer
     layer = malloc(sizeof(CLSTlayer));
     layer->renderer = renderer;
     layer->shader = shader;
-    layer->sprites = malloc(0);
-    layer->sprites_size = 0;
-
+    layer->sprites = clstListCreate();
     layer->camera = camera;
+    layer->name = malloc(strlen(name) + 1);
+    strcpy(layer->name, name);
 
     layer->projection.top    =  (1 - projection[1][3]) / projection[1][1];
     layer->projection.right  =  (1 + projection[0][3]) / projection[0][0];
@@ -75,16 +76,15 @@ CLSTlayer *clstLayerCustom(CLSTrenderer *renderer, CLSTshader *shader, CLSTcamer
 
 void clstLayerDestroy(CLSTlayer *layer)
 {
+    free(layer->name);
     free(layer->camera);
-    free(layer->sprites);
+    clstListDestroy(layer->sprites, (CLSTitemdestroy)clstSpriteDestroy);
     free(layer);
 }
 
 void clstLayerAddSprite(CLSTlayer *layer, void *sprite)
 {
-    layer->sprites = realloc(layer->sprites, (layer->sprites_size + 1) * sizeof(void*));
-    layer->sprites[layer->sprites_size] = sprite;
-    layer->sprites_size++;
+    clstListAdd(layer->sprites, sprite);
 }
 
 void clstLayerRender(CLSTlayer *layer)
@@ -105,8 +105,8 @@ void clstLayerRender(CLSTlayer *layer)
         clstRendererMat4Push(layer->renderer, view);
     }
 
-    for (unsigned int i = 0; i < layer->sprites_size; i++) {
-        sprite = layer->sprites[i];
+    for (int i = 0; i < layer->sprites->count; i++) {
+        sprite = (CLSTsprite *)layer->sprites->items[i];
         sprite->draw(layer->renderer, sprite);
     }
 

@@ -50,6 +50,6 @@ CLSTaudio *clstAudioSave(const char *filepath, char *name);
 CLSTaudio *clstAudioMemSave(unsigned char *buffer, unsigned int bufsize, char *name);
 
 CLSTsprite *clstSpriteSave(vec2 position, vec2 size, CLSTtexture *texture);
-CLSTlayer *clstLayerCameraSave(CLSTcamera *camera, float right, float top);
+CLSTlayer *clstLayerCameraSave(CLSTcamera *camera, float right, float top, char *name);
 
 #endif /* __CELESTE_LOADER_H__ */

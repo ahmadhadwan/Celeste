@@ -31,9 +31,14 @@ void clstSceneDestroy(CLSTscene *scene);
 void clstSceneAddLayer(CLSTscene *scene, CLSTlayer *layer);
 
 /*
- * Gets the base layer.
+ * Gets a layer from a layer name.
  */
-CLSTlayer *clstSceneGetLayer(CLSTscene *scene);
+CLSTlayer *clstSceneGetLayer(CLSTscene *scene, char *layer_name);
+
+/*
+ * Gets the last layer.
+ */
+CLSTlayer *clstSceneGetLastLayer(CLSTscene *scene);
 
 /*
  * Adds a texture to the scene.

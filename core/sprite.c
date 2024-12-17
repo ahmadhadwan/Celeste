@@ -135,7 +135,13 @@ CLSTsprite *clstSpriteCol(vec2 position, vec2 size, uint32_t color)
 
 void clstSpriteDestroy(CLSTsprite *sprite)
 {
-    free(sprite);
+    if (sprite == NULL)
+        return;
+
+    if (sprite->draw == (CLSTdrawfunc)draw_group)
+        clstGroupDestroy((CLSTgroup *)sprite);
+    else
+        free(sprite);
 }
 
 CLSTlabel *clstLabel(vec2 position, char *text, CLSTfont *font)
