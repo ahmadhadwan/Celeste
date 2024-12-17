@@ -163,7 +163,7 @@ unsigned int clstTextureHeight(CLSTtexture *texture);
  *
  * On error it returns NULL.
  */
-CLSTfont *clstFont(const char *filepath, float size);
+CLSTfont *clstFont(const char *filepath, float size, char *name);
 
 /*
  * Creates a font with the provided size.
@@ -173,7 +173,7 @@ CLSTfont *clstFont(const char *filepath, float size);
  *
  * On error it returns NULL.
  */
-CLSTfont *clstFontMem(unsigned char *buffer, unsigned int bufsize, float size);
+CLSTfont *clstFontMem(unsigned char *buffer, unsigned int bufsize, float size, char *name);
 
 /*
  * Destroys the font, and frees its memory.

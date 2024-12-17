@@ -34,6 +34,7 @@ typedef struct {
     float size;
     texture_atlas_t *ftatlas;
     texture_font_t  *ftfont;
+    char            *name;
 } CLSTfont;
 
 typedef struct {

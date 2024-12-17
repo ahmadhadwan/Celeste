@@ -400,7 +400,7 @@ unsigned int clstTextureHeight(CLSTtexture *texture)
     return texture->height;
 }
 
-CLSTfont *clstFont(const char *filepath, float size)
+CLSTfont *clstFont(const char *filepath, float size, char *name)
 {
     CLSTfont *font;
 
@@ -408,10 +408,11 @@ CLSTfont *clstFont(const char *filepath, float size)
     font->size = size;
     font->ftatlas = texture_atlas_new(512, 512, 1);
     font->ftfont = texture_font_new_from_file(font->ftatlas, size, filepath);
+    font->name = name;
     return font;
 }
 
-CLSTfont *clstFontMem(unsigned char *buffer, unsigned int bufsize, float size)
+CLSTfont *clstFontMem(unsigned char *buffer, unsigned int bufsize, float size, char *name)
 {
     CLSTfont *font;
 
@@ -419,6 +420,7 @@ CLSTfont *clstFontMem(unsigned char *buffer, unsigned int bufsize, float size)
     font->size = size;
     font->ftatlas = texture_atlas_new(512, 512, 1);
     font->ftfont = texture_font_new_from_memory(font->ftatlas, size, buffer, bufsize);
+    font->name = name;
     return font;
 }
 

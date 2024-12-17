@@ -62,7 +62,6 @@ int main()
 
     CLSTsprite carpet, carpet2, celeste;
     CLSTlabel fps;
-    CLSTfont *font;
 
     CLSTbutton button;
     CLSTgroup *button_group;
@@ -95,37 +94,41 @@ int main()
     layer = clstLayerCamera(&camera, 16.0f, 9.0f);
     layer_debug = clstLayer(16.0f, 9.0f);
 
+    // CLSTfont *font;CLSTtexture *texture_atlas, *texture_space, *celeste_tex;
+
 #ifdef CELESTE_PACK_RESOURCES
     texture_atlas = clstTextureMem(atlas_48x_png, sizeof(atlas_48x_png) / sizeof(unsigned char));
     texture_space = clstTextureMem(space8_4_frames_png, sizeof(space8_4_frames_png) / sizeof(unsigned char));
     font = clstFontMem(ThaleahFat_ttf, sizeof(ThaleahFat_ttf) / sizeof(unsigned char), 72.0f);
     audio = clstAudioMem(space_ogg, sizeof(space_ogg) / sizeof(unsigned char));
 #else
-    font = clstFont("res/fonts/ThaleahFat.ttf", 72.0f);
+    // texture_atlas = clstTextureSave("res/textures/atlas_48x.png", "atlas_48x");texture_space = clstTextureSave("res/textures/space8_4-frames.png", "space_4frames");font = clstFontSave("res/fonts/ThaleahFat.ttf", 72.0f, "ThaleahFat-72");
     audio = clstAudio("res/audio/space.ogg");
 #endif /* CELESTE_PACK_RESOURCES */
 
+    // celeste_tex = clstTextureMemSave(celeste_48x48_png, CELESTE_48X48_PNG_SIZE, "celeste_icon");
+
     clstLoaderLoadData(loader);
 
-    space_anim = space_animation(space, clstSceneGetTexture(scene, "space8_4-frames.png"));
+    space_anim = space_animation(space, clstSceneGetTexture(scene, "space_4frames")/*texture_space*/);
     clstLayerAddSprite(layer, space_anim);
 
-    carpet_anim = carpet_animation((CLSTsprite[]){carpet, carpet2}, clstSceneGetTexture(scene, "atlas_48x.png"));
+    carpet_anim = carpet_animation((CLSTsprite[]){carpet, carpet2}, clstSceneGetTexture(scene, "atlas_48x")/*texture_atlas*/);
     clstLayerAddSprite(layer, carpet_anim);
 
-    clstSprite((vec2){ -4.0f, 1.0f }, (vec2){ 8.0f, 8.0f }, clstSceneGetTexture(scene, "celeste_48x48_png"), &celeste);
+    clstSprite((vec2){ -4.0f, 1.0f }, (vec2){ 8.0f, 8.0f }, clstSceneGetTexture(scene, "celeste_icon")/*celeste_tex*/, &celeste);
     clstLayerAddSprite(layer, &celeste);
 
     button_group = clstGroup((vec2){ -4.0f, -7.5f });
     clstSpriteCol((vec2){ 0.0f, 0.0f }, (vec2){ 8.0f, 4.0f }, 0x3A555555, &button_col);
     clstButton(&button_col, &button);
     clstGroupAddSprite(button_group, &button);
-    clstLabelCol((vec2){ 3.0f, 2.0f }, "Quit", font, 0xFFFFFFFF, &button_label);
+    clstLabelCol((vec2){ 3.0f, 2.0f }, "Quit", clstSceneGetFont(scene, "ThaleahFat-72"), 0xFFFFFFFF, &button_label);
     clstGroupAddSprite(button_group, &button_label);
     clstLayerAddSprite(layer, button_group);
 
     memset(fps_text, 0, sizeof(fps_text));
-    clstLabel((vec2){ -15.5f, 8.0f }, fps_text, font, &fps);
+    clstLabel((vec2){ -15.5f, 8.0f }, fps_text, clstSceneGetFont(scene, "ThaleahFat-72"), &fps);
     clstLayerAddSprite(layer_debug, &fps);
 
     clstSceneAddLayer(scene, layer);
@@ -146,7 +149,7 @@ int main()
     clstInputSetListener(pointless_str, 1024);
 
     memset(pointless_str, 0, sizeof(pointless_str));
-    clstLabel((vec2){ -15.5f, -8.5f }, pointless_str, font, &pointless_label);
+    clstLabel((vec2){ -15.5f, -8.5f }, pointless_str, clstSceneGetFont(scene, "ThaleahFat-72"), &pointless_label);
     clstLayerAddSprite(layer, &pointless_label);
 
     CLSTsprite quad1, quad2;
@@ -155,7 +158,7 @@ int main()
     clstSpriteCol((vec2){ -10.0f, -2.0f }, (vec2){ 4.0f, 4.0f }, 0xFFFFFF00, &quad1);
     clstSpriteCol((vec2){   8.0f, -2.0f }, (vec2){ 4.0f, 4.0f }, 0xFF0000FF, &quad2);
     memset(colliding, 0, sizeof(colliding));
-    clstLabel((vec2){ -2.0f, 8.0f }, colliding, font, &colliding_label);
+    clstLabel((vec2){ -2.0f, 8.0f }, colliding, clstSceneGetFont(scene, "ThaleahFat-72"), &colliding_label);
     clstLayerAddSprite(layer, &quad1);
     clstLayerAddSprite(layer, &quad2);
     clstLayerAddSprite(layer, &colliding_label);
@@ -196,7 +199,7 @@ int main()
 
     clst->world_gravity = 12.0f;
 
-    clstLoaderSaveData(loader);
+    // clstLoaderSaveData(loader);
 
     clst->last_physics_update = prevtime = prevtime2 = clstTime();
     memset(fps_text, 0, 20);
@@ -322,11 +325,11 @@ int main()
     clstAnimationDestroy(space_anim);
     clstAnimationDestroy(carpet_anim);
 
-    clstFontDestroy(font);
-
     clstSceneDestroy(scene);
     clstLayerDestroy(layer_debug);
     clstGroupDestroy(button_group);
+
+    // clstTextureDestroy(texture_atlas);clstTextureDestroy(texture_space);clstTextureDestroy(celeste_tex);clstFontDestroy(font);
 
     clstLoaderDestroy(loader);
 

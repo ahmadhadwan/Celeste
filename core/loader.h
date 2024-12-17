@@ -17,6 +17,8 @@ typedef struct {
 typedef enum {
     CLST_TEXTURE_FILE = 1,
     CLST_TEXTURE_BIN  = 2,
+    CLST_FONT_FILE    = 3,
+    CLST_FONT_BIN     = 4,
 } CLSTloadabletype;
 
 typedef struct {
@@ -34,7 +36,10 @@ void clstLoaderLoadData(CLSTloader *loader);
 CLSTloadable *clstLoadable(char *name, void *data, int data_size, uint8_t type);
 void clstLoadableDestroy(CLSTloadable *loadable);
 
-CLSTtexture *clstTextureSave(char *filepath);
-CLSTtexture *clstTextureMemSave(char *name, uint8_t *buffer, uint32_t bufsize);
+CLSTtexture *clstTextureSave(char *filepath, char *name);
+CLSTtexture *clstTextureMemSave(uint8_t *buffer, uint32_t bufsize, char *name);
+
+CLSTfont *clstFontSave(char *filepath, float size, char *name);
+CLSTfont *clstFontMemSave(uint8_t *buffer, uint32_t bufsize, float size, char *name);
 
 #endif /* __CELESTE_LOADER_H__ */

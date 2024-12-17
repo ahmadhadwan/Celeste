@@ -9,6 +9,9 @@ typedef struct {
 
     uint32_t       textures_count;
     CLSTtexture  **textures;
+
+    uint32_t       fonts_count;
+    CLSTfont     **fonts;
 } CLSTscene;
 
 /*
@@ -38,6 +41,16 @@ void clstSceneAddTexture(CLSTscene *scene, CLSTtexture *texture);
  * Gets a texture from a texture name.
  */
 CLSTtexture *clstSceneGetTexture(CLSTscene *scene, char *texture_name);
+
+/*
+ * Adds a font to the scene.
+ */
+void clstSceneAddFont(CLSTscene *scene, CLSTfont *font);
+
+/*
+ * Gets a font from a font name.
+ */
+CLSTfont *clstSceneGetFont(CLSTscene *scene, char *font_name);
 
 /*
  * Renders each sprite in each layer in the scene.
