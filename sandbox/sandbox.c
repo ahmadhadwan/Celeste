@@ -1,6 +1,5 @@
 #include <celeste/celeste.h>
-#define CELESTE_LOADER_IMPLEMENTATION
-#include <celeste/loader.h>
+#include "../core/loader.h"
 #include <cglm/cglm.h>
 #include <stdio.h>
 #include <string.h>
@@ -90,6 +89,8 @@ int main()
     if (clstWindow("Celeste Engine Sandbox") != CELESTE_OK)
         return 1;
 
+    loader = clstLoader("sandbox.clst");
+
     clstCameraOrtho((vec2){ 0.0f, 0.0f }, &camera);
     layer = clstLayerCamera(&camera, 16.0f, 9.0f);
     layer_debug = clstLayer(16.0f, 9.0f);
@@ -100,8 +101,8 @@ int main()
     font = clstFontMem(ThaleahFat_ttf, sizeof(ThaleahFat_ttf) / sizeof(unsigned char), 72.0f);
     audio = clstAudioMem(space_ogg, sizeof(space_ogg) / sizeof(unsigned char));
 #else
-    texture_atlas = clstTexture("res/textures/atlas_48x.png");
-    texture_space = clstTexture("res/textures/space8_4-frames.png");
+    texture_atlas = clstTextureSave("res/textures/atlas_48x.png");
+    texture_space = clstTextureSave("res/textures/space8_4-frames.png");
     font = clstFont("res/fonts/ThaleahFat.ttf", 72.0f);
     audio = clstAudio("res/audio/space.ogg");
 #endif /* CELESTE_PACK_RESOURCES */
@@ -331,6 +332,10 @@ int main()
     clstTextureDestroy(texture_atlas);
     clstTextureDestroy(texture_space);
     clstTextureDestroy(texture_celeste);
+
+    clstLoaderSaveData(loader);
+    clstLoaderLoadData(loader);
+    clstLoaderDestroy(loader);
 
     clstWindowDestroy();
     clstTerminate();

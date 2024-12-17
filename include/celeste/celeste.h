@@ -5,6 +5,7 @@
 #include "../../core/celeste.h"
 #include "../../core/common.h"
 #include "../../core/layer.h"
+// #include "../../core/loader.h"
 #include "../../core/input.h"
 #include "../../core/renderer.h"
 #include "../../core/scene.h"

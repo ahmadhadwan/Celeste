@@ -46,6 +46,8 @@ typedef struct {
     void        *aumanager;
     void        *aumixer;
     pthread_t    audio_thread;
+
+    void        *loader;
 } CLST;
 
 /*

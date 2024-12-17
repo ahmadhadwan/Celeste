@@ -5,3 +5,4 @@ res/textures/
 *.o
 .vscode/
 .ccls
+sandbox.clst
