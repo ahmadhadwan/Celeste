@@ -111,7 +111,6 @@ void clstPhysicsUpdate(CLST *celeste)
         return;
     }
 
-
     delta = clstTime() - celeste->last_physics_update;
     for (int i = 0; i < celeste->bodies_count; i++)
     {

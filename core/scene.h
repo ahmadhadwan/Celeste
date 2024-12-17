@@ -6,6 +6,10 @@
 typedef struct {
     unsigned int   layers_count;
     CLSTlayer    **layers;
+
+    uint32_t       textures_count;
+    CLSTtexture  **textures;
+    char         **textures_names;
 } CLSTscene;
 
 /*
@@ -25,6 +29,11 @@ void clstSceneDestroy(CLSTscene *scene);
  * Adds a layer to the scene.
  */
 void clstSceneAddLayer(CLSTscene *scene, CLSTlayer *layer);
+
+/*
+ * Adds a texture to the scene.
+ */
+void clstSceneAddTexture(CLSTscene *scene, CLSTtexture *texture, char *name);
 
 /*
  * Renders each sprite in each layer in the scene.
