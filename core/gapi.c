@@ -310,7 +310,7 @@ void clstShaderUniformMat4(CLSTshader *shader, char *uniform_name, mat4 value)
     glUniformMatrix4fv(glGetUniformLocation(shader->id, uniform_name), 1, GL_FALSE, v);
 }
 
-CLSTtexture *clstTexture(char *filepath)
+CLSTtexture *clstTexture(char *filepath, char *name)
 {
     CLSTtexture *texture;
     unsigned char *pixels;
@@ -331,12 +331,14 @@ CLSTtexture *clstTexture(char *filepath)
     texture->id = opengl_texture_create(pixels, width, height, GL_RGBA);
     texture->width = width;
     texture->height = height;
+    texture->name = malloc(strlen(name) + 1);
+    strcpy(texture->name, name);
 
     stbi_image_free(pixels);
     return texture;
 }
 
-CLSTtexture *clstTextureMem(unsigned char *buffer, unsigned int bufsize)
+CLSTtexture *clstTextureMem(unsigned char *buffer, unsigned int bufsize, char *name)
 {
     CLSTtexture *texture;
     unsigned char *pixels;
@@ -351,12 +353,14 @@ CLSTtexture *clstTextureMem(unsigned char *buffer, unsigned int bufsize)
     texture->id = opengl_texture_create(pixels, width, height, GL_RGBA);
     texture->width = width;
     texture->height = height;
+    texture->name = malloc(strlen(name) + 1);
+    strcpy(texture->name, name);
 
     stbi_image_free(pixels);
     return texture;
 }
 
-CLSTtexture *clstTextureInline(unsigned char *pixels, unsigned int width, unsigned int height, unsigned int bpp)
+CLSTtexture *clstTextureInline(unsigned char *pixels, unsigned int width, unsigned int height, unsigned int bpp, char *name)
 {
     CLSTtexture *texture;
 
@@ -364,12 +368,15 @@ CLSTtexture *clstTextureInline(unsigned char *pixels, unsigned int width, unsign
     texture->id = opengl_texture_create(pixels, width, height, bpp == 32 ? GL_RGBA : GL_RGB);
     texture->width = width;
     texture->height = height;
+    texture->name = malloc(strlen(name) + 1);
+    strcpy(texture->name, name);
     return texture;
 }
 
 void clstTextureDestroy(CLSTtexture *texture)
 {
     glDeleteTextures(1, &(texture->id));
+    free(texture->name);
     free(texture);
 }
 

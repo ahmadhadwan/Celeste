@@ -27,6 +27,7 @@ typedef struct {
     unsigned int id;
     unsigned int width;
     unsigned int height;
+    char        *name;
 } CLSTtexture;
 
 typedef struct {

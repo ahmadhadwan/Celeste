@@ -37,7 +37,4 @@ void clstLoadableDestroy(CLSTloadable *loadable);
 CLSTtexture *clstTextureSave(char *filepath);
 CLSTtexture *clstTextureMemSave(char *name, uint8_t *buffer, uint32_t bufsize);
 
-#define clstTexture                     clstTextureSave
-#define clstTextureMem(buffer, bufsize) clstTextureMemSave(#buffer, buffer, bufsize)
-
 #endif /* __CELESTE_LOADER_H__ */

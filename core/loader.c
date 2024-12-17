@@ -25,7 +25,7 @@ CLSTtexture *clstTextureSave(char *filepath)
     name = malloc(strlen(namecopy) + 1);
     strcpy(name, namecopy);
     clstLoadable(name, data, data_size, CLST_TEXTURE_FILE);
-    return clstTexture(filepath);
+    return clstTexture(filepath, name);
 }
 
 CLSTtexture *clstTextureMemSave(char *name, uint8_t *buffer, uint32_t bufsize)
@@ -36,7 +36,7 @@ CLSTtexture *clstTextureMemSave(char *name, uint8_t *buffer, uint32_t bufsize)
     memcpy(data, buffer, bufsize);
 
     clstLoadable(name, buffer, bufsize, CLST_TEXTURE_BIN);
-    return clstTextureMem(buffer, bufsize);
+    return clstTextureMem(buffer, bufsize, name);
 }
 
 CLSTloader *clstLoader(char *filepath)
@@ -45,7 +45,6 @@ CLSTloader *clstLoader(char *filepath)
     CLSTloader *loader;
 
     clst = clstInstance();
-    CELESTE_ASSERT(clst != NULL && "Celeste hasn't been initialized before creating a celeste loader!");
 
     if (clst->loader != NULL) {
         // TODO ERROR
@@ -93,6 +92,7 @@ void clstLoaderSaveData(CLSTloader *loader)
 
 void clstLoaderLoadData(CLSTloader *loader)
 {
+    CLST *clst;
     struct stat s;
     FILE *fp;
     uint8_t *data;
@@ -115,6 +115,7 @@ void clstLoaderLoadData(CLSTloader *loader)
     }
 
     data_offset = sizeof(uint32_t);
+    clst = clstInstance();
 
     while (data_offset < s.st_size)
     {
@@ -135,10 +136,12 @@ void clstLoaderLoadData(CLSTloader *loader)
         switch (type)
         {
             case CLST_TEXTURE_FILE:
-                printf("Loading texture `%s` from `%s`!\n", name, (data + data_offset));
+                CELESTE_LOG("Loading texture `%s` from `%s`!\n", name, (data + data_offset));
+                clstSceneAddTexture(clst->scene, clstTexture((char *)(data + data_offset), name));
                 break;
             case CLST_TEXTURE_BIN:
-                printf("Loading binary texture `%s`!\n", name);
+                CELESTE_LOG("Loading texture `%s`!\n", name);
+                clstSceneAddTexture(clst->scene, clstTextureMem((data + data_offset), data_size, name));
                 break;
             default:
                 // ERROR

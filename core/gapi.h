@@ -107,7 +107,7 @@ void clstShaderUniformMat4(CLSTshader *shader, char *uniform_name, mat4 value);
  *
  * On error it returns NULL.
  */
-CLSTtexture *clstTexture(char *filepath);
+CLSTtexture *clstTexture(char *filepath, char *name);
 
 /*
  * Creates a texture from a loaded image.
@@ -117,7 +117,7 @@ CLSTtexture *clstTexture(char *filepath);
  *
  * On error it returns NULL.
  */
-CLSTtexture *clstTextureMem(unsigned char *buffer, unsigned int bufsize);
+CLSTtexture *clstTextureMem(unsigned char *buffer, unsigned int bufsize, char *name);
 
 /*
  * Creates a texture from inline data.
@@ -127,7 +127,7 @@ CLSTtexture *clstTextureMem(unsigned char *buffer, unsigned int bufsize);
  *
  * On error it returns NULL.
  */
-CLSTtexture *clstTextureInline(unsigned char *pixels, unsigned int width, unsigned int height, unsigned int bpp);
+CLSTtexture *clstTextureInline(unsigned char *pixels, unsigned int width, unsigned int height, unsigned int bpp, char *name);
 
 /*
  * Destroys the texture, and frees its memory.

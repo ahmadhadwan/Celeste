@@ -1,5 +1,4 @@
 #include <celeste/celeste.h>
-#include "../core/loader.h"
 #include <cglm/cglm.h>
 #include <stdio.h>
 #include <string.h>
@@ -57,7 +56,6 @@ int main()
     CLSTloader *loader;
     CLSTcamera camera;
     CLSTlayer *layer, *layer_debug;
-    CLSTtexture *texture_atlas, *texture_space, *texture_celeste;
 
     CLSTanimation *space_anim, *carpet_anim;
     CLSTsprite space[4];
@@ -90,6 +88,8 @@ int main()
         return 1;
 
     loader = clstLoader("sandbox.clst");
+    scene = clstScene();
+    clst->scene = scene;
 
     clstCameraOrtho((vec2){ 0.0f, 0.0f }, &camera);
     layer = clstLayerCamera(&camera, 16.0f, 9.0f);
@@ -101,20 +101,19 @@ int main()
     font = clstFontMem(ThaleahFat_ttf, sizeof(ThaleahFat_ttf) / sizeof(unsigned char), 72.0f);
     audio = clstAudioMem(space_ogg, sizeof(space_ogg) / sizeof(unsigned char));
 #else
-    texture_atlas = clstTextureSave("res/textures/atlas_48x.png");
-    texture_space = clstTextureSave("res/textures/space8_4-frames.png");
     font = clstFont("res/fonts/ThaleahFat.ttf", 72.0f);
     audio = clstAudio("res/audio/space.ogg");
 #endif /* CELESTE_PACK_RESOURCES */
-    texture_celeste = clstTextureMem(celeste_48x48_png, CELESTE_48X48_PNG_SIZE);
 
-    space_anim = space_animation(space, texture_space);
+    clstLoaderLoadData(loader);
+
+    space_anim = space_animation(space, clstSceneGetTexture(scene, "space8_4-frames.png"));
     clstLayerAddSprite(layer, space_anim);
 
-    carpet_anim = carpet_animation((CLSTsprite[]){carpet, carpet2}, texture_atlas);
+    carpet_anim = carpet_animation((CLSTsprite[]){carpet, carpet2}, clstSceneGetTexture(scene, "atlas_48x.png"));
     clstLayerAddSprite(layer, carpet_anim);
 
-    clstSprite((vec2){ -4.0f, 1.0f }, (vec2){ 8.0f, 8.0f }, texture_celeste, &celeste);
+    clstSprite((vec2){ -4.0f, 1.0f }, (vec2){ 8.0f, 8.0f }, clstSceneGetTexture(scene, "celeste_48x48_png"), &celeste);
     clstLayerAddSprite(layer, &celeste);
 
     button_group = clstGroup((vec2){ -4.0f, -7.5f });
@@ -129,8 +128,6 @@ int main()
     clstLabel((vec2){ -15.5f, 8.0f }, fps_text, font, &fps);
     clstLayerAddSprite(layer_debug, &fps);
 
-    scene = clstScene();
-    clst->scene = scene;
     clstSceneAddLayer(scene, layer);
 
     audio_player = clstAudioPlayer(audio, 1, 0);
@@ -184,7 +181,7 @@ int main()
     CLSTframebuffer *fb;
     CLSTtexture *fbtex;
     fb = clstFrameBuffer();
-    fbtex = clstTextureInline(NULL, 1920, 1080, 24);
+    fbtex = clstTextureInline(NULL, 1920, 1080, 24, "fb");
     clstFrameBufferAttachTexture(fb, fbtex);
     clstFrameBufferAttachRenderBuffer(fb, NULL);
 
@@ -198,6 +195,8 @@ int main()
     clstAudioPlayerSetPitch(audio_player, 0.6f);
 
     clst->world_gravity = 12.0f;
+
+    clstLoaderSaveData(loader);
 
     clst->last_physics_update = prevtime = prevtime2 = clstTime();
     memset(fps_text, 0, 20);
@@ -329,12 +328,6 @@ int main()
     clstLayerDestroy(layer_debug);
     clstGroupDestroy(button_group);
 
-    clstTextureDestroy(texture_atlas);
-    clstTextureDestroy(texture_space);
-    clstTextureDestroy(texture_celeste);
-
-    clstLoaderSaveData(loader);
-    clstLoaderLoadData(loader);
     clstLoaderDestroy(loader);
 
     clstWindowDestroy();
