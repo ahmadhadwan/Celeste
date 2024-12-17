@@ -106,6 +106,12 @@ void clstPhysicsUpdate(CLST *celeste)
     CLSTbody *body;
     float delta;
 
+    if (!celeste->window.focused) {
+        celeste->last_physics_update = clstTime();
+        return;
+    }
+
+
     delta = clstTime() - celeste->last_physics_update;
     for (int i = 0; i < celeste->bodies_count; i++)
     {

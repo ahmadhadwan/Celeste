@@ -1,8 +1,14 @@
 bin/sandbox
+bin/libceleste-linux64.a
+bin/libceleste.a
+
+*.o
+
 res/audio/
 res/fonts/
 res/textures/
-*.o
+
 .vscode/
 .ccls
+
 sandbox.clst
