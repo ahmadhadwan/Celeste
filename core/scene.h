@@ -3,19 +3,13 @@
 
 #include "layer.h"
 #include "audio.h"
+#include "list.h"
 
 typedef struct {
-    unsigned int   layers_count;
-    CLSTlayer    **layers;
-
-    uint32_t       textures_count;
-    CLSTtexture  **textures;
-
-    uint32_t       fonts_count;
-    CLSTfont     **fonts;
-
-    uint32_t       audio_count;
-    CLSTaudio    **audio;
+    CLSTlist *layers;
+    CLSTlist *textures;
+    CLSTlist *fonts;
+    CLSTlist *audio;
 } CLSTscene;
 
 /*
