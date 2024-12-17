@@ -254,7 +254,7 @@ void clstLoaderLoadData(CLSTloader *loader)
 
                 sprite = malloc(sizeof(CLSTsprite)); // MEMORY LEAK // TODO: FIX AFTER ADDING LAYERS //
                 clstSprite(pos, size, clstSceneGetTexture(clst->scene, (char *)(data + data_offset + sizeof(float) * 4)), sprite);
-                clstLayerAddSprite(clst->scene->layers[0], sprite);
+                clstLayerAddSprite(clstSceneGetLayer(clst->scene), sprite);
                 clstLoadable(name, data + data_offset, data_size, CELESTE_SPRITE);
                 break;
             case CELESTE_LAYER:

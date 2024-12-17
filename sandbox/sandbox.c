@@ -44,7 +44,7 @@ int main()
 {
     CLST *clst;
     CLSTloader *loader;
-    CLSTlayer *layer, *layer_debug;
+    CLSTlayer *layer_debug;
 
     // CLSTanimation *space_anim, *carpet_anim;
     // CLSTsprite space[4];
@@ -78,8 +78,6 @@ int main()
     scene = clstScene();
     clst->scene = scene;
 
-    layer = clstLayerCameraSave(clstCameraOrtho((vec2){ 0.0f, 0.0f }), 16.0f, 9.0f);
-    clstSceneAddLayer(scene, layer);
     layer_debug = clstLayer(16.0f, 9.0f);
 
     clstLoaderLoadData(loader);
@@ -99,7 +97,7 @@ int main()
     clstGroupAddSprite(button_group, &button);
     clstLabelCol((vec2){ 3.0f, 2.0f }, "Quit", clstSceneGetFont(scene, "ThaleahFat-72"), 0xFFFFFFFF, &button_label);
     clstGroupAddSprite(button_group, &button_label);
-    clstLayerAddSprite(layer, button_group);
+    clstLayerAddSprite(clstSceneGetLayer(scene), button_group);
 
     memset(fps_text, 0, sizeof(fps_text));
     clstLabel((vec2){ -15.5f, 8.0f }, fps_text, clstSceneGetFont(scene, "ThaleahFat-72"), &fps);
@@ -114,7 +112,7 @@ int main()
 
     memset(pointless_str, 0, sizeof(pointless_str));
     clstLabel((vec2){ -15.5f, -8.5f }, pointless_str, clstSceneGetFont(scene, "ThaleahFat-72"), &pointless_label);
-    clstLayerAddSprite(layer, &pointless_label);
+    clstLayerAddSprite(clstSceneGetLayer(scene), &pointless_label);
 
     CLSTsprite quad1, quad2;
     char colliding[10];
@@ -123,9 +121,9 @@ int main()
     clstSpriteCol((vec2){   8.0f, -2.0f }, (vec2){ 4.0f, 4.0f }, 0xFF0000FF, &quad2);
     memset(colliding, 0, sizeof(colliding));
     clstLabel((vec2){ -2.0f, 8.0f }, colliding, clstSceneGetFont(scene, "ThaleahFat-72"), &colliding_label);
-    clstLayerAddSprite(layer, &quad1);
-    clstLayerAddSprite(layer, &quad2);
-    clstLayerAddSprite(layer, &colliding_label);
+    clstLayerAddSprite(clstSceneGetLayer(scene), &quad1);
+    clstLayerAddSprite(clstSceneGetLayer(scene), &quad2);
+    clstLayerAddSprite(clstSceneGetLayer(scene), &colliding_label);
 
     CLSTbody *body1 = clstBody(0, 1, 1, 1, (vec2*)&(quad1.position), &(quad1.size));
     CLSTbody *body2 = clstBody(0, 0, 1, 0, (vec2*)&(quad2.position), &(quad2.size));

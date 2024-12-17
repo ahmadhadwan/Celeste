@@ -17,10 +17,10 @@ CLSTscene *clstScene()
 
 void clstSceneDestroy(CLSTscene *scene)
 {
-    clstListDestroy(scene->audio,    clstAudioDestroy);
-    clstListDestroy(scene->fonts,    clstFontDestroy);
-    clstListDestroy(scene->textures, clstTextureDestroy);
-    clstListDestroy(scene->layers,   clstLayerDestroy);
+    clstListDestroy(scene->audio,    (clstItemDestroyer)clstAudioDestroy);
+    clstListDestroy(scene->fonts,    (clstItemDestroyer)clstFontDestroy);
+    clstListDestroy(scene->textures, (clstItemDestroyer)clstTextureDestroy);
+    clstListDestroy(scene->layers,   (clstItemDestroyer)clstLayerDestroy);
     free(scene);
 }
 
@@ -45,7 +45,7 @@ CLSTtexture *clstSceneGetTexture(CLSTscene *scene, char *texture_name)
 {
     CLSTtexture **textures;
 
-    textures = scene->textures->items;
+    textures = (CLSTtexture **)scene->textures->items;
     for (int i = 0; i < scene->textures->count; i++) {
         if (strcmp(textures[i]->name, texture_name) == 0)
             return textures[i];
@@ -60,9 +60,9 @@ void clstSceneAddFont(CLSTscene *scene, CLSTfont *font)
 
 CLSTfont *clstSceneGetFont(CLSTscene *scene, char *font_name)
 {
-    CLSTtexture **fonts;
+    CLSTfont **fonts;
 
-    fonts = scene->fonts->items;
+    fonts = (CLSTfont **)scene->fonts->items;
     for (int i = 0; i < scene->fonts->count; i++) {
         if (strcmp(fonts[i]->name, font_name) == 0)
             return fonts[i];
@@ -77,9 +77,9 @@ void clstSceneAddAudio(CLSTscene *scene, CLSTaudio *audio)
 
 CLSTaudio *clstSceneGetAudio(CLSTscene *scene, char *audio_name)
 {
-    CLSTtexture **audio;
+    CLSTaudio **audio;
 
-    audio = scene->audio->items;
+    audio = (CLSTaudio **)scene->audio->items;
     for (int i = 0; i < scene->audio->count; i++) {
         if (strcmp(audio[i]->name, audio_name) == 0)
             return audio[i];
@@ -91,7 +91,7 @@ void clstSceneRender(CLSTscene *scene)
 {
     CLSTlayer **layers;
 
-    layers = scene->layers->items;
+    layers = (CLSTlayer **)scene->layers->items;
     for (int i = 0; i < scene->layers->count; i++)
         clstLayerRender(layers[i]);
 }
