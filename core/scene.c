@@ -9,15 +9,17 @@ CLSTscene *clstScene()
 {
     CLSTscene *scene;
     scene = malloc(sizeof(CLSTscene));
-    scene->layers = clstListCreate();
+    scene->layers   = clstListCreate();
     scene->textures = clstListCreate();
-    scene->fonts = clstListCreate();
-    scene->audio = clstListCreate();
+    scene->fonts    = clstListCreate();
+    scene->audio    = clstListCreate();
+    scene->bodies   = clstListCreate();
     return scene;
 }
 
 void clstSceneDestroy(CLSTscene *scene)
 {
+    clstListDestroy(scene->bodies,   (CLSTitemdestroy)clstBodyDestroy);
     clstListDestroy(scene->audio,    (CLSTitemdestroy)clstAudioDestroy);
     clstListDestroy(scene->fonts,    (CLSTitemdestroy)clstFontDestroy);
     clstListDestroy(scene->textures, (CLSTitemdestroy)clstTextureDestroy);
@@ -101,6 +103,11 @@ CLSTaudio *clstSceneGetAudio(CLSTscene *scene, char *audio_name)
             return audio[i];
     }
     return NULL;
+}
+
+void clstSceneAddBody(CLSTscene *scene, CLSTbody *body)
+{
+    clstListAdd(scene->bodies, body);
 }
 
 void clstSceneRender(CLSTscene *scene)

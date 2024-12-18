@@ -19,7 +19,7 @@ CLSTbody *clstBody(uint32_t layer, uint8_t gravity, uint8_t collider,
     body->velocity[1] = 0.0f;
 
     clst = clstInstance();
-    clstListAdd(clst->bodies, body);
+    clstListAdd(clst->scene->bodies, body);
     return body;
 }
 
@@ -90,6 +90,7 @@ uint32_t clstCollisionRectangles(vec2 *rec1pos, vec2 *rec1size, vec2 *rec2pos, v
 void clstPhysicsUpdate(CLST *clst)
 {
     CLSTbody *body;
+    uint32_t count;
     float delta;
 
     if (!clst->window.focused) {
@@ -97,10 +98,11 @@ void clstPhysicsUpdate(CLST *clst)
         return;
     }
 
+    count = clst->scene->bodies->count;
     delta = clstTime() - clst->last_physics_update;
-    for (int i = 0; i < clst->bodies->count; i++)
+    for (int i = 0; i < count; i++)
     {
-        body = ((CLSTbody **)clst->bodies->items)[i];
+        body = ((CLSTbody **)clst->scene->bodies->items)[i];
         if (!body->dynamic)
             continue;
 
@@ -108,14 +110,16 @@ void clstPhysicsUpdate(CLST *clst)
         {
             (*body->position)[0] += body->velocity[0] * delta;
             body->velocity[0] -= body->velocity[0] * delta;
-            for (int j = 0; j < clst->bodies->count; j++)
+            for (int j = 0; j < count; j++)
             {
-                if (i == j || !((CLSTbody **)clst->bodies->items)[j]->collider)
+                CLSTbody *body2;
+
+                body2 = ((CLSTbody **)clst->scene->bodies->items)[j];
+                if (i == j || !body2->collider)
                     continue;
 
-                if (internal_celeste_collision_rectangles(body->position, body->size,
-                ((CLSTbody **)clst->bodies->items)[j]->position, ((CLSTbody **)clst->bodies->items)[j]->size)) {
-                    (*body->position)[0] = (*((CLSTbody **)clst->bodies->items)[j]->position)[0] - (*body->size)[0];
+                if (internal_celeste_collision_rectangles(body->position, body->size, body2->position, body2->size)) {
+                    (*body->position)[0] = (*body2->position)[0] - (*body->size)[0];
                     body->velocity[0] = 0.0f;
                 }
             }
@@ -124,11 +128,11 @@ void clstPhysicsUpdate(CLST *clst)
         {
             (*body->position)[0] += body->velocity[0] * delta;
             body->velocity[0] -= body->velocity[0] * delta;
-            for (int j = 0; j < clst->bodies->count; j++)
+            for (int j = 0; j < count; j++)
             {
                 CLSTbody *body2;
 
-                body2 = ((CLSTbody **)clst->bodies->items)[j];
+                body2 = ((CLSTbody **)clst->scene->bodies->items)[j];
                 if (i == j || !body2->collider)
                     continue;
 
@@ -143,11 +147,11 @@ void clstPhysicsUpdate(CLST *clst)
         {
             (*body->position)[1] += body->velocity[1] * delta;
             body->velocity[1] -= body->velocity[1] * delta;
-            for (int j = 0; j < clst->bodies->count; j++)
+            for (int j = 0; j < count; j++)
             {
                 CLSTbody *body2;
 
-                body2 = ((CLSTbody **)clst->bodies->items)[j];
+                body2 = ((CLSTbody **)clst->scene->bodies->items)[j];
                 if (i == j || !body2->collider)
                     continue;
 
@@ -165,11 +169,11 @@ void clstPhysicsUpdate(CLST *clst)
             else
                 body->velocity[1] -= body->velocity[1] * delta;
 
-            for (int j = 0; j < clst->bodies->count; j++)
+            for (int j = 0; j < count; j++)
             {
                 CLSTbody *body2;
 
-                body2 = ((CLSTbody **)clst->bodies->items)[j];
+                body2 = ((CLSTbody **)clst->scene->bodies->items)[j];
                 if (i == j || !body2->collider)
                     continue;
 

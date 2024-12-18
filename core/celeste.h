@@ -35,8 +35,7 @@ typedef struct {
     uint32_t      input_listener_len;
     uint32_t      input_listener_max_len;
     CLSTlist     *scroll_listeners;
-    
-    CLSTlist     *bodies;
+
     double        last_physics_update;
     float         world_gravity;
 
@@ -56,6 +55,17 @@ CLST *clstInit();
  * Terminates celeste.
  */
 void clstTerminate();
+
+/*
+ * Sets the current scene.
+ */
+void clstSetScene(CLSTscene *scene);
+
+/*
+ * Sets the world gravity.
+ * This affects the physical bodies CLSTbody.
+ */
+void clstSetWorldGravity(float gravity);
 
 /*
  * Returns the current celeste instance.

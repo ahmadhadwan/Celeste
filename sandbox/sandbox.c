@@ -78,7 +78,7 @@ int main()
 
     loader = clstLoader("sandbox.clst");
     scene = clstScene();
-    clst->scene = scene;
+    clstSetScene(scene);
 
     layer_debug = clstLayer(16.0f, 9.0f, "Debug Layer");
 
@@ -161,7 +161,7 @@ int main()
 
     clstAudioPlayerSetPitch(audio_player, 0.6f);
 
-    clst->world_gravity = 12.0f;
+    clstSetWorldGravity(12.0f);
 
     clstLoaderSaveData(loader);
 

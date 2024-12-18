@@ -46,7 +46,6 @@ CLST *clstInit()
 
     clst->scroll_listeners = clstListCreate();
 
-    clst->bodies = clstListCreate();
     clst->last_physics_update = 0.0;
     clst->world_gravity = 0.0;
 
@@ -88,12 +87,21 @@ void clstTerminate()
 
     glfwTerminate();
 
-    clstListDestroy(clst->bodies, (CLSTitemdestroy)clstBodyDestroy);
     clstListDestroy(clst->scroll_listeners, (CLSTitemdestroy)free);
     clstListDestroy(clst->clicks, (CLSTitemdestroy)free);
     clstListDestroy(clst->keys, (CLSTitemdestroy)free);
     free(clst);
     celeste_instance = NULL;
+}
+
+void clstSetScene(CLSTscene *scene)
+{
+    clstInstance()->scene = scene;
+}
+
+void clstSetWorldGravity(float gravity)
+{
+    clstInstance()->world_gravity = gravity;
 }
 
 CLST *clstInstance()

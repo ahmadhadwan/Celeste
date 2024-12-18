@@ -3,6 +3,7 @@
 
 #include "layer.h"
 #include "audio.h"
+#include "physics.h"
 #include "list.h"
 
 typedef struct {
@@ -10,6 +11,7 @@ typedef struct {
     CLSTlist *textures;
     CLSTlist *fonts;
     CLSTlist *audio;
+    CLSTlist *bodies;
 } CLSTscene;
 
 /*
@@ -69,6 +71,11 @@ void clstSceneAddAudio(CLSTscene *scene, CLSTaudio *audio);
  * Gets an audio from an audio name.
  */
 CLSTaudio *clstSceneGetAudio(CLSTscene *scene, char *audio_name);
+
+/*
+ * Adds a body to the scene.
+ */
+void clstSceneAddBody(CLSTscene *scene, CLSTbody *body);
 
 /*
  * Renders each sprite in each layer in the scene.
