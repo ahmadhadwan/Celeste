@@ -90,7 +90,7 @@ int main()
     carpet_anim = carpet_animation(clstSceneGetTexture(scene, "atlas_48x"));
     clstLayerAddSprite(clstSceneGetLayer(scene, "Base Layer"), carpet_anim);
 
-    clstSpriteSave((vec2){ -4.0f, 1.0f }, (vec2){ 8.0f, 8.0f }, clstSceneGetTexture(scene, "celeste_icon"));
+    // free(clstSpriteSave((vec2){ -4.0f, 1.0f }, (vec2){ 8.0f, 8.0f }, clstSceneGetTexture(scene, "celeste_icon")));
 
     button_group = clstGroup((vec2){ -4.0f, -7.5f });
     button_col = clstSpriteCol((vec2){ 0.0f, 0.0f }, (vec2){ 8.0f, 4.0f }, 0x3A555555);

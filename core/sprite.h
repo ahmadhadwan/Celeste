@@ -73,7 +73,7 @@ CLSTsprite *clstSpriteCol(vec2 position, vec2 size, uint32_t color);
 
 /*
  * Destroys the sprite, and frees its memory.
-*/
+ */
 void clstSpriteDestroy(CLSTsprite *sprite);
 
 /*
@@ -88,7 +88,7 @@ CLSTlabel *clstLabelCol(vec2 position, char *text, CLSTfont *font, uint32_t colo
 
 /*
  * Destroys the label, and frees its memory.
-*/
+ */
 void clstLabelDestroy(CLSTlabel *label);
 
 /*
@@ -136,6 +136,11 @@ CLSTbutton *clstButton(CLSTsprite *sprite);
  * Destroys the button, and frees its memory.
  */
 void clstButtonDestroy(CLSTbutton *button);
+
+/*
+ * Destroys the renderable, and frees its memory.
+ */
+void clstRenderableDestroy(void *renderable);
 
 /*
  * Checks for a button event.

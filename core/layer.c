@@ -77,7 +77,7 @@ void clstLayerDestroy(CLSTlayer *layer)
 {
     free(layer->name);
     free(layer->camera);
-    clstListDestroy(layer->sprites, (CLSTitemdestroy)clstSpriteDestroy);
+    clstListDestroy(layer->sprites, (CLSTitemdestroy)clstRenderableDestroy);
     free(layer);
 }
 

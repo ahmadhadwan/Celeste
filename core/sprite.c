@@ -135,13 +135,7 @@ CLSTsprite *clstSpriteCol(vec2 position, vec2 size, uint32_t color)
 
 void clstSpriteDestroy(CLSTsprite *sprite)
 {
-    if (sprite == NULL)
-        return;
-
-    if (sprite->draw == (CLSTdrawfunc)draw_group)
-        clstGroupDestroy((CLSTgroup *)sprite);
-    else
-        free(sprite);
+    free(sprite);
 }
 
 CLSTlabel *clstLabel(vec2 position, char *text, CLSTfont *font)
@@ -211,7 +205,7 @@ CLSTgroup *clstGroup(vec2 position)
 
 void clstGroupDestroy(CLSTgroup *group)
 {
-    clstListDestroy(group->sprites, (CLSTitemdestroy)clstSpriteDestroy);
+    clstListDestroy(group->sprites, (CLSTitemdestroy)clstRenderableDestroy);
     free(group);
 }
 
@@ -240,7 +234,25 @@ CLSTbutton *clstButton(CLSTsprite *sprite)
 
 void clstButtonDestroy(CLSTbutton *button)
 {
+    clstSpriteDestroy(button->sprite);
     free(button);
+}
+
+void clstRenderableDestroy(void *renderable)
+{
+    CLSTsprite *sprite;
+    
+    sprite = renderable;
+    if (sprite->draw == (CLSTdrawfunc)draw_sprite)
+        clstSpriteDestroy(renderable);
+    else if (sprite->draw == (CLSTdrawfunc)draw_label)
+        clstLabelDestroy(renderable);
+    else if (sprite->draw == (CLSTdrawfunc)draw_group)
+        clstGroupDestroy(renderable);
+    else if (sprite->draw == (CLSTdrawfunc)draw_button)
+        clstButtonDestroy(renderable);
+    else if (sprite->draw == (CLSTdrawfunc)draw_animation)
+        clstAnimationDestroy(renderable);
 }
 
 void clstButtonEv(CLSTbutton *button, float projection_x, float projection_y)
