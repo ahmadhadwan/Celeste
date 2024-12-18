@@ -54,7 +54,7 @@ CLSTlayer *clstLayerCustom(CLSTrenderer *renderer, CLSTshader *shader, CLSTcamer
     layer = malloc(sizeof(CLSTlayer));
     layer->renderer = renderer;
     layer->shader = shader;
-    layer->sprites = clstListCreate();
+    layer->renderables = clstListCreate();
     layer->camera = camera;
     layer->name = strdup(name);
 
@@ -77,19 +77,34 @@ void clstLayerDestroy(CLSTlayer *layer)
 {
     free(layer->name);
     free(layer->camera);
-    clstListDestroy(layer->sprites, (CLSTitemdestroy)clstRenderableDestroy);
+    clstListDestroy(layer->renderables, (CLSTitemdestroy)clstRenderableDestroy);
     free(layer);
 }
 
-void clstLayerAddSprite(CLSTlayer *layer, void *sprite)
+void clstLayerAddRenderable(CLSTlayer *layer, void *renderable)
 {
-    clstListAdd(layer->sprites, sprite);
+    clstListAdd(layer->renderables, renderable);
+}
+
+CLSTrenderable *clstLayerGetRenderable(CLSTlayer *layer, char *name)
+{
+    CLSTrenderable **renderables;
+
+    renderables = (CLSTrenderable **)layer->renderables->items;
+    for (int i = 0; i < layer->renderables->count; i++)
+    {
+        if (strcmp(renderables[i]->name, name) == 0)
+            return renderables[i];
+    }
+    CELESTE_LOG("Renderable `%s` doesn't exist in the layer `%s`!", name, layer->name);
+    CELESTE_LOG_ERROR("Renderable doesn't exist!");
+    return NULL;
 }
 
 void clstLayerRender(CLSTlayer *layer)
 {
     mat4 view;
-    CLSTsprite *sprite;
+    CLSTrenderable *renderable;
 
     layer->renderer->projection_x = layer->projection.right * 2;
     layer->renderer->projection_y = layer->projection.top * 2;
@@ -104,9 +119,9 @@ void clstLayerRender(CLSTlayer *layer)
         clstRendererMat4Push(layer->renderer, view);
     }
 
-    for (int i = 0; i < layer->sprites->count; i++) {
-        sprite = (CLSTsprite *)layer->sprites->items[i];
-        sprite->draw(layer->renderer, sprite);
+    for (int i = 0; i < layer->renderables->count; i++) {
+        renderable = (CLSTrenderable *)layer->renderables->items[i];
+        renderable->draw(layer->renderer, renderable);
     }
 
     if (layer->camera)

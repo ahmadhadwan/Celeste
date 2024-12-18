@@ -6,34 +6,6 @@
 #include "../res/shaders/fb.c"
 #include "../res/icons/celeste_48x48.h"
 
-// static CLSTanimation *space_animation(CLSTtexture *texture_space)
-// {
-//     vec2 pos = { -16.0f, -9.0f };
-//     vec2 size = { 32.0f, 18.0f };
-//     vec2 texsize = { clstTextureWidth(texture_space) / 4.0f, clstTextureHeight(texture_space) };
-//     CLSTsprite *s1, *s2, *s3, *s4;
-
-//     s1 = clstSpriteTexAtlas(pos, size, texture_space, (vec2){ 0, 0 }, texsize);
-//     s2 = clstSpriteTexAtlas(pos, size, texture_space, (vec2){ 1, 0 }, texsize);
-//     s3 = clstSpriteTexAtlas(pos, size, texture_space, (vec2){ 2, 0 }, texsize);
-//     s4 = clstSpriteTexAtlas(pos, size, texture_space, (vec2){ 3, 0 }, texsize);
-
-//     return clstAnimationSave((CLSTsprite*[]){s1, s2, s3, s4}, 4, 0.25);
-// }
-
-// static CLSTanimation *carpet_animation(CLSTtexture *texture_atlas)
-// {
-//     vec2 pos = { -8.0f, -6.0f };
-//     vec2 size = { 16.0f, 16.0f };
-//     vec2 texsize = { 48.0f, 48.0f };
-//     CLSTsprite *s1, *s2;
-
-//     s1 = clstSpriteTexAtlas(pos, size, texture_atlas, (vec2){ 16, 10 }, texsize);
-//     s2 = clstSpriteTexAtlas(pos, size, texture_atlas, (vec2){ 16, 10 + 3 }, texsize);
-
-//     return clstAnimationSave((CLSTsprite*[]){s1, s2}, 2, 0.75);
-// }
-
 static void destroy_window(void *winalive)
 {
     *((int*)winalive) = 0;
@@ -48,10 +20,10 @@ static CLSTlayer *setup_framebuffer_layer(CLSTframebuffer **fb, CLSTtexture **fb
     clstFrameBufferAttachTexture(*fb, *fbtex);
     clstFrameBufferAttachRenderBuffer(*fb, NULL);
 
-    fbsprite = clstSprite((float[]){-16.0f, -9.0f}, (float[]){32.0f, 18.0f}, *fbtex);
+    fbsprite = clstSprite((float[]){-16.0f, -9.0f}, (float[]){32.0f, 18.0f}, *fbtex, "FBSprite");
     *fbshader = clstShaderSrc(fb_glsl);
     fblayer = clstLayerShader(16.0f, 9.0f, *fbshader, "FB Layer");
-    clstLayerAddSprite(fblayer, fbsprite);
+    clstLayerAddRenderable(fblayer, fbsprite);
     return fblayer;
 }
 
@@ -77,8 +49,8 @@ int main()
     float jump = 18.0f;
     int pantoright = 1;
 
-    char pointless_str[1024];
-    CLSTlabel *pointless_label;
+    char input_str[1024];
+    CLSTlabel *input_label;
 
     clst = clstInit();
     if (clst == NULL)
@@ -92,43 +64,31 @@ int main()
     clstSetScene(scene);
     clstLoaderLoadData(loader);
 
-    // CLSTanimation *space_anim = space_animation(clstSceneGetTexture(scene, "space_4frames"));
-    // clstLayerAddSprite(clstSceneGetLayer(scene, "Base Layer"), space_anim);
-    // CLSTanimation *carpet_anim = carpet_animation(clstSceneGetTexture(scene, "atlas_48x"));
-    // clstLayerAddSprite(clstSceneGetLayer(scene, "Base Layer"), carpet_anim);
-    // CLSTsprite *celestesp = clstSpriteSave((vec2){ -4.0f, 1.0f }, (vec2){ 8.0f, 8.0f }, clstSceneGetTexture(scene, "celeste_icon"));
-    // clstLayerAddSprite(clstSceneGetLayer(scene, "Base Layer"), celestesp);
-
-    button_group = clstGroup((vec2){ -4.0f, -7.5f });
-    button_col = clstSpriteCol((vec2){ 0.0f, 0.0f }, (vec2){ 8.0f, 4.0f }, 0x3A555555);
-    button = clstButton(button_col);
+    button_group = clstGroup((vec2){ -4.0f, -7.5f }, "Button Group");
+    button_col = clstSpriteCol((vec2){ 0.0f, 0.0f }, (vec2){ 8.0f, 4.0f }, 0x3A555555, "Button Sprite");
+    button = clstButton(button_col, "Button");
     clstGroupAddRenderable(button_group, button);
     
-    button_label = clstLabelCol((vec2){ 3.0f, 2.0f }, "Quit", clstSceneGetFont(scene, "ThaleahFat-72"), 0xFFFFFFFF);
+    button_label = clstLabelCol((vec2){ 3.0f, 2.0f }, "Quit", clstSceneGetFont(scene, "ThaleahFat-72"), 0xFFFFFFFF, "Button Label");
     clstGroupAddRenderable(button_group, button_label);
-    clstLayerAddSprite(clstSceneGetLayer(scene, "Base Layer"), button_group);
+    clstLayerAddRenderable(clstSceneGetLayer(scene, "Base Layer"), button_group);
 
     audio_player = clstAudioPlayer(clstSceneGetAudio(scene, "space"), 1, 0);
     clstAudioPlayerSetPitch(audio_player, 0.6f);
     clstAudioPlayerPlay(audio_player);
 
     clstKeyAddCallback((CLSTkey){CELESTE_KEY_ESCAPE, destroy_window, &(clst->window.alive)});
-    clstInputSetListener(pointless_str, 1024);
+    clstInputSetListener(input_str, 1024);
 
-    memset(pointless_str, 0, sizeof(pointless_str));
-    pointless_label = clstLabel((vec2){ -15.5f, -8.5f }, pointless_str, clstSceneGetFont(scene, "ThaleahFat-72"));
-    clstLayerAddSprite(clstSceneGetLayer(scene, "Base Layer"), pointless_label);
+    memset(input_str, 0, sizeof(input_str));
+    input_label = clstLabel((vec2){ -15.5f, -8.5f }, input_str, clstSceneGetFont(scene, "ThaleahFat-72"), "Input Label");
+    clstLayerAddRenderable(clstSceneGetLayer(scene, "Base Layer"), input_label);
 
     CLSTsprite *quad1, *quad2;
-    char colliding[10];
-    CLSTlabel *colliding_label;
-    quad1 = clstSpriteCol((vec2){ -10.0f, -2.0f }, (vec2){ 4.0f, 4.0f }, 0xFFFFFF00);
-    quad2 = clstSpriteCol((vec2){   8.0f, -2.0f }, (vec2){ 4.0f, 4.0f }, 0xFF0000FF);
-    memset(colliding, 0, sizeof(colliding));
-    colliding_label = clstLabel((vec2){ -2.0f, 8.0f }, colliding, clstSceneGetFont(scene, "ThaleahFat-72"));
-    clstLayerAddSprite(clstSceneGetLayer(scene, "Base Layer"), quad1);
-    clstLayerAddSprite(clstSceneGetLayer(scene, "Base Layer"), quad2);
-    clstLayerAddSprite(clstSceneGetLayer(scene, "Base Layer"), colliding_label);
+    quad1 = clstSpriteCol((vec2){ -10.0f, -2.0f }, (vec2){ 4.0f, 4.0f }, 0xFFFFFF00, "Quad1 Sprite");
+    quad2 = clstSpriteCol((vec2){   8.0f, -2.0f }, (vec2){ 4.0f, 4.0f }, 0xFF0000FF, "Quad2 Sprite");
+    clstLayerAddRenderable(clstSceneGetLayer(scene, "Base Layer"), quad1);
+    clstLayerAddRenderable(clstSceneGetLayer(scene, "Base Layer"), quad2);
 
     CLSTbody *body1 = clstBody(0, 1, 1, 1, &(quad1->position), &(quad1->size));
     CLSTbody *body2 = clstBody(0, 0, 1, 0, &(quad2->position), &(quad2->size));
@@ -150,8 +110,8 @@ int main()
 
     layer_debug = clstLayer(16.0f, 9.0f, "Debug Layer");
     memset(fps_text, 0, sizeof(fps_text));
-    fps = clstLabel((vec2){ -15.5f, 8.0f }, fps_text, clstSceneGetFont(scene, "ThaleahFat-72"));
-    clstLayerAddSprite(layer_debug, fps);
+    fps = clstLabel((vec2){ -15.5f, 8.0f }, fps_text, clstSceneGetFont(scene, "ThaleahFat-72"), "FPS Label");
+    clstLayerAddRenderable(layer_debug, fps);
 
     CLSTframebuffer *fb;
     CLSTtexture *fbtex;
@@ -160,6 +120,9 @@ int main()
     fblayer = setup_framebuffer_layer(&fb, &fbtex, &fbshader);
 
     clstLoaderSaveData(loader);
+
+    CLSTlabel *collision_label;
+    collision_label = (CLSTlabel *)clstLayerGetRenderable(clstSceneGetLayer(scene, "Base Layer"), "Collision Label");
 
     clst->last_physics_update = prevtime = prevtime2 = clstTime();
     frames = 0;
@@ -246,13 +209,13 @@ int main()
         }
 
         if (clstCollisionRectangles(body1->position, body1->size, body2->position, body2->size)) {
-            sprintf(colliding, "Colliding");
+            clstLabelSetText(collision_label, "Colliding");
 
             if (clstKey(CELESTE_KEY_SPACE) && (*body1->position)[1] >= (*body2->position)[1] + (*body2->size)[1])
                 body1->velocity[1] = jump;
         }
         else {
-            colliding[0] = '\0';
+            clstLabelSetText(collision_label, "");
         }
     }
 

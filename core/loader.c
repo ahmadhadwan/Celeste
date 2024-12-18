@@ -81,7 +81,7 @@ CLSTaudio *clstAudioMemSave(unsigned char *buffer, unsigned int bufsize, char *n
     return clstAudioMem(buffer, bufsize, name);
 }
 
-CLSTsprite *clstSpriteSave(vec2 position, vec2 size, CLSTtexture *texture)
+CLSTsprite *clstSpriteSave(vec2 position, vec2 size, CLSTtexture *texture, char *name)
 {
     void *data;
     uint32_t data_size;
@@ -91,12 +91,12 @@ CLSTsprite *clstSpriteSave(vec2 position, vec2 size, CLSTtexture *texture)
     memcpy(data, position, sizeof(vec2));
     memcpy(data + sizeof(vec2), size, sizeof(vec2));
     memcpy(data + (sizeof(vec2) * 2), texture->name, strlen(texture->name) + 1);
-    clstLoadable("Sprite", data, data_size, CELESTE_SPRITE);
+    clstLoadable(name, data, data_size, CELESTE_SPRITE);
     free(data);
-    return clstSprite(position, size, texture);
+    return clstSprite(position, size, texture, name);
 }
 
-CLSTsprite *clstSpriteTexAtlasSave(vec2 position, vec2 size, CLSTtexture *texture_atlas, vec2 offset, vec2 texsize)
+CLSTsprite *clstSpriteTexAtlasSave(vec2 position, vec2 size, CLSTtexture *texture_atlas, vec2 offset, vec2 texsize, char *name)
 {
     void *data;
     uint32_t data_size;
@@ -108,12 +108,12 @@ CLSTsprite *clstSpriteTexAtlasSave(vec2 position, vec2 size, CLSTtexture *textur
     memcpy(data + (sizeof(vec2) * 2), offset, sizeof(vec2));
     memcpy(data + (sizeof(vec2) * 3), texsize, sizeof(vec2));
     memcpy(data + (sizeof(vec2) * 4), texture_atlas->name, strlen(texture_atlas->name) + 1);
-    clstLoadable("SpriteAtlas", data, data_size, CELESTE_SPRITE_ATLAS);
+    clstLoadable(name, data, data_size, CELESTE_SPRITE_ATLAS);
     free(data);
-    return clstSpriteTexAtlas(position, size, texture_atlas, offset, texsize);
+    return clstSpriteTexAtlas(position, size, texture_atlas, offset, texsize, name);
 }
 
-CLSTanimation *clstAnimationSave(CLSTsprite **frames, uint32_t frames_count, double frame_time)
+CLSTanimation *clstAnimationSave(CLSTsprite **frames, uint32_t frames_count, double frame_time, char *name)
 {
     void *data;
     uint32_t data_size, offset;
@@ -144,9 +144,24 @@ CLSTanimation *clstAnimationSave(CLSTsprite **frames, uint32_t frames_count, dou
         offset = data_size;
     }
 
-    clstLoadable("Animation", data, data_size, CELESTE_ANIMATION);
+    clstLoadable(name, data, data_size, CELESTE_ANIMATION);
     free(data);
-    return clstAnimation(frames, frames_count, frame_time);
+    return clstAnimation(frames, frames_count, frame_time, name);
+}
+
+CLSTlabel *clstLabelSave(vec2 position, char *text, CLSTfont *font, char *name)
+{
+    void *data;
+    uint32_t data_size;
+
+    data_size = sizeof(vec2) + (strlen(text) + 1) + (strlen(font->name) + 1);
+    data = malloc(data_size);
+    memcpy(data, position, sizeof(vec2));
+    memcpy(data + sizeof(vec2), text, strlen(text) + 1);
+    memcpy(data + sizeof(vec2) + strlen(text) + 1, font->name, strlen(font->name) + 1);
+    clstLoadable(name, data, data_size, CELESTE_LABEL);
+    free(data);
+    return clstLabel(position, text, font, name);
 }
 
 CLSTlayer *clstLayerCameraSave(CLSTcamera *camera, float right, float top, char *name)
@@ -262,37 +277,31 @@ void clstLoaderLoadData(CLSTloader *loader)
         switch (type)
         {
             case CELESTE_DELETED:
-                // The Loadable is ignored, and isn't written into the next save.
-                break;
+                data_offset += data_size;
+                continue;
             case CELESTE_TEXTURE_FILE:
                 CELESTE_LOG("Loading texture `%s` from `%s`!\n", name, (data + data_offset));
                 clstSceneAddTexture(clst->scene, clstTexture((char *)(data + data_offset), name));
-                clstLoadable(name, data + data_offset, data_size, CELESTE_TEXTURE_FILE);
                 break;
             case CELESTE_TEXTURE_BIN:
                 CELESTE_LOG("Loading texture `%s`!\n", name);
                 clstSceneAddTexture(clst->scene, clstTextureMem((data + data_offset), data_size, name));
-                clstLoadable(name, data + data_offset, data_size, CELESTE_TEXTURE_BIN);
                 break;
             case CELESTE_FONT_FILE:
                 CELESTE_LOG("Loading font `%s` from `%s`!\n", name, (data + data_offset + sizeof(float)));
                 clstSceneAddFont(clst->scene, clstFont((char *)(data + data_offset + sizeof(float)), *((float*)(data + data_offset)), name));
-                clstLoadable(name, data + data_offset, data_size, CELESTE_FONT_FILE);
                 break;
             case CELESTE_FONT_BIN:
                 CELESTE_LOG("Loading font `%s`!\n", name);
                 clstSceneAddFont(clst->scene, clstFontMem(data + data_offset + sizeof(float), data_size - sizeof(float), *((float*)(data + data_offset)), name));
-                clstLoadable(name, data + data_offset, data_size, CELESTE_FONT_BIN);
                 break;
             case CELESTE_AUDIO_FILE:
                 CELESTE_LOG("Loading audio `%s` from `%s`!\n", name, (data + data_offset));
                 clstSceneAddAudio(clst->scene, clstAudio((char *)(data + data_offset), name));
-                clstLoadable(name, data + data_offset, data_size, CELESTE_AUDIO_FILE);
                 break;
             case CELESTE_AUDIO_BIN:
                 CELESTE_LOG("Loading audio `%s`!\n", name);
                 clstSceneAddAudio(clst->scene, clstAudioMem((data + data_offset), data_size, name));
-                clstLoadable(name, data + data_offset, data_size, CELESTE_AUDIO_BIN);
                 break;
             case CELESTE_SPRITE:
             {
@@ -304,11 +313,10 @@ void clstLoaderLoadData(CLSTloader *loader)
 
                 CELESTE_LOG("Loading sprite `%s` at `%2.2f, %2.2f`, size `%2.2f, %2.2f`!\n", name, pos[0], pos[1], size[0], size[1]);
 
-                clstLayerAddSprite(
+                clstLayerAddRenderable(
                     clstSceneGetLastLayer(clst->scene),
-                    clstSprite(pos, size, clstSceneGetTexture(clst->scene, (char *)(data + data_offset + sizeof(vec2) * 2)))
+                    clstSprite(pos, size, clstSceneGetTexture(clst->scene, (char *)(data + data_offset + sizeof(vec2) * 2)), name)
                 );
-                clstLoadable(name, data + data_offset, data_size, CELESTE_SPRITE);
                 break;
             }
             case CELESTE_SPRITE_ATLAS:
@@ -325,11 +333,10 @@ void clstLoaderLoadData(CLSTloader *loader)
 
                 CELESTE_LOG("Loading sprite atlas `%s` at `%2.2f, %2.2f`, size `%2.2f, %2.2f`!\n", name, pos[0], pos[1], size[0], size[1]);
 
-                clstLayerAddSprite(
+                clstLayerAddRenderable(
                     clstSceneGetLastLayer(clst->scene),
-                    clstSpriteTexAtlas(pos, size, clstSceneGetTexture(clst->scene, (char *)(data + data_offset + sizeof(vec2) * 4)), offset, texsize)
+                    clstSpriteTexAtlas(pos, size, clstSceneGetTexture(clst->scene, (char *)(data + data_offset + sizeof(vec2) * 4)), offset, texsize, name)
                 );
-                clstLoadable(name, data + data_offset, data_size, CELESTE_SPRITE_ATLAS);
                 break;
             }
             case CELESTE_ANIMATION:
@@ -348,6 +355,8 @@ void clstLoaderLoadData(CLSTloader *loader)
                     CLSTsprite *sprite;
 
                     sprite = malloc(sizeof(CLSTsprite));
+                    sprite->name = malloc(strlen(name) + strlen(" Frame ") + 4);
+                    sprintf(sprite->name, "%s Frame %d", name, i + 1);
                     memcpy(sprite->position, (data + data_offset + sprite_offset), sizeof(vec2));
                     memcpy(sprite->size, (data + data_offset + sprite_offset + sizeof(vec2)), sizeof(vec2));
                     memcpy(sprite->uv[0], (data + data_offset + sprite_offset + (sizeof(vec2) * 2)), sizeof(vec2));
@@ -363,11 +372,27 @@ void clstLoaderLoadData(CLSTloader *loader)
 
                 CELESTE_LOG("Loading animation `%s`, `%u` frames!\n", name, frames_count);
 
-                clstLayerAddSprite(
+                clstLayerAddRenderable(
                     clstSceneGetLastLayer(clst->scene),
-                    clstAnimation(frames, frames_count, frame_time)
+                    clstAnimation(frames, frames_count, frame_time, name)
                 );
-                clstLoadable(name, data + data_offset, data_size, CELESTE_ANIMATION);
+                break;
+            }
+            case CELESTE_LABEL:
+            {
+                vec2 pos;
+                char *text, *font_name;
+                pos[0]  = *((float *)(data + data_offset + sizeof(float) * 0));
+                pos[1]  = *((float *)(data + data_offset + sizeof(float) * 1));
+
+                text = (char *)(data + data_offset + sizeof(vec2));
+                font_name = (char *)(data + data_offset + sizeof(vec2) + strlen(text) + 1);
+                CELESTE_LOG("Loading label `%s` `%s` at `%2.2f, %2.2f`!\n", name, text, pos[0], pos[1]);
+
+                clstLayerAddRenderable(
+                    clstSceneGetLastLayer(clst->scene),
+                    clstLabel(pos, text, clstSceneGetFont(clst->scene, font_name), name)
+                );
                 break;
             }
             case CELESTE_LAYER:
@@ -380,14 +405,13 @@ void clstLoaderLoadData(CLSTloader *loader)
                 top       = *((float *)(data + data_offset + sizeof(float) * 3));
 
                 CELESTE_LOG("Loading layer `%s` `%2.2f, %2.2f`!\n", name, right, top);
-
                 clstSceneAddLayer(clst->scene, clstLayerCamera(clstCameraOrtho(campos), right, top, name));
-                clstLoadable(name, data + data_offset, data_size, CELESTE_LAYER);
                 break;
             }
             default:
                 break;
         }
+        clstLoadable(name, data + data_offset, data_size, type);
         data_offset += data_size;
     }
 

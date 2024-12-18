@@ -71,12 +71,17 @@ CLSTlayer *clstLayerCustom(CLSTrenderer *renderer, CLSTshader *shader, CLSTcamer
 void clstLayerDestroy(CLSTlayer *layer);
 
 /*
- * Adds a sprite to the layer.
+ * Adds a renderable to the layer.
  */
-void clstLayerAddSprite(CLSTlayer *layer, void *sprite);
+void clstLayerAddRenderable(CLSTlayer *layer, void *renderable);
 
 /*
- * Renders the sprites in the layer.
+ * Gets a renderable from the layer.
+ */
+CLSTrenderable *clstLayerGetRenderable(CLSTlayer *layer, char *name);
+
+/*
+ * Renders the renderables in the layer.
  */
 void clstLayerRender(CLSTlayer *layer);
 

@@ -10,7 +10,7 @@
 typedef struct {
     CLSTrenderer *renderer;
     CLSTshader   *shader;
-    CLSTlist     *sprites;
+    CLSTlist     *renderables;
     CLSTcamera   *camera;
     char         *name;
     struct {
