@@ -99,9 +99,19 @@ void clstSetScene(CLSTscene *scene)
     clstInstance()->scene = scene;
 }
 
+CLSTscene *clstGetScene()
+{
+    return clstInstance()->scene;
+}
+
 void clstSetWorldGravity(float gravity)
 {
     clstInstance()->world_gravity = gravity;
+}
+
+float clstGetWorldGravity()
+{
+    return clstInstance()->world_gravity;
 }
 
 CLST *clstInstance()

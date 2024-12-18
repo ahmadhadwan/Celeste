@@ -62,10 +62,20 @@ void clstTerminate();
 void clstSetScene(CLSTscene *scene);
 
 /*
+ * Gets the current scene.
+ */
+CLSTscene *clstGetScene();
+
+/*
  * Sets the world gravity.
  * This affects the physical bodies CLSTbody.
  */
 void clstSetWorldGravity(float gravity);
+
+/*
+ * Gets the world gravity.
+ */
+float clstGetWorldGravity();
 
 /*
  * Returns the current celeste instance.

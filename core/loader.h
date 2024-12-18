@@ -23,6 +23,8 @@ typedef enum {
     CELESTE_AUDIO_BIN    = 6,
     CELESTE_SPRITE       = 7,
     CELESTE_LAYER        = 8,
+    CELESTE_SPRITE_ATLAS = 9,
+    CELESTE_ANIMATION    = 10,
 } CLSTloadabletype;
 
 typedef struct {
@@ -49,6 +51,8 @@ CLSTaudio *clstAudioSave(const char *filepath, char *name);
 CLSTaudio *clstAudioMemSave(unsigned char *buffer, unsigned int bufsize, char *name);
 
 CLSTsprite *clstSpriteSave(vec2 position, vec2 size, CLSTtexture *texture);
+CLSTsprite *clstSpriteTexAtlasSave(vec2 position, vec2 size, CLSTtexture *texture_atlas, vec2 offset, vec2 texsize);
+CLSTanimation *clstAnimationSave(CLSTsprite **frames, uint32_t frames_count, double frame_time);
 CLSTlayer *clstLayerCameraSave(CLSTcamera *camera, float right, float top, char *name);
 
 #endif /* __CELESTE_LOADER_H__ */
