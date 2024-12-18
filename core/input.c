@@ -8,155 +8,154 @@ static void listener_delete();
 
 void clstKeyAddCallback(CLSTkey key)
 {
-    CLST *celeste;
+    CLST *clst;
+    CLSTkey *keyptr;
 
-    celeste = clstInstance();
-    celeste->keys = realloc(celeste->keys, (celeste->keys_count + 1) * sizeof(CLSTkey));
-    celeste->keys[celeste->keys_count] = key;
-    celeste->keys_count++;
+    clst = clstInstance();
+    keyptr = malloc(sizeof(CLSTkey));
+    memcpy(keyptr, &key, sizeof(CLSTkey));
+    clstListAdd(clst->keys, keyptr);
 }
 
-void clstKeyRemoveCallback(int key)
+void clstKeyRemoveCallback(uint32_t key)
 {
-    CLST *celeste;
+    CLST *clst;
+    CLSTlist *keylist;
+    CLSTkey *_key;
 
-    celeste = clstInstance();
-    for (int i = 0; i < celeste->keys_count; i++)
+    clst = clstInstance();
+    keylist = (CLSTlist *)clst->keys;
+    for (int i = 0; i < keylist->count; i++)
     {
-        if (celeste->keys[i].key == key)
+        _key = ((CLSTkey **)keylist->items)[i];
+        if (_key->key == key)
         {
-            memmove(celeste->keys + i, celeste->keys + i + 1, (celeste->keys_count - i) * sizeof(CLSTkey));
-            celeste->keys = realloc(celeste->keys, (celeste->keys_count - 1) * sizeof(CLSTkey));
-            celeste->keys_count--;
+            memmove(keylist->items + i, keylist->items + i + sizeof(void *), (keylist->count - i - 1) * sizeof(void *));
+            keylist->items = realloc(keylist->items, (keylist->count - 1) * sizeof(void *));
+            keylist->count--;
             break;
         }
     }
 }
 
-int clstKey(int key)
+uint32_t clstKey(uint32_t key)
 {
     return glfwGetKey(clstInstance()->window.window, key);
 }
 
 void clstClickAddCallback(CLSTclick click)
 {
-    CLST *celeste;
+    CLST *clst;
+    CLSTclick *clickptr;
 
-    celeste = clstInstance();
-    celeste->clicks = realloc(celeste->clicks, (celeste->clicks_count + 1) * sizeof(CLSTclick));
-    celeste->clicks[celeste->clicks_count] = click;
-    celeste->clicks_count++;
+    clst = clstInstance();
+    clickptr = malloc(sizeof(CLSTclick));
+    memcpy(clickptr, &click, sizeof(CLSTclick));
+    clstListAdd(clst->clicks, clickptr);
 }
 
-void clstClickRemoveCallback(int click)
+void clstClickRemoveCallback(uint32_t click)
 {
-    CLST *celeste;
+    CLST *clst;
+    CLSTlist *clicklist;
+    CLSTclick *_click;
 
-    celeste = clstInstance();
-    for (int i = 0; i < celeste->clicks_count; i++)
+    clst = clstInstance();
+    clicklist = (CLSTlist *)clst->clicks;
+    for (int i = 0; i < clicklist->count; i++)
     {
-        if (celeste->clicks[i].click == click)
+        _click = ((CLSTclick **)clicklist->items)[i];
+        if (_click->click == click)
         {
-            memmove(celeste->clicks + i, celeste->clicks + i + 1, (celeste->clicks_count - i - 1) * sizeof(CLSTclick));
-            celeste->clicks = realloc(celeste->clicks, (celeste->clicks_count - 1) * sizeof(CLSTclick));
-            celeste->clicks_count--;
+            memmove(clicklist->items + i, clicklist->items + i + sizeof(void *), (clicklist->count - i - 1) * sizeof(void *));
+            clicklist->items = realloc(clicklist->items, (clicklist->count - 1) * sizeof(void *));
+            clicklist->count--;
             break;
         }
     }
 }
 
-int clstClick(int click)
+uint32_t clstClick(uint32_t click)
 {
     return glfwGetMouseButton(clstInstance()->window.window, click);
 }
 
 void clstScrollAddListener(double *listener)
 {
-    CLST *celeste;
+    CLST *clst;
 
-    celeste = clstInstance();
-    celeste->scroll_listeners = realloc(celeste->scroll_listeners , (celeste->scroll_listeners_count + 1) * sizeof(double *));
-    celeste->scroll_listeners[celeste->scroll_listeners_count] = listener;
-    celeste->scroll_listeners_count++;
+    clst = clstInstance();
+    clstListAdd(clst->scroll_listeners, listener);
 }
 
 void clstScrollRemoveListener(double *listener)
 {
-    CLST *celeste;
+    CLST *clst;
 
-    celeste = clstInstance();
-    for (int i = 0; i < celeste->scroll_listeners_count; i++)
-    {
-        if (celeste->scroll_listeners[i] == listener)
-        {
-            memmove(celeste->scroll_listeners + i, celeste->scroll_listeners + i + 1, (celeste->scroll_listeners_count - i) * sizeof(double *));
-            celeste->scroll_listeners = realloc(celeste->scroll_listeners, (celeste->scroll_listeners_count - 1) * sizeof(double *));
-            celeste->scroll_listeners_count--;
-            break;
-        }
-    }
+    clst = clstInstance();
+    clstListRemove(clst->scroll_listeners, listener);
 }
 
-void clstInputSetListener(char *listener, int max_len)
+void clstInputSetListener(char *listener, uint32_t max_len)
 {
-    CLST *celeste;
+    CLST *clst;
 
     memset(listener, 0, max_len);
-    celeste = clstInstance();
+    clst = clstInstance();
 
-    if (celeste->input_listener)
+    if (clst->input_listener)
         clstInputRemoveListener();
 
-    celeste->input_listener = listener;
-    celeste->input_listener_len = 0;
-    celeste->input_listener_max_len = max_len;
+    clst->input_listener = listener;
+    clst->input_listener_len = 0;
+    clst->input_listener_max_len = max_len;
     clstKeyAddCallback((CLSTkey){CELESTE_KEY_BACKSPACE, listener_delete, NULL});
     clstWindowStartListening();
 }
 
 void clstInputRemoveListener()
 {
-    CLST *celeste;
+    CLST *clst;
 
-    celeste = clstInstance();
+    clst = clstInstance();
 
-    if (celeste->input_listener == NULL)
+    if (clst->input_listener == NULL)
         return;
 
     clstKeyRemoveCallback(CELESTE_KEY_BACKSPACE);
     clstWindowStopListening();
-    celeste->input_listener = NULL;
-    celeste->input_listener_len = 0;
-    celeste->input_listener_max_len = 0;
+    clst->input_listener = NULL;
+    clst->input_listener_len = 0;
+    clst->input_listener_max_len = 0;
 }
 
 void listener_delete()
 {
-    CLST *celeste;
+    CLST *clst;
 
-    celeste = clstInstance();
+    clst = clstInstance();
 
-    if (celeste->input_listener_len <= 0)
+    if (clst->input_listener_len == 0)
         return;
 
     if (clstKey(CELESTE_KEY_LEFT_CONTROL) || clstKey(CELESTE_KEY_RIGHT_CONTROL))
     {
-        while (celeste->input_listener_len && celeste->input_listener[celeste->input_listener_len - 1] == ' ') {
-            celeste->input_listener_len--;
-            celeste->input_listener[celeste->input_listener_len] = 0;
+        while (clst->input_listener_len && clst->input_listener[clst->input_listener_len - 1] == ' ') {
+            clst->input_listener_len--;
+            clst->input_listener[clst->input_listener_len] = 0;
         }
 
-        if (celeste->input_listener_len <= 0)
+        if (clst->input_listener_len <= 0)
             return;
 
         do {
-            celeste->input_listener_len--;
-            celeste->input_listener[celeste->input_listener_len] = 0;
-        } while (celeste->input_listener_len && celeste->input_listener[celeste->input_listener_len - 1] != ' ');
+            clst->input_listener_len--;
+            clst->input_listener[clst->input_listener_len] = 0;
+        } while (clst->input_listener_len && clst->input_listener[clst->input_listener_len - 1] != ' ');
     }
     else
     {
-        celeste->input_listener_len--;
-        celeste->input_listener[celeste->input_listener_len] = 0;
+        clst->input_listener_len--;
+        clst->input_listener[clst->input_listener_len] = 0;
     }
 }

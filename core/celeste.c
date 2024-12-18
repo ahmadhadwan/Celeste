@@ -13,11 +13,11 @@ static CLST *celeste_instance = NULL;
     static DWORD WINAPI audio_manager_update(LPVOID arg);
 #endif /* CELESTE_WINTHREAD */
 
-void clstPhysicsUpdate(CLST *celeste);
+void clstPhysicsUpdate(CLST *clst);
 
 CLST *clstInit()
 {
-    CLST *celeste;
+    CLST *clst;
 
     CELESTE_ASSERT(celeste_instance == NULL && "Celeste was already initialized!");
 
@@ -31,73 +31,68 @@ CLST *clstInit()
         return NULL;
     }
 
-    celeste = malloc(sizeof(CLST));
-    celeste->window.window = NULL;
-    celeste->window.title = NULL;
-    celeste->window.alive = celeste->window.focused = celeste->window.height = celeste->window.width = 0;
-    celeste->window.cursor.x = celeste->window.cursor.y = 0.0;
+    clst = malloc(sizeof(CLST));
+    clst->window.window = NULL;
+    clst->window.title = NULL;
+    clst->window.alive = clst->window.focused = clst->window.height = clst->window.width = 0;
+    clst->window.cursor.x = clst->window.cursor.y = 0.0;
 
-    celeste->keys = malloc(0);
-    celeste->keys_count = 0;
+    clst->keys = clstListCreate();
+    clst->clicks = clstListCreate();
 
-    celeste->clicks = malloc(0);
-    celeste->clicks_count = 0;
+    clst->input_listener = NULL;
+    clst->input_listener_len = 0;
+    clst->input_listener_max_len = 0;
 
-    celeste->input_listener = NULL;
-    celeste->input_listener_len = 0;
-    celeste->input_listener_max_len = 0;
+    clst->scroll_listeners = clstListCreate();
 
-    celeste->scroll_listeners = malloc(0);
-    celeste->scroll_listeners_count = 0;
-
-    celeste->bodies_count = 0;
-    celeste->bodies = malloc(0);
-    celeste->last_physics_update = 0.0;
-    celeste->world_gravity = 0.0;
+    clst->bodies = clstListCreate();
+    clst->last_physics_update = 0.0;
+    clst->world_gravity = 0.0;
 
     gc_initialize(0);
-    celeste->aumanager = gau_manager_create();
-    celeste->aumixer = gau_manager_mixer(celeste->aumanager);
+    clst->aumanager = gau_manager_create();
+    clst->aumixer = gau_manager_mixer(clst->aumanager);
 
 #ifdef CELESTE_PTHREAD
-    pthread_create(&(celeste->audio_thread), NULL, &audio_manager_update, NULL);
+    pthread_create(&(clst->audio_thread), NULL, &audio_manager_update, NULL);
 #elif defined(CELESTE_WINTHREAD) /* CELESTE_PTHREAD */
-    celeste->audio_thread = CreateThread(NULL, 0, audio_manager_update, NULL, 0, NULL);
+    clst->audio_thread = CreateThread(NULL, 0, audio_manager_update, NULL, 0, NULL);
 #endif /* CELESTE_WINTHREAD */
 
-    celeste->loader = NULL;
-    celeste_instance = celeste;
-    return celeste;
+    clst->loader = NULL;
+    celeste_instance = clst;
+    return clst;
 }
 
 void clstTerminate()
 {
-    CLST *celeste;
+    CLST *clst;
     void *aumanager;
 
-    celeste = clstInstance();
-    aumanager = celeste->aumanager;
+    clst = clstInstance();
+    aumanager = clst->aumanager;
 
-    celeste->aumanager = NULL;
+    clst->aumanager = NULL;
 #ifdef CELESTE_PTHREAD
-    pthread_join(celeste->audio_thread, NULL);
+    pthread_join(clst->audio_thread, NULL);
 #elif defined(CELESTE_WINTHREAD) /* CELESTE_PTHREAD */
-    WaitForSingleObject(celeste->audio_thread, INFINITE);
+    WaitForSingleObject(clst->audio_thread, INFINITE);
 #endif /* CELESTE_WINTHREAD */
 
     gau_manager_destroy(aumanager);
     gc_shutdown();
 
-    clstShaderDestroy(celeste->default_shader);
-    clstRendererDestroy(celeste->default_renderer);
+    clstShaderDestroy(clst->default_shader);
+    clstRendererDestroy(clst->default_renderer);
 
     glfwTerminate();
 
-    free(celeste->bodies);
-    free(celeste->scroll_listeners);
-    free(celeste->clicks);
-    free(celeste->keys);
-    free(celeste);
+    clstListDestroy(clst->bodies, (CLSTitemdestroy)clstBodyDestroy);
+    clstListDestroy(clst->scroll_listeners, (CLSTitemdestroy)free);
+    clstListDestroy(clst->clicks, (CLSTitemdestroy)free);
+    clstListDestroy(clst->keys, (CLSTitemdestroy)free);
+    free(clst);
     celeste_instance = NULL;
 }
 
@@ -112,17 +107,17 @@ double clstTime()
     return glfwGetTime();
 }
 
-void clstUpdate(CLST *celeste)
+void clstUpdate(CLST *clst)
 {
-    glfwSwapBuffers(celeste->window.window);
+    glfwSwapBuffers(clst->window.window);
     glfwPollEvents();
 
-    clstPhysicsUpdate(celeste);
+    clstPhysicsUpdate(clst);
 }
 
-void clstWaitEv(CLST *celeste)
+void clstWaitEv(CLST *clst)
 {
-    glfwSwapBuffers(celeste->window.window);
+    glfwSwapBuffers(clst->window.window);
     glfwWaitEvents();
 }
 
@@ -132,12 +127,12 @@ void *audio_manager_update(void *arg)
 DWORD WINAPI audio_manager_update(LPVOID arg)
 #endif /* CELESTE_WINTHREAD */
 {
-    CLST *celeste;
+    CLST *clst;
 
-    celeste = clstInstance();
-    while (celeste->aumanager)
+    clst = clstInstance();
+    while (clst->aumanager)
     {
-        gau_manager_update(celeste->aumanager);
+        gau_manager_update(clst->aumanager);
         gc_thread_sleep(1);
     }
 #ifdef CELESTE_PTHREAD

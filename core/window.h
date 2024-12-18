@@ -6,17 +6,17 @@
 typedef struct {
     void       *window;
     const char *title;
-    int         alive;
-    int         focused;
-    int         width;
-    int         height;
+    uint32_t    alive;
+    uint32_t    focused;
+    uint32_t    width;
+    uint32_t    height;
     struct {
         double x;
         double y;
     } cursor;
     struct {
-        int width;
-        int height;
+        uint32_t width;
+        uint32_t height;
     } fb;
 } CLSTwindow;
 
@@ -40,12 +40,12 @@ void clstWindowClear();
 /*
  * Sets the clear color.
  */
-void clstWindowClearColor(unsigned int color);
+void clstWindowClearColor(uint32_t color);
 
 /*
  * Gets the clear color.
  */
-unsigned int clstWindowGetClearColor();
+uint32_t clstWindowGetClearColor();
 
 /*
  * Sets the window's swap interval.
@@ -53,7 +53,7 @@ unsigned int clstWindowGetClearColor();
  * 1 -> Enables Vsync.
  * n -> Limits the framerate to (monitor refresh rate)/n
  */
-void clstWindowSwapInterval(int interval);
+void clstWindowSwapInterval(uint32_t interval);
 
 /*
  * Opens the icon from filepath, and
@@ -64,7 +64,7 @@ void clstWindowIcon(const char *filepath);
 /*
  * Set the window's system cursor.
  */
-void clstWindowSystemCursor(unsigned int cursor);
+void clstWindowSystemCursor(uint32_t cursor);
 
 /*
  * Opens the cursor from filepath,
@@ -91,7 +91,7 @@ void clstWindowCursor(CLSTcursor *cursor);
  *
  * Pixels returned must be free'd.
  */
-unsigned char *clstWindowBufferRead(unsigned int *width, unsigned int *height);
+uint8_t *clstWindowBufferRead(uint32_t *width, uint32_t *height);
 
 /*
  * Sets the window's cursor mode.
@@ -100,6 +100,6 @@ unsigned char *clstWindowBufferRead(unsigned int *width, unsigned int *height);
  * - CELESTE_CURSOR_MODE_HIDDEN.
  * - CELESTE_CURSOR_MODE_DISABLED.
  */
-void clstWindowCursorMode(int mode);
+void clstWindowCursorMode(uint32_t mode);
 
 #endif /* __CELESTE_WINDOW_H__ */

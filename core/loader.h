@@ -26,9 +26,8 @@ typedef enum {
 } CLSTloadabletype;
 
 typedef struct {
-    char          *filepath;
-    CLSTloadable **loadables;
-    int            loadables_count;
+    char     *filepath;
+    CLSTlist *loadables;
 } CLSTloader;
 
 CLSTloader *clstLoader(char *filepath);

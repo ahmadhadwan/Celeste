@@ -29,7 +29,7 @@ CLSTaudio *clstAudio(const char *filepath, char *name);
  *
  * On error it returns NULL.
  */
-CLSTaudio *clstAudioMem(unsigned char *buffer, unsigned int bufsize, char *name);
+CLSTaudio *clstAudioMem(uint8_t *buffer, uint32_t bufsize, char *name);
 
 /*
  * Destroys a CLSTaudio and frees its memory.
@@ -49,7 +49,7 @@ void clstAudioDestroy(CLSTaudio *audio);
  *
  * On error it returns NULL.
  */
-CLSTaudioplayer *clstAudioPlayer(CLSTaudio *audio, int loop, int destroy_on_finish);
+CLSTaudioplayer *clstAudioPlayer(CLSTaudio *audio, uint8_t loop, uint8_t destroy_on_finish);
 
 /*
  * Destroys a CLSTaudioplayer and frees its memory.

@@ -8,7 +8,7 @@
 #include <string.h>
 #include "window.h"
 
-static int submit_texture(CLSTrenderer *renderer, int tid);
+static uint32_t submit_texture(CLSTrenderer *renderer, uint32_t tid);
 
 CLSTrenderer *clstRenderer()
 {
@@ -107,7 +107,7 @@ void clstRendererBegin(CLSTrenderer *renderer)
     renderer->buffer = (CLSTvertexdata *)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
 }
 
-void clstRendererDrawQuad(CLSTrenderer *renderer, vec2 position, vec2 size, CLSTtexture *texture, vec2 uv[4], unsigned int color)
+void clstRendererDrawQuad(CLSTrenderer *renderer, vec2 position, vec2 size, CLSTtexture *texture, vec2 uv[4], uint32_t color)
 {
     const float position_x = position[0];
     const float position_y = position[1];
@@ -152,7 +152,7 @@ void clstRendererDrawQuad(CLSTrenderer *renderer, vec2 position, vec2 size, CLST
     renderer->index_count += 6;
 }
 
-void clstRendererDrawString(CLSTrenderer *renderer, vec2 position, vec2 uv[4], CLSTfont *font, char *text, unsigned int color)
+void clstRendererDrawString(CLSTrenderer *renderer, vec2 position, vec2 uv[4], CLSTfont *font, char *text, uint32_t color)
 {
     const int screen_width = 1920;
     const int screen_height = 1080;
@@ -252,7 +252,7 @@ void clstRendererFlush(CLSTrenderer *renderer)
     renderer->texture_slots_size = 0;
 }
 
-int submit_texture(CLSTrenderer *renderer, int tid)
+uint32_t submit_texture(CLSTrenderer *renderer, uint32_t tid)
 {
     int ts;
 

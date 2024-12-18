@@ -117,7 +117,7 @@ CLSTtexture *clstTexture(char *filepath, char *name);
  *
  * On error it returns NULL.
  */
-CLSTtexture *clstTextureMem(unsigned char *buffer, unsigned int bufsize, char *name);
+CLSTtexture *clstTextureMem(uint8_t *buffer, uint32_t bufsize, char *name);
 
 /*
  * Creates a texture from inline data.
@@ -127,7 +127,7 @@ CLSTtexture *clstTextureMem(unsigned char *buffer, unsigned int bufsize, char *n
  *
  * On error it returns NULL.
  */
-CLSTtexture *clstTextureInline(unsigned char *pixels, unsigned int width, unsigned int height, unsigned int bpp, char *name);
+CLSTtexture *clstTextureInline(uint8_t *pixels, uint32_t width, uint32_t height, uint32_t bpp, char *name);
 
 /*
  * Destroys the texture, and frees its memory.
@@ -147,12 +147,12 @@ void clstTextureUnbind();
 /*
  * Returns the width of a texture.
  */
-unsigned int clstTextureWidth(CLSTtexture *texture);
+uint32_t clstTextureWidth(CLSTtexture *texture);
 
 /*
  * Returns the height of a texture.
  */
-unsigned int clstTextureHeight(CLSTtexture *texture);
+uint32_t clstTextureHeight(CLSTtexture *texture);
 
 /*
  * Opens the file from filepath, and creates
@@ -173,7 +173,7 @@ CLSTfont *clstFont(const char *filepath, float size, char *name);
  *
  * On error it returns NULL.
  */
-CLSTfont *clstFontMem(unsigned char *buffer, unsigned int bufsize, float size, char *name);
+CLSTfont *clstFontMem(uint8_t *buffer, uint32_t bufsize, float size, char *name);
 
 /*
  * Destroys the font, and frees its memory.

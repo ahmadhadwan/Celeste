@@ -2,7 +2,6 @@
 #define __CELESTE_RENDERER_H__
 
 #include <cglm/vec2.h>
-#include <cglm/vec3.h>
 #include <cglm/mat4.h>
 #include "gapi.h"
 #include "sprite.h"
@@ -21,8 +20,8 @@ void clstRendererMat4Push(CLSTrenderer *renderer, mat4 transformation);
 void clstRendererMat4Pop(CLSTrenderer *renderer);
 
 void clstRendererBegin(CLSTrenderer *renderer);
-void clstRendererDrawQuad(CLSTrenderer *renderer, vec2 position, vec2 size, CLSTtexture *texture, vec2 uv[4], unsigned int color);
-void clstRendererDrawString(CLSTrenderer *renderer, vec2 position, vec2 uv[4], CLSTfont *font, char *text, unsigned int color);
+void clstRendererDrawQuad(CLSTrenderer *renderer, vec2 position, vec2 size, CLSTtexture *texture, vec2 uv[4], uint32_t color);
+void clstRendererDrawString(CLSTrenderer *renderer, vec2 position, vec2 uv[4], CLSTfont *font, char *text, uint32_t color);
 void clstRendererEnd();
 void clstRendererFlush(CLSTrenderer *renderer);
 

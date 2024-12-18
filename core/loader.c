@@ -128,8 +128,7 @@ CLSTloader *clstLoader(char *filepath)
 
     loader = malloc(sizeof(CLSTloader));
     loader->filepath = filepath;
-    loader->loadables = NULL;
-    loader->loadables_count = 0;
+    loader->loadables = clstListCreate();
 
     clst->loader = loader;
     return loader;
@@ -137,24 +136,24 @@ CLSTloader *clstLoader(char *filepath)
 
 void clstLoaderDestroy(CLSTloader *loader)
 {
-    for (int i = 0; i < loader->loadables_count; i++)
-        clstLoadableDestroy(loader->loadables[i]);
-    free(loader->loadables);
+    clstListDestroy(loader->loadables, (CLSTitemdestroy)clstLoadableDestroy);
     free(loader);
 }
 
 void clstLoaderSaveData(CLSTloader *loader)
 {
     FILE *fp;
-    uint32_t start = CELESTE_FILE_MAGIC_NUMBER;
+    const uint32_t start = CELESTE_FILE_MAGIC_NUMBER;
 
     fp = fopen(loader->filepath, "w");
 
     fwrite(&start, sizeof(start), 1, fp);
 
-    for (int i = 0; i < loader->loadables_count; i++)
+    for (int i = 0; i < loader->loadables->count; i++)
     {
-        CLSTloadable *loadable = loader->loadables[i];
+        CLSTloadable *loadable;
+        
+        loadable = ((CLSTloadable **)loader->loadables->items)[i];
         fwrite(&loadable->type, sizeof(uint8_t), 1, fp);
         fwrite(loadable->name, sizeof(char), strlen(loadable->name) + 1, fp);
         fwrite(&loadable->data_size, sizeof(uint32_t), 1, fp);
@@ -289,17 +288,14 @@ CLSTloadable *clstLoadable(char *name, void *data, int data_size, uint8_t type)
         return NULL;
 
     loadable = malloc(sizeof(CLSTloadable));
-    loadable->name = malloc(strlen(name) + 1);
-    strcpy(loadable->name, name);
+    loadable->name = strdup(name);
     loadable->data = malloc(data_size);
     memcpy(loadable->data, data, data_size);
     loadable->data_size = data_size;
     loadable->type = type;
 
     loader = clstInstance()->loader;
-    loader->loadables = realloc(loader->loadables, (loader->loadables_count + 1) * sizeof(CLSTloadable *));
-    loader->loadables[loader->loadables_count] = loadable;
-    loader->loadables_count++;
+    clstListAdd(loader->loadables, loadable);
     return loadable;
 }
 
@@ -315,10 +311,10 @@ int clstLoadableExists(char *name, void *data, int data_size, uint8_t type)
     CLSTloader *loader;
     
     loader = clstInstance()->loader;
-    for (int i = 0; i < loader->loadables_count; i++) {
+    for (int i = 0; i < loader->loadables->count; i++) {
         CLSTloadable *loadable;
         
-        loadable = loader->loadables[i];
+        loadable = ((CLSTloadable **)loader->loadables->items)[i];
         if (loadable->type == type)
             if (loadable->data_size == data_size)
                 if (strcmp(loadable->name, name) == 0)

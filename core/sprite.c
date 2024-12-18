@@ -32,14 +32,14 @@ static void draw_animation(CLSTrenderer *renderer, CLSTanimation *animation)
 
     time = clstTime();
     if (time >= animation->last_animation_time + animation->frame_time) {
-        if (animation->current_frame < animation->frames_count - 1)
+        if (animation->current_frame < animation->frames->count - 1)
             animation->current_frame++;
         else
             animation->current_frame = 0;
         animation->last_animation_time = time;
     }
 
-    sprite = animation->frames[animation->current_frame];
+    sprite = ((CLSTsprite **)animation->frames->items)[animation->current_frame];
     clstRendererDrawQuad(renderer, sprite->position, sprite->size, sprite->texture, sprite->uv, sprite->color);
 }
 
@@ -183,23 +183,20 @@ CLSTanimation *clstAnimation(CLSTsprite **frames, uint32_t frames_count, double 
 
     animation = malloc(sizeof(CLSTanimation));
     animation->draw = (CLSTdrawfunc)draw_animation;
-    animation->frames_count = frames_count;
     animation->current_frame = 0;
-    animation->frames = malloc(frames_count * sizeof(CLSTsprite *));
+    animation->frames = clstListCreate();
     animation->frame_time = frame_time;
     animation->last_animation_time = 0.0;
 
     for (int i = 0; i < frames_count; i++)
-        animation->frames[i] = frames[i];
+        clstListAdd(animation->frames, frames[i]);
 
     return animation;
 }
 
 void clstAnimationDestroy(CLSTanimation *animation)
 {
-    for (int i = 0; i < animation->frames_count; i++)
-        clstSpriteDestroy(animation->frames[i]);
-    free(animation->frames);
+    clstListDestroy(animation->frames, (CLSTitemdestroy)clstSpriteDestroy);
     free(animation);
 }
 
@@ -248,13 +245,13 @@ void clstButtonDestroy(CLSTbutton *button)
 
 void clstButtonEv(CLSTbutton *button, float projection_x, float projection_y)
 {
-    CLST *celeste;
+    CLST *clst;
     vec2 cursor;
     vec3 pos;
 
-    celeste = clstInstance();
-    cursor[0] = (float)(celeste->window.cursor.x * projection_x / celeste->window.width - (projection_x * 0.5f));
-    cursor[1] = (float)((projection_y * 0.5f) - celeste->window.cursor.y * projection_y / celeste->window.height);
+    clst = clstInstance();
+    cursor[0] = (float)(clst->window.cursor.x * projection_x / clst->window.width - (projection_x * 0.5f));
+    cursor[1] = (float)((projection_y * 0.5f) - clst->window.cursor.y * projection_y / clst->window.height);
 
     glm_mat4_mulv3(button->translation, (vec3){ button->sprite->position[0], button->sprite->position[1], 0.0f }, 1.0f, pos);
     if (!clstCollisionRectanglePoint((vec2 *)&pos, &(button->sprite->size), (vec2){ cursor[0], cursor[1] }))

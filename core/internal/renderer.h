@@ -7,22 +7,22 @@
 #include "gapi.h"
 
 typedef struct {
-    vec3         vertex;
-    vec2         uv;
-    float        tid;
-    unsigned int color;
+    vec3     vertex;
+    vec2     uv;
+    float    tid;
+    uint32_t color;
 } CLSTvertexdata;
 
 typedef struct {
-    unsigned int     vao;
-    unsigned int     vbo;
+    uint32_t         vao;
+    uint32_t         vbo;
     CLSTindexbuffer *ibo;
-    unsigned int     index_count;
+    uint32_t         index_count;
     CLSTvertexdata  *buffer;
-    unsigned int    *texture_slots;
-    unsigned int     texture_slots_size;
+    uint32_t        *texture_slots;
+    uint32_t         texture_slots_size;
     mat4            *transformation_back;
-    unsigned int     transformation_back_size;
+    uint32_t         transformation_back_size;
     float            projection_x;
     float            projection_y;
 } CLSTrenderer;

@@ -4,30 +4,30 @@
 #include <freetype-gl/freetype-gl.h>
 
 typedef struct {
-    unsigned int id;
-    unsigned int component_count;
+    uint32_t id;
+    uint32_t component_count;
 } CLSTbuffer;
 
 typedef struct {
-    unsigned int id;
-    unsigned int count;
+    uint32_t id;
+    uint32_t count;
 } CLSTindexbuffer;
 
 typedef struct {
-    unsigned int id;
-    unsigned int buffers_count;
+    uint32_t     id;
+    uint32_t     buffers_count;
     CLSTbuffer **buffers;
 } CLSTvertexarray;
 
 typedef struct {
-    unsigned int id;
+    uint32_t id;
 } CLSTshader;
 
 typedef struct {
-    unsigned int id;
-    unsigned int width;
-    unsigned int height;
-    char        *name;
+    uint32_t id;
+    uint32_t width;
+    uint32_t height;
+    char    *name;
 } CLSTtexture;
 
 typedef struct {
@@ -38,21 +38,21 @@ typedef struct {
 } CLSTfont;
 
 typedef struct {
-    unsigned int id;
-    unsigned int rbo;
+    uint32_t id;
+    uint32_t rbo;
 } CLSTframebuffer;
 
 typedef struct {
-    unsigned int id;
+    uint32_t id;
 } CLSTrenderbuffer;
 
-CLSTbuffer* clstBuffer(float* vertices, unsigned int count, unsigned int component_count);
+CLSTbuffer* clstBuffer(float* vertices, uint32_t count, uint32_t component_count);
 void clstBufferDestroy(CLSTbuffer* buffer);
 
 void clstBufferBind(CLSTbuffer* buffer);
 void clstBufferUnbind();
 
-CLSTindexbuffer* clstIndexBuffer(unsigned int* indices, unsigned int count);
+CLSTindexbuffer* clstIndexBuffer(uint32_t* indices, uint32_t count);
 void clstIndexBufferDestroy(CLSTindexbuffer* index_buffer);
 
 void clstIndexBufferBind(CLSTindexbuffer* index_buffer);
@@ -62,7 +62,7 @@ CLSTvertexarray* clstVertexArray();
 void clstVertexArrayDestroy(CLSTvertexarray* vertex_array);
 
 void clstVertexArrayAddBuffer(CLSTvertexarray* vertex_array, CLSTbuffer* buffer);
-void clstVertexArrayLinkAttribute(CLSTvertexarray* vertex_array, unsigned int layout, int size, void* offset);
+void clstVertexArrayLinkAttribute(CLSTvertexarray* vertex_array, uint32_t layout, int size, void* offset);
 
 void clstVertexArrayBind(CLSTvertexarray* vertex_array);
 void clstVertexArrayUnbind();

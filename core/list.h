@@ -14,5 +14,6 @@ CLSTlist *clstListCreate();
 void clstListDestroy(CLSTlist *list, CLSTitemdestroy destroyer);
 
 void clstListAdd(CLSTlist *list, void *item);
+void clstListRemove(CLSTlist *list, void *item);
 
 #endif /* __CELESTE_LIST_H__ */

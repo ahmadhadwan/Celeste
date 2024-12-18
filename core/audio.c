@@ -37,7 +37,7 @@ CLSTaudio *clstAudio(const char *filepath, char *name)
     return audio;
 }
 
-CLSTaudio *clstAudioMem(unsigned char *buffer, unsigned int bufsize, char *name)
+CLSTaudio *clstAudioMem(uint8_t *buffer, uint32_t bufsize, char *name)
 {
     CLSTaudio *audio;
     ga_Memory *mem;
@@ -67,7 +67,7 @@ void clstAudioDestroy(CLSTaudio *audio)
     free(audio);
 }
 
-CLSTaudioplayer *clstAudioPlayer(CLSTaudio *audio, int loop, int _destroy_on_finish)
+CLSTaudioplayer *clstAudioPlayer(CLSTaudio *audio, uint8_t loop, uint8_t _destroy_on_finish)
 {
     CLSTaudioplayer *player;
     ga_Handle *handle;

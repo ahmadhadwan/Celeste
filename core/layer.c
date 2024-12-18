@@ -56,8 +56,7 @@ CLSTlayer *clstLayerCustom(CLSTrenderer *renderer, CLSTshader *shader, CLSTcamer
     layer->shader = shader;
     layer->sprites = clstListCreate();
     layer->camera = camera;
-    layer->name = malloc(strlen(name) + 1);
-    strcpy(layer->name, name);
+    layer->name = strdup(name);
 
     layer->projection.top    =  (1 - projection[1][3]) / projection[1][1];
     layer->projection.right  =  (1 + projection[0][3]) / projection[0][0];

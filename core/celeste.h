@@ -8,6 +8,7 @@
 #include "renderer.h"
 #include "scene.h"
 #include "window.h"
+#include "list.h"
 
 #ifdef CELESTE_PTHREAD
     #include <pthread.h>
@@ -27,27 +28,23 @@ typedef struct {
     CLSTshader   *default_shader;
     CLSTscene    *scene;
 
-    CLSTkey      *keys;
-    CLSTclick    *clicks;
-    int           keys_count;
-    int           clicks_count;
+    CLSTlist     *keys;
+    CLSTlist     *clicks;
 
     char         *input_listener;
-    int           input_listener_len;
-    int           input_listener_max_len;
-    double     **scroll_listeners;
-    int          scroll_listeners_count;
+    uint32_t      input_listener_len;
+    uint32_t      input_listener_max_len;
+    CLSTlist     *scroll_listeners;
+    
+    CLSTlist     *bodies;
+    double        last_physics_update;
+    float         world_gravity;
 
-    int          bodies_count;
-    CLSTbody   **bodies;
-    double       last_physics_update;
-    float        world_gravity;
+    void         *aumanager;
+    void         *aumixer;
+    pthread_t     audio_thread;
 
-    void        *aumanager;
-    void        *aumixer;
-    pthread_t    audio_thread;
-
-    void        *loader;
+    void         *loader;
 } CLST;
 
 /*
@@ -73,11 +70,11 @@ double clstTime();
 /*
  * Swaps buffers, and handles the window's events.
  */
-void clstUpdate(CLST *celeste);
+void clstUpdate(CLST *clst);
 
 /*
  * Swaps buffers, and waits for a window event.
  */
-void clstWaitEv(CLST *celeste);
+void clstWaitEv(CLST *clst);
 
 #endif /* __CELESTE_H__ */

@@ -9,9 +9,9 @@
 #include <string.h>
 #include <sys/stat.h>
 
-static GLuint opengl_texture_create(unsigned char *pixels, unsigned int width, unsigned int height, GLenum format);
+static GLuint opengl_texture_create(uint8_t *pixels, uint32_t width, uint32_t height, GLenum format);
 
-CLSTbuffer *clstBuffer(float *vertices, unsigned int count, unsigned int component_count)
+CLSTbuffer *clstBuffer(float *vertices, uint32_t count, uint32_t component_count)
 {
     CLSTbuffer *buffer;
     GLuint id;
@@ -44,7 +44,7 @@ void clstBufferUnbind()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-CLSTindexbuffer *clstIndexBuffer(unsigned int *indices, unsigned int count)
+CLSTindexbuffer *clstIndexBuffer(uint32_t *indices, uint32_t count)
 {
     CLSTindexbuffer *index_buffer;
     GLuint id;
@@ -109,7 +109,7 @@ void clstVertexArrayAddBuffer(CLSTvertexarray *vertex_array, CLSTbuffer *buffer)
     vertex_array->buffers_count++;
 }
 
-void clstVertexArrayLinkAttribute(CLSTvertexarray *vertex_array, unsigned int layout, int size, void *offset)
+void clstVertexArrayLinkAttribute(CLSTvertexarray *vertex_array, uint32_t layout, int size, void *offset)
 {
     CLSTbuffer *buffer;
 
@@ -313,8 +313,8 @@ void clstShaderUniformMat4(CLSTshader *shader, char *uniform_name, mat4 value)
 CLSTtexture *clstTexture(char *filepath, char *name)
 {
     CLSTtexture *texture;
-    unsigned char *pixels;
-    unsigned int width, height, bpp;
+    uint8_t *pixels;
+    uint32_t width, height, bpp;
     struct stat s;
 
     if (stat(filepath, &s)) {
@@ -338,11 +338,11 @@ CLSTtexture *clstTexture(char *filepath, char *name)
     return texture;
 }
 
-CLSTtexture *clstTextureMem(unsigned char *buffer, unsigned int bufsize, char *name)
+CLSTtexture *clstTextureMem(uint8_t *buffer, uint32_t bufsize, char *name)
 {
     CLSTtexture *texture;
-    unsigned char *pixels;
-    unsigned int width, height, bpp;
+    uint8_t *pixels;
+    uint32_t width, height, bpp;
 
     stbi_set_flip_vertically_on_load(1);
     pixels = stbi_load_from_memory(buffer, bufsize, (int *)&width, (int *)&height, (int *)&bpp, STBI_rgb_alpha);
@@ -360,7 +360,7 @@ CLSTtexture *clstTextureMem(unsigned char *buffer, unsigned int bufsize, char *n
     return texture;
 }
 
-CLSTtexture *clstTextureInline(unsigned char *pixels, unsigned int width, unsigned int height, unsigned int bpp, char *name)
+CLSTtexture *clstTextureInline(uint8_t *pixels, uint32_t width, uint32_t height, uint32_t bpp, char *name)
 {
     CLSTtexture *texture;
 
@@ -368,8 +368,7 @@ CLSTtexture *clstTextureInline(unsigned char *pixels, unsigned int width, unsign
     texture->id = opengl_texture_create(pixels, width, height, bpp == 32 ? GL_RGBA : GL_RGB);
     texture->width = width;
     texture->height = height;
-    texture->name = malloc(strlen(name) + 1);
-    strcpy(texture->name, name);
+    texture->name = strdup(name);
     return texture;
 }
 
@@ -408,12 +407,11 @@ CLSTfont *clstFont(const char *filepath, float size, char *name)
     font->size = size;
     font->ftatlas = texture_atlas_new(512, 512, 1);
     font->ftfont = texture_font_new_from_file(font->ftatlas, size, filepath);
-    font->name = malloc(strlen(name) + 1);
-    strcpy(font->name, name);
+    font->name = strdup(name);
     return font;
 }
 
-CLSTfont *clstFontMem(unsigned char *buffer, unsigned int bufsize, float size, char *name)
+CLSTfont *clstFontMem(uint8_t *buffer, uint32_t bufsize, float size, char *name)
 {
     CLSTfont *font;
 
@@ -421,8 +419,7 @@ CLSTfont *clstFontMem(unsigned char *buffer, unsigned int bufsize, float size, c
     font->size = size;
     font->ftatlas = texture_atlas_new(512, 512, 1);
     font->ftfont = texture_font_new_from_memory(font->ftatlas, size, buffer, bufsize);
-    font->name = malloc(strlen(name) + 1);
-    strcpy(font->name, name);
+    font->name = strdup(name);
     return font;
 }
 
@@ -469,16 +466,14 @@ void clstFrameBufferAttachTexture(CLSTframebuffer *framebuffer, CLSTtexture *tex
 
 void clstFrameBufferAttachRenderBuffer(CLSTframebuffer *framebuffer, CLSTrenderbuffer *renderbuffer)
 {
-    clstFrameBufferBind(framebuffer);
+    uint32_t rbo;
     
-    /* TODO */
-    unsigned int rbo;
+    clstFrameBufferBind(framebuffer);
     glGenRenderbuffers(1, &rbo);
     glBindRenderbuffer(GL_RENDERBUFFER, rbo); 
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, clstInstance()->window.width, clstInstance()->window.height);  
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
     framebuffer->rbo = rbo;
-    
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
     clstFrameBufferUnbind();
 }
@@ -488,7 +483,7 @@ CLSTresult clstFrameBufferComplete(CLSTframebuffer *framebuffer)
     return glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE ? CELESTE_OK : !CELESTE_OK;
 }
 
-GLuint opengl_texture_create(unsigned char *pixels, unsigned int width, unsigned int height, GLenum format)
+GLuint opengl_texture_create(uint8_t *pixels, uint32_t width, uint32_t height, GLenum format)
 {
     GLuint id;
 

@@ -29,11 +29,10 @@ typedef struct {
 
 typedef struct {
     CLSTdrawfunc draw;
-    uint32_t     frames_count;
-    uint32_t     current_frame;
-    CLSTsprite **frames;
-    double       frame_time;
-    double       last_animation_time;
+    uint32_t current_frame;
+    CLSTlist *frames;
+    double   frame_time;
+    double   last_animation_time;
 } CLSTanimation;
 
 typedef struct {

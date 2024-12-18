@@ -139,11 +139,11 @@ int main()
 
     vec2 left_pos = { -17.0f, -9.0f };
     vec2 left_size = { 1.0f, 18.0f };
-    CLSTbody *left = clstBody(1, 0, 1, 0, &left_pos, &left_size);
+    clstBody(1, 0, 1, 0, &left_pos, &left_size);
 
     vec2 right_pos = { 16.0f, -9.0f };
     vec2 right_size = { 1.0f, 18.0f };
-    CLSTbody *right = clstBody(1, 0, 1, 0, &right_pos, &right_size);
+    clstBody(1, 0, 1, 0, &right_pos, &right_size);
 
     CLSTframebuffer *fb;
     CLSTtexture *fbtex;
@@ -277,13 +277,6 @@ int main()
     clstFrameBufferDestroy(fb);
 
     clstAudioPlayerDestroy(audio_player);
-
-    clstBodyDestroy(body1);
-    clstBodyDestroy(body2);
-    clstBodyDestroy(button_body);
-    clstBodyDestroy(floor);
-    clstBodyDestroy(left);
-    clstBodyDestroy(right);
 
     clstSceneDestroy(scene);
     clstLayerDestroy(layer_debug);
