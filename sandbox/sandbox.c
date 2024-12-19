@@ -64,14 +64,10 @@ int main()
     clstSetScene(scene);
     clstLoaderLoadData(loader);
 
-    button_group = clstGroup((vec2){ -4.0f, -7.5f }, "Button Group");
-    button_col = clstSpriteCol((vec2){ 0.0f, 0.0f }, (vec2){ 8.0f, 4.0f }, 0x3A555555, "Button Sprite");
-    button = clstButton(button_col, "Button");
-    clstGroupAddRenderable(button_group, button);
-    
-    button_label = clstLabelCol((vec2){ 3.0f, 2.0f }, "Quit", clstSceneGetFont(scene, "ThaleahFat-72"), 0xFFFFFFFF, "Button Label");
-    clstGroupAddRenderable(button_group, button_label);
-    clstLayerAddRenderable(clstSceneGetLayer(scene, "Base Layer"), button_group);
+    button_group = (CLSTgroup *)clstLayerGetRenderable(clstSceneGetLayer(scene, "Base Layer"), "Button Group");
+    button = (CLSTbutton *)button_group->renderables->items[0];
+    button_col = button->sprite;
+    button_label = (CLSTlabel *)button_group->renderables->items[1];
 
     audio_player = clstAudioPlayer(clstSceneGetAudio(scene, "space"), 1, 0);
     clstAudioPlayerSetPitch(audio_player, 0.6f);
@@ -110,7 +106,7 @@ int main()
 
     layer_debug = clstLayer(16.0f, 9.0f, "Debug Layer");
     memset(fps_text, 0, sizeof(fps_text));
-    fps = clstLabel((vec2){ -15.5f, 8.0f }, fps_text, clstSceneGetFont(scene, "ThaleahFat-72"), "FPS Label");
+    fps = clstLabel((vec2){ -15.5f, 8.0f }, "0 fps", clstSceneGetFont(scene, "ThaleahFat-72"), "FPS Label");
     clstLayerAddRenderable(layer_debug, fps);
 
     CLSTframebuffer *fb;
@@ -152,6 +148,7 @@ int main()
         {
             prevtime = clstTime();
             sprintf(fps_text, "%d fps", frames);
+            clstLabelSetText(fps, fps_text);
             CELESTE_LOG("%d fps\n", frames);
             frames = 0;
         }

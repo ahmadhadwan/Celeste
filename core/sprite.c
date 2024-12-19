@@ -221,6 +221,16 @@ CLSTgroup *clstGroup(vec2 position, char *name)
     return group;
 }
 
+CLSTgroup *clstGroupMat4(mat4 translation, char *name)
+{
+    CLSTgroup *group = malloc(sizeof(CLSTgroup));
+    group->draw = (CLSTdrawfunc)draw_group;
+    group->name = strdup(name);
+    group->renderables = clstListCreate();
+    glm_mat4_copy(translation, group->translation);
+    return group;
+}
+
 void clstGroupDestroy(CLSTgroup *group)
 {
     clstListDestroy(group->renderables, (CLSTitemdestroy)clstRenderableDestroy);
@@ -249,6 +259,20 @@ CLSTbutton *clstButton(CLSTsprite *sprite, char *name)
     button->disabled = 0;
     button->sprite = sprite;
     glm_mat4_zero(button->translation);
+    return button;
+}
+
+CLSTbutton *clstButtonCustom(uint32_t status, uint32_t disabled, CLSTsprite *sprite, mat4 translation, char *name)
+{
+    CLSTbutton *button;
+
+    button = malloc(sizeof(CLSTbutton));
+    button->draw = (CLSTdrawfunc)draw_button;
+    button->name = strdup(name);
+    button->status = status;
+    button->disabled = disabled;
+    button->sprite = sprite;
+    glm_mat4_copy(translation, button->translation);
     return button;
 }
 

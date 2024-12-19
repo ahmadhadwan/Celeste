@@ -136,6 +136,14 @@ void clstAnimationDestroy(CLSTanimation *animation);
 CLSTgroup *clstGroup(vec2 position, char *name);
 
 /*
+ * Creates a group.
+ *
+ * returns a CLSTgroup pointer,
+ * which must be destroyed by clstGroupDestroy().
+ */
+CLSTgroup *clstGroupMat4(mat4 translation, char *name);
+
+/*
  * Destroys the group, and frees its memory.
  */
 void clstGroupDestroy(CLSTgroup *group);
@@ -154,6 +162,11 @@ void clstGroupAddRenderable(CLSTgroup *group, void *renderable);
  * Creates a button.
  */
 CLSTbutton *clstButton(CLSTsprite *sprite, char *name);
+
+/*
+ * Creates a button.
+ */
+CLSTbutton *clstButtonCustom(uint32_t status, uint32_t disabled, CLSTsprite *sprite, mat4 translation, char *name);
 
 /*
  * Destroys the button, and frees its memory.

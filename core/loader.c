@@ -4,9 +4,172 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
-#include <libgen.h>
 
 static int clstLoadableExists(char *name, void *data, int data_size, uint8_t type);
+
+static void *memory_dupe(void *src, uint32_t data_size)
+{
+    void *data;
+    data = malloc(data_size);
+    memcpy(data, src, data_size);
+    return data;
+}
+
+static void *clstSerializeSprite(CLSTsprite *sprite, uint32_t *out_data_size)
+{
+    void *data;
+    uint32_t data_size, name_len, texname_len;
+
+    if (sprite->texture == NULL)
+        texname_len = 1;
+    else
+        texname_len = strlen(sprite->texture->name) + 1;
+
+    name_len = strlen(sprite->name) + 1;
+    data_size = (sizeof(vec2) * 6) + sizeof(uint32_t) + name_len + texname_len;
+    data = malloc(data_size);
+    
+    memcpy(data, sprite->name, name_len);
+    memcpy(data + name_len, sprite->position, sizeof(vec2));
+    memcpy(data + name_len + (sizeof(vec2) * 1), sprite->size, sizeof(vec2));
+    memcpy(data + name_len + (sizeof(vec2) * 2), sprite->uv[0], sizeof(vec2));
+    memcpy(data + name_len + (sizeof(vec2) * 3), sprite->uv[1], sizeof(vec2));
+    memcpy(data + name_len + (sizeof(vec2) * 4), sprite->uv[2], sizeof(vec2));
+    memcpy(data + name_len + (sizeof(vec2) * 5), sprite->uv[3], sizeof(vec2));
+    memcpy(data + name_len + (sizeof(vec2) * 6), &(sprite->color), sizeof(uint32_t));
+    memcpy(data + name_len + (sizeof(vec2) * 6) + sizeof(uint32_t), sprite->texture == NULL ? "" : sprite->texture->name, texname_len);
+
+    *out_data_size = data_size;
+    return data;
+}
+
+static CLSTsprite *clstDeserializeSprite(void *data, uint32_t *data_size)
+{    
+    CLSTsprite *sprite;
+    uint32_t name_len, texname_len, color;
+    char *texname, *name;
+    vec2 position, size, uv[4];
+    CLSTtexture *tex;
+
+    name = data;
+    name_len = strlen(name) + 1;
+
+    memcpy(position, (data + name_len), sizeof(vec2));
+    memcpy(size    , (data + name_len + sizeof(vec2)), sizeof(vec2));
+    memcpy(uv[0]   , (data + name_len + (sizeof(vec2) * 2)), sizeof(vec2));
+    memcpy(uv[1]   , (data + name_len + (sizeof(vec2) * 3)), sizeof(vec2));
+    memcpy(uv[2]   , (data + name_len + (sizeof(vec2) * 4)), sizeof(vec2));
+    memcpy(uv[3]   , (data + name_len + (sizeof(vec2) * 5)), sizeof(vec2));
+    memcpy(&color  , (data + name_len + (sizeof(vec2) * 6)), sizeof(uint32_t));
+    texname = (char *)(data + name_len + sizeof(uint32_t) + (sizeof(vec2) * 6));
+    texname_len = strlen(texname) + 1;
+    *data_size = name_len + sizeof(uint32_t) + (sizeof(vec2) * 6) + texname_len;
+
+    tex = texname_len == 1 ? NULL : clstSceneGetTexture(clstInstance()->scene, texname);
+    sprite = clstSprite(position, size, tex, name);
+    sprite->color = color;
+    memcpy(sprite->uv[0], uv[0], sizeof(vec2));
+    memcpy(sprite->uv[1], uv[1], sizeof(vec2));
+    memcpy(sprite->uv[2], uv[2], sizeof(vec2));
+    memcpy(sprite->uv[3], uv[3], sizeof(vec2));
+    return sprite;
+}
+
+static void *clstSerializeLabel(CLSTlabel *label, uint32_t *out_data_size)
+{
+    void *data;
+    uint32_t data_size, name_len, text_len, fontname_len;
+
+    name_len = strlen(label->name) + 1;
+    text_len = strlen(label->text) + 1;
+    fontname_len = strlen(label->font->name) + 1;
+    data_size = (sizeof(vec2) * 5) + sizeof(uint32_t) + name_len + text_len + fontname_len;
+    data = malloc(data_size);
+    
+    memcpy(data, label->name, name_len);
+    memcpy(data + name_len, label->position, sizeof(vec2));
+    memcpy(data + name_len + (sizeof(vec2) * 1), label->uv[0], sizeof(vec2));
+    memcpy(data + name_len + (sizeof(vec2) * 2), label->uv[1], sizeof(vec2));
+    memcpy(data + name_len + (sizeof(vec2) * 3), label->uv[2], sizeof(vec2));
+    memcpy(data + name_len + (sizeof(vec2) * 4), label->uv[3], sizeof(vec2));
+    memcpy(data + name_len + (sizeof(vec2) * 5), &(label->color), sizeof(uint32_t));
+    memcpy(data + name_len + (sizeof(vec2) * 5) + sizeof(uint32_t), label->text, text_len);
+    memcpy(data + name_len + text_len + (sizeof(vec2) * 5) + sizeof(uint32_t), label->font->name, fontname_len);
+
+    *out_data_size = data_size;
+    return data;
+}
+
+static CLSTlabel *clstDeserializeLabel(void *data, uint32_t *data_size)
+{    
+    CLSTlabel *label;
+    uint32_t name_len, text_len, fontname_len, color;
+    char *name, *text, *fontname;
+    vec2 position, uv[4];
+
+    name = data;
+    name_len = strlen(name) + 1;
+
+    memcpy(position, (data + name_len), sizeof(vec2));
+    memcpy(uv[0]   , (data + name_len + (sizeof(vec2) * 1)), sizeof(vec2));
+    memcpy(uv[1]   , (data + name_len + (sizeof(vec2) * 2)), sizeof(vec2));
+    memcpy(uv[2]   , (data + name_len + (sizeof(vec2) * 3)), sizeof(vec2));
+    memcpy(uv[3]   , (data + name_len + (sizeof(vec2) * 4)), sizeof(vec2));
+    memcpy(&color  , (data + name_len + (sizeof(vec2) * 5)), sizeof(uint32_t));
+
+    text = (char *)(data + name_len + sizeof(uint32_t) + (sizeof(vec2) * 5));
+    text_len = strlen(text) + 1;
+    fontname = (char *)(data + name_len + text_len + sizeof(uint32_t) + (sizeof(vec2) * 5));
+    fontname_len = strlen(fontname) + 1;
+    *data_size = name_len + sizeof(uint32_t) + (sizeof(vec2) * 6) + text_len + fontname_len;
+
+    label = clstLabelCol(position, text, clstSceneGetFont(clstInstance()->scene, fontname), color, name);
+    memcpy(label->uv[0], uv[0], sizeof(vec2));
+    memcpy(label->uv[1], uv[1], sizeof(vec2));
+    memcpy(label->uv[2], uv[2], sizeof(vec2));
+    memcpy(label->uv[3], uv[3], sizeof(vec2));
+    return label;
+}
+
+static void *clstSerializeButton(CLSTbutton *button, uint32_t *out_data_size)
+{
+    void *data, *sprite_data;
+    uint32_t data_size, name_len, sprite_size;
+
+    name_len = strlen(button->name) + 1;
+    sprite_data = clstSerializeSprite(button->sprite, &sprite_size);
+    data_size = (sizeof(uint32_t) * 2) + sizeof(mat4) + sprite_size + name_len;
+    data = malloc(data_size);
+    
+    memcpy(data, button->name, name_len);
+    memcpy(data + name_len, &(button->status), sizeof(uint32_t));
+    memcpy(data + name_len + (sizeof(uint32_t)), &(button->disabled), sizeof(uint32_t));
+    memcpy(data + name_len + (sizeof(uint32_t) * 2), button->translation, sizeof(mat4));
+    memcpy(data + name_len + (sizeof(uint32_t) * 2) + sizeof(mat4), sprite_data, sprite_size);
+
+    free(sprite_data);
+    *out_data_size = data_size;
+    return data;
+}
+
+static CLSTbutton *clstDeserializeButton(void *data, uint32_t *data_size)
+{    
+    CLSTsprite *sprite;
+    char *name;
+    uint32_t name_len, sprite_size, status, disabled;
+    mat4 translation;
+
+    name = data;
+    name_len = strlen(name) + 1;
+
+    memcpy(&status  , (data + name_len), sizeof(uint32_t));
+    memcpy(&disabled, (data + name_len + sizeof(uint32_t)), sizeof(uint32_t));
+    memcpy(translation, (data + name_len + (sizeof(uint32_t) * 2)), sizeof(mat4));
+    sprite = clstDeserializeSprite((data + name_len + (sizeof(uint32_t) * 2) + sizeof(mat4)), &sprite_size);
+    *data_size = name_len + (sizeof(uint32_t) * 2) + sizeof(mat4) + sprite_size;
+    
+    return clstButtonCustom(status, disabled, sprite, translation, name);
+}
 
 CLSTtexture *clstTextureSave(char *filepath, char *name)
 {
@@ -14,8 +177,7 @@ CLSTtexture *clstTextureSave(char *filepath, char *name)
     uint32_t data_size;
 
     data_size = strlen(filepath) + 1;
-    data = malloc(data_size);
-    memcpy(data, filepath, data_size);
+    data = memory_dupe(filepath, data_size);
     clstLoadable(name, data, data_size, CELESTE_TEXTURE_FILE);
     free(data);
     return clstTexture(filepath, name);
@@ -24,9 +186,7 @@ CLSTtexture *clstTextureSave(char *filepath, char *name)
 CLSTtexture *clstTextureMemSave(uint8_t *buffer, uint32_t bufsize, char *name)
 {
     void *data;
-
-    data = malloc(bufsize);
-    memcpy(data, buffer, bufsize);
+    data = memory_dupe(buffer, bufsize);
     clstLoadable(name, buffer, bufsize, CELESTE_TEXTURE_BIN);
     free(data);
     return clstTextureMem(buffer, bufsize, name);
@@ -49,9 +209,7 @@ CLSTfont *clstFontSave(char *filepath, float size, char *name)
 CLSTfont *clstFontMemSave(uint8_t *buffer, uint32_t bufsize, float size, char *name)
 {
     void *data;
-
-    data = malloc(bufsize);
-    memcpy(data, buffer, bufsize);
+    data = memory_dupe(buffer, bufsize);
     clstLoadable(name, buffer, bufsize, CELESTE_FONT_BIN);
     free(data);
     return clstFontMem(buffer, bufsize, size, name);
@@ -63,8 +221,7 @@ CLSTaudio *clstAudioSave(const char *filepath, char *name)
     uint32_t data_size;
 
     data_size = strlen(filepath) + 1;
-    data = malloc(data_size);
-    memcpy(data, filepath, data_size);
+    data = memory_dupe((void *)filepath, data_size);
     clstLoadable(name, data, data_size, CELESTE_AUDIO_FILE);
     free(data);
     return clstAudio(filepath, name);
@@ -73,9 +230,7 @@ CLSTaudio *clstAudioSave(const char *filepath, char *name)
 CLSTaudio *clstAudioMemSave(unsigned char *buffer, unsigned int bufsize, char *name)
 {
     void *data;
-
-    data = malloc(bufsize);
-    memcpy(data, buffer, bufsize);
+    data = memory_dupe(buffer, bufsize);
     clstLoadable(name, buffer, bufsize, CELESTE_AUDIO_BIN);
     free(data);
     return clstAudioMem(buffer, bufsize, name);
@@ -84,13 +239,15 @@ CLSTaudio *clstAudioMemSave(unsigned char *buffer, unsigned int bufsize, char *n
 CLSTsprite *clstSpriteSave(vec2 position, vec2 size, CLSTtexture *texture, char *name)
 {
     void *data;
-    uint32_t data_size;
+    uint32_t data_size, texname_len;
 
-    data_size = (sizeof(vec2) * 2) + strlen(texture->name) + 1;
+    texname_len = strlen(texture->name) + 1;
+    data_size = (sizeof(vec2) * 2) + texname_len;
     data = malloc(data_size);
+
     memcpy(data, position, sizeof(vec2));
     memcpy(data + sizeof(vec2), size, sizeof(vec2));
-    memcpy(data + (sizeof(vec2) * 2), texture->name, strlen(texture->name) + 1);
+    memcpy(data + (sizeof(vec2) * 2), texture->name, texname_len);
     clstLoadable(name, data, data_size, CELESTE_SPRITE);
     free(data);
     return clstSprite(position, size, texture, name);
@@ -99,15 +256,17 @@ CLSTsprite *clstSpriteSave(vec2 position, vec2 size, CLSTtexture *texture, char 
 CLSTsprite *clstSpriteTexAtlasSave(vec2 position, vec2 size, CLSTtexture *texture_atlas, vec2 offset, vec2 texsize, char *name)
 {
     void *data;
-    uint32_t data_size;
+    uint32_t data_size, texname_len;
 
-    data_size = (sizeof(vec2) * 4) + strlen(texture_atlas->name) + 1;
+    texname_len = strlen(texture_atlas->name) + 1;
+    data_size = (sizeof(vec2) * 4) + texname_len;
     data = malloc(data_size);
+
     memcpy(data, position, sizeof(vec2));
     memcpy(data + sizeof(vec2), size, sizeof(vec2));
     memcpy(data + (sizeof(vec2) * 2), offset, sizeof(vec2));
     memcpy(data + (sizeof(vec2) * 3), texsize, sizeof(vec2));
-    memcpy(data + (sizeof(vec2) * 4), texture_atlas->name, strlen(texture_atlas->name) + 1);
+    memcpy(data + (sizeof(vec2) * 4), texture_atlas->name, texname_len);
     clstLoadable(name, data, data_size, CELESTE_SPRITE_ATLAS);
     free(data);
     return clstSpriteTexAtlas(position, size, texture_atlas, offset, texsize, name);
@@ -126,20 +285,14 @@ CLSTanimation *clstAnimationSave(CLSTsprite **frames, uint32_t frames_count, dou
 
     for (int i = 0; i < frames_count; i++)
     {
-        CLSTsprite *sprite;
+        void *sprite_data;
+        uint32_t sprite_size;
 
-        sprite = frames[i];
-        data_size += (sizeof(vec2) * 6) + sizeof(uint32_t) + strlen(sprite->texture->name) + 1;
+        sprite_data = clstSerializeSprite(frames[i], &sprite_size);
+        data_size += sprite_size;
         data = realloc(data, data_size);
-
-        memcpy(data + offset, sprite->position, sizeof(vec2));
-        memcpy((data + offset) + (sizeof(vec2) * 1), sprite->size, sizeof(vec2));
-        memcpy((data + offset) + (sizeof(vec2) * 2), sprite->uv[0], sizeof(vec2));
-        memcpy((data + offset) + (sizeof(vec2) * 3), sprite->uv[1], sizeof(vec2));
-        memcpy((data + offset) + (sizeof(vec2) * 4), sprite->uv[2], sizeof(vec2));
-        memcpy((data + offset) + (sizeof(vec2) * 5), sprite->uv[3], sizeof(vec2));
-        memcpy((data + offset) + (sizeof(vec2) * 6), &(sprite->color), sizeof(uint32_t));
-        memcpy((data + offset) + (sizeof(vec2) * 6) + sizeof(uint32_t), sprite->texture->name, strlen(sprite->texture->name) + 1);
+        memcpy(data + offset, sprite_data, sprite_size);
+        free(sprite_data);
 
         offset = data_size;
     }
@@ -152,16 +305,72 @@ CLSTanimation *clstAnimationSave(CLSTsprite **frames, uint32_t frames_count, dou
 CLSTlabel *clstLabelSave(vec2 position, char *text, CLSTfont *font, char *name)
 {
     void *data;
-    uint32_t data_size;
+    uint32_t data_size, text_len, fontname_len;
 
-    data_size = sizeof(vec2) + (strlen(text) + 1) + (strlen(font->name) + 1);
+    fontname_len = strlen(font->name) + 1;
+    text_len = strlen(text) + 1;
+    data_size = sizeof(vec2) + text_len + fontname_len;
     data = malloc(data_size);
+
     memcpy(data, position, sizeof(vec2));
-    memcpy(data + sizeof(vec2), text, strlen(text) + 1);
-    memcpy(data + sizeof(vec2) + strlen(text) + 1, font->name, strlen(font->name) + 1);
+    memcpy(data + sizeof(vec2), text, text_len);
+    memcpy(data + sizeof(vec2) + text_len, font->name, fontname_len);
     clstLoadable(name, data, data_size, CELESTE_LABEL);
     free(data);
     return clstLabel(position, text, font, name);
+}
+
+void clstGroupSave(CLSTgroup *group)
+{
+    void *data;
+    uint32_t data_size, offset;
+
+    data_size = sizeof(uint32_t) + sizeof(mat4);
+    data = malloc(data_size);
+    memcpy(data, &(group->renderables->count), sizeof(uint32_t));
+    memcpy(data + sizeof(uint32_t), group->translation, sizeof(mat4));
+    offset = data_size;
+
+    for (int i = 0; i < group->renderables->count; i++)
+    {
+        CLSTrenderable *renderable;
+        CLSTrenderabletype type;
+        uint32_t renderable_size;
+        void *renderable_data;
+
+        renderable = (CLSTrenderable *)group->renderables->items[i];
+        type = clstRenderableType(renderable);
+
+        renderable_data = NULL;renderable_size = 0; /* To disable the uninitialized compiler warning */
+        switch (type)
+        {
+            case CELESTE_RENDERABLE_SPRITE:
+                renderable_data = clstSerializeSprite((CLSTsprite *)renderable, &renderable_size);
+                break;
+            case CELESTE_RENDERABLE_LABEL:
+                renderable_data = clstSerializeLabel((CLSTlabel *)renderable, &renderable_size);
+                break;
+            case CELESTE_RENDERABLE_ANIMATION:
+                CELESTE_LOG_ERROR("Unimplemented clstAnimationSerialize!");
+                break;
+            case CELESTE_RENDERABLE_GROUP:
+                CELESTE_LOG_ERROR("Unimplemented clstGroupSerialize!");
+                break;
+            case CELESTE_RENDERABLE_BUTTON:
+                renderable_data = clstSerializeButton((CLSTbutton *)renderable, &renderable_size);
+                break;
+        }
+
+        data_size += renderable_size + sizeof(uint32_t);
+        data = realloc(data, data_size);
+        memcpy(data + offset, &type, sizeof(uint32_t));
+        memcpy(data + offset + sizeof(uint32_t), renderable_data, renderable_size);
+        free(renderable_data);
+        offset = data_size;
+    }
+
+    clstLoadable(group->name, data, data_size, CELESTE_GROUP);
+    free(data);
 }
 
 CLSTlayer *clstLayerCameraSave(CLSTcamera *camera, float right, float top, char *name)
@@ -173,6 +382,7 @@ CLSTlayer *clstLayerCameraSave(CLSTcamera *camera, float right, float top, char 
     cam = camera;
     data_size = sizeof(vec2) + (sizeof(float) * 2);
     data = malloc(data_size);
+
     memcpy(data, cam->position, sizeof(vec2));
     memcpy(data + sizeof(vec2), &right, sizeof(float));
     memcpy(data + sizeof(vec2) + sizeof(float), &top, sizeof(float));
@@ -204,6 +414,7 @@ CLSTloader *clstLoader(char *filepath)
 
 void clstLoaderDestroy(CLSTloader *loader)
 {
+    clstInstance()->loader = NULL;
     clstListDestroy(loader->loadables, (CLSTitemdestroy)clstLoadableDestroy);
     free(loader);
 }
@@ -348,29 +559,21 @@ void clstLoaderLoadData(CLSTloader *loader)
                 frames_count = *(uint32_t *)(data + data_offset);
                 frame_time   = *(double *)(data + data_offset + sizeof(uint32_t));
 
+                CELESTE_LOG("Loading animation `%s`, `%u` frames!\n", name, frames_count);
+
                 CLSTsprite *frames[frames_count];
                 sprite_offset = sizeof(uint32_t) + sizeof(double);
                 for (int i = 0; i < frames_count; i++)
                 {
                     CLSTsprite *sprite;
+                    uint32_t sprite_size;
 
-                    sprite = malloc(sizeof(CLSTsprite));
-                    sprite->name = malloc(strlen(name) + strlen(" Frame ") + 4);
-                    sprintf(sprite->name, "%s Frame %d", name, i + 1);
-                    memcpy(sprite->position, (data + data_offset + sprite_offset), sizeof(vec2));
-                    memcpy(sprite->size, (data + data_offset + sprite_offset + sizeof(vec2)), sizeof(vec2));
-                    memcpy(sprite->uv[0], (data + data_offset + sprite_offset + (sizeof(vec2) * 2)), sizeof(vec2));
-                    memcpy(sprite->uv[1], (data + data_offset + sprite_offset + (sizeof(vec2) * 3)), sizeof(vec2));
-                    memcpy(sprite->uv[2], (data + data_offset + sprite_offset + (sizeof(vec2) * 4)), sizeof(vec2));
-                    memcpy(sprite->uv[3], (data + data_offset + sprite_offset + (sizeof(vec2) * 5)), sizeof(vec2));
-                    memcpy(&(sprite->color), (data + data_offset + sprite_offset + (sizeof(vec2) * 6)), sizeof(uint32_t));
-                    sprite->texture = clstSceneGetTexture(clst->scene, (char *)(data + data_offset + sprite_offset + sizeof(uint32_t) + (sizeof(vec2) * 6)));
+                    sprite = clstDeserializeSprite(data + data_offset + sprite_offset, &sprite_size);
+                    CELESTE_LOG("  -- Loading frame `%s`!\n", sprite->name);
 
                     frames[i] = sprite;
-                    sprite_offset += sizeof(uint32_t) + (sizeof(vec2) * 6) + strlen(sprite->texture->name) + 1;
+                    sprite_offset += sprite_size;
                 }
-
-                CELESTE_LOG("Loading animation `%s`, `%u` frames!\n", name, frames_count);
 
                 clstLayerAddRenderable(
                     clstSceneGetLastLayer(clst->scene),
@@ -393,6 +596,54 @@ void clstLoaderLoadData(CLSTloader *loader)
                     clstSceneGetLastLayer(clst->scene),
                     clstLabel(pos, text, clstSceneGetFont(clst->scene, font_name), name)
                 );
+                break;
+            }
+            case CELESTE_GROUP:
+            {
+                CLSTgroup *group;
+                mat4 translation;
+                uint32_t renderable_offset, renderables_count;
+
+                renderables_count = *(uint32_t *)(data + data_offset);
+                memcpy(translation, data + data_offset + sizeof(uint32_t), sizeof(mat4));
+                group = clstGroupMat4(translation, name);
+
+                CELESTE_LOG("Loading group `%s`, `%u` renderables!\n", name, renderables_count);
+
+                renderable_offset = sizeof(uint32_t) + sizeof(mat4);
+                for (int i = 0; i < renderables_count; i++)
+                {
+                    CLSTrenderable *renderable;
+                    uint32_t renderable_size, renderable_type;
+
+                    renderable = NULL; renderable_size = 0; /* To disable the compiler warning */
+                    renderable_type = *((uint32_t *)(data + data_offset + renderable_offset));
+                    renderable_offset += sizeof(uint32_t);
+                    switch (renderable_type)
+                    {
+                        case CELESTE_RENDERABLE_SPRITE:
+                            renderable = (CLSTrenderable *)clstDeserializeSprite(data + data_offset + renderable_offset, &renderable_size);
+                            break;
+                        case CELESTE_RENDERABLE_LABEL:
+                            renderable = (CLSTrenderable *)clstDeserializeLabel(data + data_offset + renderable_offset, &renderable_size);
+                            break;
+                        case CELESTE_RENDERABLE_ANIMATION:
+                            CELESTE_LOG_ERROR("Unimplemented clstAnimationSerialize!");
+                            break;
+                        case CELESTE_RENDERABLE_GROUP:
+                            CELESTE_LOG_ERROR("Unimplemented clstGroupSerialize!");
+                            break;
+                        case CELESTE_RENDERABLE_BUTTON:
+                            renderable = (CLSTrenderable *)clstDeserializeButton(data + data_offset + renderable_offset, &renderable_size);
+                            break;
+                    }
+                    CELESTE_LOG("  -- Loading renderable `%s`!\n", renderable->name);
+
+                    clstGroupAddRenderable(group, renderable);
+                    renderable_offset += renderable_size;
+                }
+
+                clstLayerAddRenderable(clstSceneGetLastLayer(clst->scene), group);
                 break;
             }
             case CELESTE_LAYER:
