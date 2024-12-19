@@ -14,6 +14,8 @@
 #include "sprite.h"
 #include "window.h"
 
+static CLSTrenderable *clstListGetRenderable(CLSTlist *list, char *name);
+
 CLSTlayer *clstLayer(float right, float top, char *name)
 {
     mat4 projection;
@@ -86,19 +88,44 @@ void clstLayerAddRenderable(CLSTlayer *layer, void *renderable)
     clstListAdd(layer->renderables, renderable);
 }
 
-CLSTrenderable *clstLayerGetRenderable(CLSTlayer *layer, char *name)
+static CLSTrenderable *clstListGetRenderable(CLSTlist *list, char *name)
 {
-    CLSTrenderable **renderables;
+    CLSTrenderable **renderables, *renderable;
+    CLSTrenderabletype type;
 
-    renderables = (CLSTrenderable **)layer->renderables->items;
-    for (int i = 0; i < layer->renderables->count; i++)
+    renderables = (CLSTrenderable **)list->items;
+    for (int i = 0; i < list->count; i++)
     {
         if (strcmp(renderables[i]->name, name) == 0)
             return renderables[i];
+
+        type = clstRenderableType(renderables[i]);
+        if (type == CELESTE_RENDERABLE_GROUP)
+        {
+            renderable = clstListGetRenderable(((CLSTgroup *)renderables[i])->renderables, name);
+            if (renderable != NULL)
+                return renderable;
+        }
+        else if (type == CELESTE_RENDERABLE_BUTTON)
+        {
+            renderable = (CLSTrenderable *)((CLSTbutton *)renderables[i])->sprite;
+            if (strcmp(renderable->name, name) == 0)
+                return renderable;
+        }
     }
-    CELESTE_LOG("Renderable `%s` doesn't exist in the layer `%s`!", name, layer->name);
-    CELESTE_LOG_ERROR("Renderable doesn't exist!");
     return NULL;
+}
+
+CLSTrenderable *clstLayerGetRenderable(CLSTlayer *layer, char *name)
+{
+    CLSTrenderable *renderable;
+
+    renderable = clstListGetRenderable(layer->renderables, name);
+    if (renderable == NULL) {
+        CELESTE_LOG("Renderable `%s` doesn't exist in the layer `%s`!", name, layer->name);
+        CELESTE_LOG_ERROR("Renderable doesn't exist!");
+    }
+    return renderable;
 }
 
 void clstLayerRender(CLSTlayer *layer)

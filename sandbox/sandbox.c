@@ -34,7 +34,6 @@ int main()
     CLSTloader *loader;
 
     CLSTbutton *button;
-    CLSTgroup *button_group;
     CLSTsprite *button_col;
     CLSTlabel *button_label;
 
@@ -64,10 +63,9 @@ int main()
     clstSetScene(scene);
     clstLoaderLoadData(loader);
 
-    button_group = (CLSTgroup *)clstLayerGetRenderable(clstSceneGetLayer(scene, "Base Layer"), "Button Group");
-    button = (CLSTbutton *)button_group->renderables->items[0];
-    button_col = button->sprite;
-    button_label = (CLSTlabel *)button_group->renderables->items[1];
+    button = (CLSTbutton *)clstLayerGetRenderable(clstSceneGetLayer(scene, "Base Layer"), "Button");
+    button_col = (CLSTsprite *)clstLayerGetRenderable(clstSceneGetLayer(scene, "Base Layer"), "Button Sprite");
+    button_label = (CLSTlabel *)clstLayerGetRenderable(clstSceneGetLayer(scene, "Base Layer"), "Button Label");
 
     audio_player = clstAudioPlayer(clstSceneGetAudio(scene, "space"), 1, 0);
     clstAudioPlayerSetPitch(audio_player, 0.6f);
