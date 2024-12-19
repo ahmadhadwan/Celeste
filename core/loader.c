@@ -253,6 +253,22 @@ CLSTsprite *clstSpriteSave(vec2 position, vec2 size, CLSTtexture *texture, char 
     return clstSprite(position, size, texture, name);
 }
 
+CLSTsprite *clstSpriteColSave(vec2 position, vec2 size, uint32_t color, char *name)
+{
+    void *data;
+    uint32_t data_size;
+
+    data_size = (sizeof(vec2) * 2) + sizeof(uint32_t);
+    data = malloc(data_size);
+
+    memcpy(data, position, sizeof(vec2));
+    memcpy(data + sizeof(vec2), size, sizeof(vec2));
+    memcpy(data + (sizeof(vec2) * 2), &color, sizeof(uint32_t));
+    clstLoadable(name, data, data_size, CELESTE_SPRITE_COLOR);
+    free(data);
+    return clstSpriteCol(position, size, color, name);
+}
+
 CLSTsprite *clstSpriteTexAtlasSave(vec2 position, vec2 size, CLSTtexture *texture_atlas, vec2 offset, vec2 texsize, char *name)
 {
     void *data;
@@ -527,6 +543,25 @@ void clstLoaderLoadData(CLSTloader *loader)
                 clstLayerAddRenderable(
                     clstSceneGetLastLayer(clst->scene),
                     clstSprite(pos, size, clstSceneGetTexture(clst->scene, (char *)(data + data_offset + sizeof(vec2) * 2)), name)
+                );
+                break;
+            }
+            case CELESTE_SPRITE_COLOR:
+            {
+                vec2 pos, size;
+                uint32_t color;
+
+                pos[0]  = *((float *)(data + data_offset + sizeof(float) * 0));
+                pos[1]  = *((float *)(data + data_offset + sizeof(float) * 1));
+                size[0] = *((float *)(data + data_offset + sizeof(float) * 2));
+                size[1] = *((float *)(data + data_offset + sizeof(float) * 3));
+                color = *(uint32_t *)(data + data_offset + sizeof(vec2) * 2);
+
+                CELESTE_LOG("Loading sprite `%s` at `%2.2f, %2.2f`, size `%2.2f, %2.2f`!\n", name, pos[0], pos[1], size[0], size[1]);
+
+                clstLayerAddRenderable(
+                    clstSceneGetLastLayer(clst->scene),
+                    clstSpriteCol(pos, size, color, name)
                 );
                 break;
             }

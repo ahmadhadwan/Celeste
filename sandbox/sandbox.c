@@ -79,10 +79,8 @@ int main()
     clstLayerAddRenderable(clstSceneGetLayer(scene, "Base Layer"), input_label);
 
     CLSTsprite *quad1, *quad2;
-    quad1 = clstSpriteCol((vec2){ -10.0f, -2.0f }, (vec2){ 4.0f, 4.0f }, 0xFFFFFF00, "Quad1 Sprite");
-    quad2 = clstSpriteCol((vec2){   8.0f, -2.0f }, (vec2){ 4.0f, 4.0f }, 0xFF0000FF, "Quad2 Sprite");
-    clstLayerAddRenderable(clstSceneGetLayer(scene, "Base Layer"), quad1);
-    clstLayerAddRenderable(clstSceneGetLayer(scene, "Base Layer"), quad2);
+    quad1 = (CLSTsprite *)clstLayerGetRenderable(clstSceneGetLayer(scene, "Base Layer"), "Quad1 Sprite");
+    quad2 = (CLSTsprite *)clstLayerGetRenderable(clstSceneGetLayer(scene, "Base Layer"), "Quad2 Sprite");
 
     CLSTbody *body1 = clstBody(0, 1, 1, 1, &(quad1->position), &(quad1->size));
     CLSTbody *body2 = clstBody(0, 0, 1, 0, &(quad2->position), &(quad2->size));
