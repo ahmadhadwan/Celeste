@@ -32,17 +32,18 @@ typedef enum {
 } CLSTloadabletype;
 
 typedef struct {
-    char     *filepath;
-    CLSTlist *loadables;
+    char      *filepath;
+    CLSTscene *scene;
+    CLSTlist  *loadables;
 } CLSTloader;
 
 CLSTloader *clstLoader(char *filepath);
 void clstLoaderDestroy(CLSTloader *loader);
 
 void clstLoaderSaveData(CLSTloader *loader);
-void clstLoaderLoadData(CLSTloader *loader);
+void clstLoaderLoadData(CLSTloader *loader, CLSTscene *scene);
 
-CLSTloadable *clstLoadable(char *name, void *data, int data_size, uint8_t type);
+CLSTloadable *clstLoadable(char *name, void *data, uint32_t data_size, uint8_t type);
 void clstLoadableDestroy(CLSTloadable *loadable);
 
 CLSTtexture *clstTextureSave(char *filepath, char *name);

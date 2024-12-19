@@ -333,7 +333,7 @@ void clstButtonEv(CLSTbutton *button, float projection_x, float projection_y)
     cursor[1] = (float)((projection_y * 0.5f) - clst->window.cursor.y * projection_y / clst->window.height);
 
     glm_mat4_mulv3(button->translation, (vec3){ button->sprite->position[0], button->sprite->position[1], 0.0f }, 1.0f, pos);
-    if (!clstCollisionRectanglePoint((vec2 *)&pos, &(button->sprite->size), (vec2){ cursor[0], cursor[1] }))
+    if (!clstCollisionRectanglePoint(pos, button->sprite->size, (vec2){ cursor[0], cursor[1] }))
     {
         button->status = CELESTE_BUTTON_STATUS_NONE;
         return;

@@ -61,7 +61,7 @@ int main()
     loader = clstLoader("sandbox.clst");
     scene = clstScene();
     clstSetScene(scene);
-    clstLoaderLoadData(loader);
+    clstLoaderLoadData(loader, scene);
 
     button = (CLSTbutton *)clstLayerGetRenderable(clstSceneGetLayer(scene, "Base Layer"), "Button");
     button_col = (CLSTsprite *)clstLayerGetRenderable(clstSceneGetLayer(scene, "Base Layer"), "Button Sprite");
@@ -75,8 +75,7 @@ int main()
     clstInputSetListener(input_str, 1024);
 
     memset(input_str, 0, sizeof(input_str));
-    input_label = clstLabel((vec2){ -15.5f, -8.5f }, input_str, clstSceneGetFont(scene, "ThaleahFat-72"), "Input Label");
-    clstLayerAddRenderable(clstSceneGetLayer(scene, "Base Layer"), input_label);
+    input_label = (CLSTlabel *)clstLayerGetRenderable(clstSceneGetLayer(scene, "Base Layer"), "Input Label");
 
     CLSTsprite *quad1;
     CLSTbody *body1, *body2, *button_body, *floor;
@@ -101,10 +100,10 @@ int main()
     CLSTlayer *fblayer;
     fblayer = setup_framebuffer_layer(&fb, &fbtex, &fbshader);
 
-    clstLoaderSaveData(loader);
-
     CLSTlabel *collision_label;
     collision_label = (CLSTlabel *)clstLayerGetRenderable(clstSceneGetLayer(scene, "Base Layer"), "Collision Label");
+
+    clstLoaderSaveData(loader);
 
     clst->last_physics_update = prevtime = prevtime2 = clstTime();
     frames = 0;
@@ -201,6 +200,7 @@ int main()
             clstLabelSetText(collision_label, "");
         }
 
+        clstLabelSetText(input_label, input_str);
         glm_vec2_copy(body1->position, quad1->position);
     }
 
