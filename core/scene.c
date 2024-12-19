@@ -110,6 +110,18 @@ void clstSceneAddBody(CLSTscene *scene, CLSTbody *body)
     clstListAdd(scene->bodies, body);
 }
 
+CLSTbody *clstSceneGetBody(CLSTscene *scene, char *body_name)
+{
+    CLSTbody **body;
+
+    body = (CLSTbody **)scene->bodies->items;
+    for (int i = 0; i < scene->bodies->count; i++) {
+        if (strcmp(body[i]->name, body_name) == 0)
+            return body[i];
+    }
+    return NULL;
+}
+
 void clstSceneRender(CLSTscene *scene)
 {
     CLSTlayer **layers;

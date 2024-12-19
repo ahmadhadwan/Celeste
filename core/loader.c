@@ -171,6 +171,47 @@ static CLSTbutton *clstDeserializeButton(void *data, uint32_t *data_size)
     return clstButtonCustom(status, disabled, sprite, translation, name);
 }
 
+static void *clstSerializeBody(CLSTbody *body, uint32_t *out_data_size)
+{
+    void *data;
+    uint32_t data_size, name_len;
+
+    name_len = strlen(body->name) + 1;
+    data_size = (sizeof(uint32_t) * 2) + (sizeof(vec2) * 3) + name_len;
+    data = malloc(data_size);
+
+    memcpy(data, body->name, name_len);
+    memcpy(data + name_len, &(body->layer), sizeof(uint32_t));
+    memcpy(data + name_len + (sizeof(uint32_t)), &(body->flags), sizeof(uint32_t));
+    memcpy(data + name_len + (sizeof(uint32_t) * 2), body->position, sizeof(vec2));
+    memcpy(data + name_len + (sizeof(uint32_t) * 2) + sizeof(vec2), body->size, sizeof(vec2));
+    memcpy(data + name_len + (sizeof(uint32_t) * 2) + (sizeof(vec2) * 2), body->velocity, sizeof(vec2));
+
+    *out_data_size = data_size;
+    return data;
+}
+
+static CLSTbody *clstDeserializeBody(void *data)
+{
+    CLSTbody *body;
+    char *name;
+    uint32_t name_len, layer, flags;
+    vec2 position, size, velocity;
+
+    name = data;
+    name_len = strlen(name) + 1;
+
+    memcpy(&layer  , (data + name_len), sizeof(uint32_t));
+    memcpy(&flags  , (data + name_len + sizeof(uint32_t)), sizeof(uint32_t));
+    memcpy(position, (data + name_len + (sizeof(uint32_t) * 2)), sizeof(vec2));
+    memcpy(size    , (data + name_len + (sizeof(uint32_t) * 2) + sizeof(vec2)), sizeof(vec2));
+    memcpy(velocity, (data + name_len + (sizeof(uint32_t) * 2) + (sizeof(vec2) * 2)), sizeof(vec2));
+
+    body = clstBody(layer, flags, position, size, name);
+    glm_vec2_copy(velocity, body->velocity);
+    return body;
+}
+
 CLSTtexture *clstTextureSave(char *filepath, char *name)
 {
     void *data;
@@ -334,6 +375,19 @@ CLSTlabel *clstLabelSave(vec2 position, char *text, CLSTfont *font, char *name)
     clstLoadable(name, data, data_size, CELESTE_LABEL);
     free(data);
     return clstLabel(position, text, font, name);
+}
+
+CLSTbody *clstBodySave(uint32_t layer, uint32_t flags, vec2 position, vec2 size, char *name)
+{
+    CLSTbody *body;
+    void *data;
+    uint32_t data_size;
+
+    body = clstBody(layer, flags, position, size, name);
+    data = clstSerializeBody(body, &data_size);
+    clstLoadable(name, data, data_size, CELESTE_BODY);
+    free(data);
+    return body;
 }
 
 void clstGroupSave(CLSTgroup *group)
@@ -679,6 +733,14 @@ void clstLoaderLoadData(CLSTloader *loader)
                 }
 
                 clstLayerAddRenderable(clstSceneGetLastLayer(clst->scene), group);
+                break;
+            }
+            case CELESTE_BODY:
+            {
+                CLSTbody *body;
+                body = clstDeserializeBody(data + data_offset);
+                CELESTE_LOG("Loading body `%s` at `%2.2f, %2.2f`!\n", name, body->position[0], body->position[1]);
+                clstSceneAddBody(clst->scene, body);
                 break;
             }
             case CELESTE_LAYER:

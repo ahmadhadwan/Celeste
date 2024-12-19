@@ -88,7 +88,7 @@ void clstLayerAddRenderable(CLSTlayer *layer, void *renderable)
     clstListAdd(layer->renderables, renderable);
 }
 
-static CLSTrenderable *clstListGetRenderable(CLSTlist *list, char *name)
+CLSTrenderable *clstListGetRenderable(CLSTlist *list, char *name)
 {
     CLSTrenderable **renderables, *renderable;
     CLSTrenderabletype type;

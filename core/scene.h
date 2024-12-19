@@ -78,6 +78,11 @@ CLSTaudio *clstSceneGetAudio(CLSTscene *scene, char *audio_name);
 void clstSceneAddBody(CLSTscene *scene, CLSTbody *body);
 
 /*
+ * Gets a body from a body name.
+ */
+CLSTbody *clstSceneGetBody(CLSTscene *scene, char *body_name);
+
+/*
  * Renders each sprite in each layer in the scene.
  */
 void clstSceneRender(CLSTscene *scene);

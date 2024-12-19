@@ -28,6 +28,7 @@ typedef enum {
     CELESTE_LABEL        = 11,
     CELESTE_GROUP        = 12,
     CELESTE_SPRITE_COLOR = 13,
+    CELESTE_BODY         = 14,
 } CLSTloadabletype;
 
 typedef struct {
@@ -56,6 +57,8 @@ CLSTsprite *clstSpriteColSave(vec2 position, vec2 size, uint32_t color, char *na
 CLSTsprite *clstSpriteTexAtlasSave(vec2 position, vec2 size, CLSTtexture *texture_atlas, vec2 offset, vec2 texsize, char *name);
 CLSTanimation *clstAnimationSave(CLSTsprite **frames, uint32_t frames_count, double frame_time, char *name);
 CLSTlabel *clstLabelSave(vec2 position, char *text, CLSTfont *font, char *name);
+
+CLSTbody *clstBodySave(uint32_t layer, uint32_t flags, vec2 position, vec2 size, char *name);
 
 void clstGroupSave(CLSTgroup *group);
 

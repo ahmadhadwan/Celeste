@@ -78,25 +78,15 @@ int main()
     input_label = clstLabel((vec2){ -15.5f, -8.5f }, input_str, clstSceneGetFont(scene, "ThaleahFat-72"), "Input Label");
     clstLayerAddRenderable(clstSceneGetLayer(scene, "Base Layer"), input_label);
 
-    CLSTsprite *quad1, *quad2;
-    quad1 = (CLSTsprite *)clstLayerGetRenderable(clstSceneGetLayer(scene, "Base Layer"), "Quad1 Sprite");
-    quad2 = (CLSTsprite *)clstLayerGetRenderable(clstSceneGetLayer(scene, "Base Layer"), "Quad2 Sprite");
-
-    CLSTbody *body1 = clstBody(0, 1, 1, 1, &(quad1->position), &(quad1->size));
-    CLSTbody *body2 = clstBody(0, 0, 1, 0, &(quad2->position), &(quad2->size));
-
+    CLSTsprite *quad1;
+    CLSTbody *body1, *body2, *button_body, *floor;
     vec2 button_pos = { -4.0f, -7.5f };
-    CLSTbody *button_body = clstBody(0, 0, 1, 0, &button_pos, &(button_col->size));
-
-    vec2 floor_pos = { -16.0f, -10.0f };
-    vec2 floor_size = { 32.0f, 1.0f };
-    CLSTbody *floor = clstBody(1, 0, 1, 0, &floor_pos, &floor_size);
-    vec2 left_pos = { -17.0f, -9.0f };
-    vec2 left_size = { 1.0f, 18.0f };
-    clstBody(1, 0, 1, 0, &left_pos, &left_size);
-    vec2 right_pos = { 16.0f, -9.0f };
-    vec2 right_size = { 1.0f, 18.0f };
-    clstBody(1, 0, 1, 0, &right_pos, &right_size);
+    
+    quad1 = (CLSTsprite *)clstLayerGetRenderable(clstSceneGetLayer(scene, "Base Layer"), "Quad1 Sprite");
+    body1 = clstSceneGetBody(scene, "Quad1 Body");
+    body2 = clstSceneGetBody(scene, "Quad2 Body");
+    button_body = clstSceneGetBody(scene, "Button Body");
+    floor = clstSceneGetBody(scene, "Floor");
 
     clstSetWorldGravity(12.0f);
 
@@ -197,19 +187,21 @@ int main()
             button_col->color = 0x6FFFFF00;
             button_label->color = 0x88BBBBBB;
 
-            if (clstKey(CELESTE_KEY_SPACE) && (*body1->position)[1] >= button_pos[1] + button_col->size[1])
+            if (clstKey(CELESTE_KEY_SPACE) && body1->position[1] >= button_pos[1] + button_col->size[1])
                 body1->velocity[1] = jump;
         }
 
         if (clstCollisionRectangles(body1->position, body1->size, body2->position, body2->size)) {
             clstLabelSetText(collision_label, "Colliding");
 
-            if (clstKey(CELESTE_KEY_SPACE) && (*body1->position)[1] >= (*body2->position)[1] + (*body2->size)[1])
+            if (clstKey(CELESTE_KEY_SPACE) && body1->position[1] >= body2->position[1] + body2->size[1])
                 body1->velocity[1] = jump;
         }
         else {
             clstLabelSetText(collision_label, "");
         }
+
+        glm_vec2_copy(body1->position, quad1->position);
     }
 
     clstShaderDestroy(fbshader);
