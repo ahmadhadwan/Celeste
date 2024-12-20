@@ -112,7 +112,7 @@ CLSTlabel *clstDeserializeLabel(void *data, uint32_t *data_size)
     text_len = strlen(text) + 1;
     fontname = (char *)(data + name_len + text_len + sizeof(uint32_t) + (sizeof(vec2) * 5));
     fontname_len = strlen(fontname) + 1;
-    *data_size = name_len + sizeof(uint32_t) + (sizeof(vec2) * 6) + text_len + fontname_len;
+    *data_size = name_len + sizeof(uint32_t) + (sizeof(vec2) * 5) + text_len + fontname_len;
 
     label = clstLabelCol(position, text, clstSceneGetFont(clstInstance()->scene, fontname), color, name);
     memcpy(label->uv[0], uv[0], sizeof(vec2));
@@ -280,7 +280,7 @@ CLSTgroup *clstDeserializeGroup(void *data, uint32_t *data_size)
     CLSTgroup *group;
     mat4 translation;
     char *name;
-    uint32_t name_len, renderables_count, renderable_offset;
+    uint32_t name_len, renderables_count, group_size;
 
     name = (char *)data;
     name_len = strlen(name) + 1;
@@ -288,56 +288,43 @@ CLSTgroup *clstDeserializeGroup(void *data, uint32_t *data_size)
     memcpy(translation, data + name_len + sizeof(uint32_t), sizeof(mat4));
     group = clstGroupMat4(translation, name);
 
-    renderable_offset = name_len + sizeof(uint32_t) + sizeof(mat4);
+    group_size = name_len + sizeof(uint32_t) + sizeof(mat4);
     for (int i = 0; i < renderables_count; i++)
     {
         CLSTrenderable *renderable;
         uint32_t renderable_size, renderable_type;
 
         renderable_size = 0; /* Compiler warning. */
-        renderable_type = *((uint32_t *)(data + renderable_offset));
-        renderable_offset += sizeof(uint32_t);
+        renderable_type = *((uint32_t *)(data + group_size));
+        group_size += sizeof(uint32_t);
         switch (renderable_type)
         {
             case CELESTE_RENDERABLE_SPRITE:
-                renderable = (CLSTrenderable *)clstDeserializeSprite(data + renderable_offset, &renderable_size);
+                renderable = (CLSTrenderable *)clstDeserializeSprite(data + group_size, &renderable_size);
                 break;
             case CELESTE_RENDERABLE_LABEL:
-                renderable = (CLSTrenderable *)clstDeserializeLabel(data + renderable_offset, &renderable_size);
+                renderable = (CLSTrenderable *)clstDeserializeLabel(data + group_size, &renderable_size);
                 break;
             case CELESTE_RENDERABLE_ANIMATION:
-                renderable = (CLSTrenderable *)clstDeserializeAnimation(data + renderable_offset, &renderable_size);
+                renderable = (CLSTrenderable *)clstDeserializeAnimation(data + group_size, &renderable_size);
                 break;
             case CELESTE_RENDERABLE_GROUP:
-                CELESTE_LOG_ERROR("Unimplemented renderable deserialization!\n");
-                clstTerminate();
-                exit(1);
-                // renderable = (CLSTrenderable *)clstDeserializeGroup(data + renderable_offset, &renderable_size);
-                // break;
+                renderable = (CLSTrenderable *)clstDeserializeGroup(data + group_size, &renderable_size);
+                break;
             case CELESTE_RENDERABLE_BUTTON:
-                renderable = (CLSTrenderable *)clstDeserializeButton(data + renderable_offset, &renderable_size);
+                renderable = (CLSTrenderable *)clstDeserializeButton(data + group_size, &renderable_size);
                 break;
             default:
                 CELESTE_LOG_ERROR("Unimplemented renderable deserialization!\n");
                 clstTerminate();
                 exit(1);
         }
-        
-        // if (renderable_type == CELESTE_RENDERABLE_GROUP) {
-        //     CLSTgroup *g = (CLSTgroup *)renderable;
-            
-        //     CELESTE_LOG("    -- Deserializing group has %u renderables, size `%u`\n", g->renderables->count, renderable_size);
-        //     CELESTE_LOG("    -- %8X\n", *((uint32_t *)data + renderable_offset));
-        //     renderable_size -= sizeof(uint32_t) * g->renderables->count;
-        // }
 
         clstGroupAddRenderable(group, renderable);
-        renderable_offset += renderable_size;
+        group_size += renderable_size;
     }
 
-    // CELESTE_LOG("Group `%s` is of size `%u`.\n", group->name, renderable_offset);
-
-    *data_size = renderable_offset;
+    *data_size = group_size;
     return group;
 }
 

@@ -487,11 +487,8 @@ void clstLoaderLoadData(CLSTloader *loader, CLSTscene *scene)
                             renderable = (CLSTrenderable *)clstDeserializeAnimation(data + data_offset + renderable_offset, &renderable_size);
                             break;
                         case CELESTE_RENDERABLE_GROUP:
-                            CELESTE_LOG_ERROR("Unimplemented renderable deserialization!\n");
-                            clstTerminate();
-                            exit(1);
-                            // renderable = (CLSTrenderable *)clstDeserializeGroup(data + data_offset + renderable_offset, &renderable_size);
-                            // break;
+                            renderable = (CLSTrenderable *)clstDeserializeGroup(data + data_offset + renderable_offset, &renderable_size);
+                            break;
                         case CELESTE_RENDERABLE_BUTTON:
                             renderable = (CLSTrenderable *)clstDeserializeButton(data + data_offset + renderable_offset, &renderable_size);
                             break;
@@ -501,11 +498,6 @@ void clstLoaderLoadData(CLSTloader *loader, CLSTscene *scene)
                             exit(1);
                     }
                     CELESTE_LOG("  -- Loading renderable `%s`!\n", renderable->name);
-                    // if (renderable_type == CELESTE_RENDERABLE_GROUP) {
-                    //     CLSTgroup *g = (CLSTgroup *)renderable;
-                    //     /* I HAVE NO IDEA WHAT IS HAPPENING HERE */
-                    //     renderable_size -= sizeof(uint32_t) * g->renderables->count;
-                    // }
 
                     clstGroupAddRenderable(group, renderable);
                     renderable_offset += renderable_size;
