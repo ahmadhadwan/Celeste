@@ -1,9 +1,10 @@
 #include "internal/gapi.h"
 #include "internal/renderer.h"
+#include "internal/celeste.h"
 
-#include "celeste.h"
 #include "renderer.h"
 #include "sprite.h"
+#include "input.h"
 #include <stdlib.h>
 #include <string.h>
 #include <cglm/cglm.h>
@@ -31,7 +32,7 @@ static void draw_animation(CLSTrenderer *renderer, CLSTanimation *animation)
     double time;
     CLSTsprite *sprite;
 
-    time = clstTime();
+    time = clstGetTime();
     if (time >= animation->last_animation_time + animation->frame_time) {
         if (animation->current_frame < animation->frames->count - 1)
             animation->current_frame++;

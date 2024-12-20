@@ -1,4 +1,5 @@
 #include "internal/audio.h"
+#include "internal/celeste.h"
 
 #include "audio.h"
 #include "celeste.h"

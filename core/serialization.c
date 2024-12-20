@@ -1,6 +1,7 @@
 #include "internal/gapi.h"
+#include "internal/celeste.h"
+
 #include "serialization.h"
-#include "celeste.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

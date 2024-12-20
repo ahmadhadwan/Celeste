@@ -1,7 +1,7 @@
 #include "internal/audio.h"
 #include "internal/window.h"
+#include "internal/celeste.h"
 
-#include "celeste.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -19,7 +19,10 @@ CLST *clstInit()
 {
     CLST *clst;
 
-    CELESTE_ASSERT(celeste_instance == NULL && "Celeste was already initialized!");
+    if (celeste_instance != NULL) {
+        CELESTE_LOG_ERROR("Celeste was already initialized!");
+        return NULL;
+    }
 
 #if defined(__linux__) && defined(CELESTE_LINUX_FORCE_NVIDIA)
     setenv("__NV_PRIME_RENDER_OFFLOAD", "1", 0);
@@ -31,25 +34,15 @@ CLST *clstInit()
         return NULL;
     }
 
-    clst = malloc(sizeof(CLST));
-    clst->window.window = NULL;
-    clst->window.title = NULL;
-    clst->window.alive = clst->window.focused = clst->window.height = clst->window.width = 0;
-    clst->window.cursor.x = clst->window.cursor.y = 0.0;
+    if (gc_initialize(0) != GC_SUCCESS) {
+        CELESTE_LOG_ERROR("Failed to initialize Gorilla Audio!");
+        return NULL;    
+    }
 
+    clst = calloc(1, sizeof(CLST));
     clst->keys = clstListCreate();
     clst->clicks = clstListCreate();
-
-    clst->input_listener = NULL;
-    clst->input_listener_len = 0;
-    clst->input_listener_max_len = 0;
-
     clst->scroll_listeners = clstListCreate();
-
-    clst->last_physics_update = 0.0;
-    clst->world_gravity = 0.0;
-
-    gc_initialize(0);
     clst->aumanager = gau_manager_create();
     clst->aumixer = gau_manager_mixer(clst->aumanager);
 
@@ -59,7 +52,6 @@ CLST *clstInit()
     clst->audio_thread = CreateThread(NULL, 0, audio_manager_update, NULL, 0, NULL);
 #endif /* CELESTE_WINTHREAD */
 
-    clst->loader = NULL;
     celeste_instance = clst;
     return clst;
 }
@@ -94,9 +86,9 @@ void clstTerminate()
     celeste_instance = NULL;
 }
 
-void clstSetScene(CLSTscene *scene)
+CLST *clstInstance()
 {
-    clstInstance()->scene = scene;
+    return celeste_instance;
 }
 
 CLSTscene *clstGetScene()
@@ -104,9 +96,9 @@ CLSTscene *clstGetScene()
     return clstInstance()->scene;
 }
 
-void clstSetWorldGravity(float gravity)
+void clstSetScene(CLSTscene *scene)
 {
-    clstInstance()->world_gravity = gravity;
+    clstInstance()->scene = scene;
 }
 
 float clstGetWorldGravity()
@@ -114,20 +106,24 @@ float clstGetWorldGravity()
     return clstInstance()->world_gravity;
 }
 
-CLST *clstInstance()
+void clstSetWorldGravity(float gravity)
 {
-    CELESTE_ASSERT(celeste_instance && "Celeste isn't initialized!");
-    return celeste_instance;
+    clstInstance()->world_gravity = gravity;
 }
 
-double clstTime()
+void clstResetPhysics()
+{
+    clstInstance()->last_physics_update = clstGetTime();
+}
+
+double clstGetTime()
 {
     return glfwGetTime();
 }
 
 void clstUpdate(CLST *clst)
 {
-    glfwSwapBuffers(clst->window.window);
+    glfwSwapBuffers(clst->window.glfw_window);
     glfwPollEvents();
 
     clstPhysicsUpdate(clst);
@@ -135,7 +131,7 @@ void clstUpdate(CLST *clst)
 
 void clstWaitEv(CLST *clst)
 {
-    glfwSwapBuffers(clst->window.window);
+    glfwSwapBuffers(clst->window.glfw_window);
     glfwWaitEvents();
 }
 

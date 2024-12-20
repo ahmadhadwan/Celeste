@@ -1,6 +1,8 @@
 #ifndef __CELESTE_INPUT_H__
 #define __CELESTE_INPUT_H__
 
+#include <stdint.h>
+
 #define CELESTE_CURSOR_ARROW         0x00036001
 #define CELESTE_CURSOR_IBEAM         0x00036002
 #define CELESTE_CURSOR_CROSSHAIR     0x00036003

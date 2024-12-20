@@ -1,8 +1,9 @@
+#include "internal/celeste.h"
 #include "internal/window.h"
 
+#include "input.h"
 #include "celeste.h"
 #include <string.h>
-#include "window.h"
 
 static void listener_delete();
 
@@ -42,7 +43,7 @@ void clstKeyRemoveCallback(uint32_t key)
 
 uint32_t clstKey(uint32_t key)
 {
-    return glfwGetKey(clstInstance()->window.window, key);
+    return glfwGetKey(clstInstance()->window.glfw_window, key);
 }
 
 void clstClickAddCallback(CLSTclick click)
@@ -80,7 +81,7 @@ void clstClickRemoveCallback(uint32_t click)
 
 uint32_t clstClick(uint32_t click)
 {
-    return glfwGetMouseButton(clstInstance()->window.window, click);
+    return glfwGetMouseButton(clstInstance()->window.glfw_window, click);
 }
 
 void clstScrollAddListener(double *listener)
@@ -132,7 +133,7 @@ void clstInputRemoveListener()
     clst->input_listener_max_len = 0;
 }
 
-void listener_delete()
+static void listener_delete()
 {
     CLST *clst;
 

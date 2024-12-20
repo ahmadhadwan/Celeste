@@ -1,14 +1,15 @@
 #include <glad/glad.h>
 #include "internal/window.h"
+#include "internal/celeste.h"
 
-#include "celeste.h"
+#include "window.h"
+#include "input.h"
 #include <stb/stb_image.h>
 #include <stb/stb_image_write.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
-#include "window.h"
 
 #include "../res/icons/celeste_48x48.c"
 #include "../res/shaders/default.c"
@@ -53,7 +54,7 @@ CLSTresult clstWindow(const char *title)
         return 1;
     }
 
-    clst->window.window = window;
+    clst->window.glfw_window = window;
 
     icon.pixels = stbi_load_from_memory(celeste_48x48_png,
             sizeof(celeste_48x48_png) / sizeof(unsigned char),
@@ -102,20 +103,32 @@ CLSTresult clstWindow(const char *title)
 
 void clstWindowDestroy()
 {
-    glfwDestroyWindow(clstInstance()->window.window);
+    glfwDestroyWindow(clstInstance()->window.glfw_window);
+}
+
+uint32_t clstGetWindowAlive()
+{
+    return clstInstance()->window.alive;
+}
+
+void clstSetWindowAlive(uint32_t alive)
+{
+    clstInstance()->window.alive = alive;
+}
+
+uint32_t clstGetWindowFocused()
+{
+    return clstInstance()->window.focused;
+}
+
+void clstWindowFocus()
+{
+    glfwFocusWindow(clstInstance()->window.glfw_window);
 }
 
 void clstWindowClear()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
-
-void clstWindowClearColor(uint32_t color)
-{
-    glClearColor((color & 0x000000FF)        / 255.0f,
-                ((color & 0x0000FF00) >> 8)  / 255.0f,
-                ((color & 0x00FF0000) >> 16) / 255.0f,
-                ((color & 0xFF000000) >> 24) / 255.0f);
 }
 
 uint32_t clstWindowGetClearColor()
@@ -130,6 +143,14 @@ uint32_t clstWindowGetClearColor()
           | (uint32_t)(channels[3] * 255) << 24;
 
     return color;
+}
+
+void clstWindowSetClearColor(uint32_t color)
+{
+    glClearColor((color & 0x000000FF)        / 255.0f,
+                ((color & 0x0000FF00) >> 8)  / 255.0f,
+                ((color & 0x00FF0000) >> 16) / 255.0f,
+                ((color & 0xFF000000) >> 24) / 255.0f);
 }
 
 void clstWindowSwapInterval(uint32_t interval)
@@ -149,13 +170,13 @@ void clstWindowIcon(const char *filepath)
     }
 
     icon.pixels = stbi_load(filepath, &icon.width, &icon.height, &icon_bpp, STBI_rgb_alpha);
-    glfwSetWindowIcon(clstInstance()->window.window, 1, &icon);
+    glfwSetWindowIcon(clstInstance()->window.glfw_window, 1, &icon);
     free(icon.pixels);
 }
 
 void clstWindowSystemCursor(uint32_t cursor)
 {
-    glfwSetCursor(clstInstance()->window.window, glfwCreateStandardCursor(cursor));
+    glfwSetCursor(clstInstance()->window.glfw_window, glfwCreateStandardCursor(cursor));
 }
 
 CLSTcursor *clstCursor(const char *filepath)
@@ -172,9 +193,9 @@ void clstCursorDestroy(CLSTcursor *cursor)
     glfwDestroyCursor((GLFWcursor *)cursor);
 }
 
-void clstWindowCursor(CLSTcursor *cursor)
+void clstWindowSetCursor(CLSTcursor *cursor)
 {
-    glfwSetCursor(clstInstance()->window.window, (GLFWcursor *)cursor);
+    glfwSetCursor(clstInstance()->window.glfw_window, (GLFWcursor *)cursor);
 }
 
 uint8_t *clstWindowBufferRead(uint32_t *width, uint32_t *height)
@@ -191,25 +212,25 @@ uint8_t *clstWindowBufferRead(uint32_t *width, uint32_t *height)
 
 void clstWindowCursorMode(uint32_t mode)
 {
-    glfwSetInputMode(clstInstance()->window.window, GLFW_CURSOR, mode);
+    glfwSetInputMode(clstInstance()->window.glfw_window, GLFW_CURSOR, mode);
 }
 
 void clstWindowStartListening()
 {
-    glfwSetCharCallback(clstInstance()->window.window, character_callback);
+    glfwSetCharCallback(clstInstance()->window.glfw_window, character_callback);
 }
 
 void clstWindowStopListening()
 {
-    glfwSetCharCallback(clstInstance()->window.window, NULL);
+    glfwSetCharCallback(clstInstance()->window.glfw_window, NULL);
 }
 
-void window_close_callback(GLFWwindow *window)
+static void window_close_callback(GLFWwindow *window)
 {
-    clstInstance()->window.alive = 0;
+    clstSetWindowAlive(0);
 }
 
-void window_resize_callback(GLFWwindow *window, int width, int height)
+static void window_resize_callback(GLFWwindow *window, int width, int height)
 {
     CLST *clst;
 
@@ -218,7 +239,7 @@ void window_resize_callback(GLFWwindow *window, int width, int height)
     clst->window.height = height;
 }
 
-void framebuffer_size_callback(GLFWwindow *window, int width, int height)
+static void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
     CLST *clst;
 
@@ -228,7 +249,7 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
-void cursor_position_callback(GLFWwindow *window, double xpos, double ypos)
+static void cursor_position_callback(GLFWwindow *window, double xpos, double ypos)
 {
     CLST* clst;
 
@@ -237,12 +258,12 @@ void cursor_position_callback(GLFWwindow *window, double xpos, double ypos)
     clst->window.cursor.y = ypos;
 }
 
-void window_focus_callback(GLFWwindow *window, int focused)
+static void window_focus_callback(GLFWwindow *window, int focused)
 {
     clstInstance()->window.focused = focused;
 }
 
-void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
+static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
     CLST* clst;
 
@@ -260,7 +281,7 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
     }
 }
 
-void mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
+static void mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
 {
     CLST* clst;
 
@@ -278,7 +299,7 @@ void mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
     }
 }
 
-void character_callback(GLFWwindow *window, unsigned int codepoint)
+static void character_callback(GLFWwindow *window, unsigned int codepoint)
 {
     CLST *clst;
 
@@ -290,7 +311,7 @@ void character_callback(GLFWwindow *window, unsigned int codepoint)
     }
 }
 
-void mouse_scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+static void mouse_scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
     CLST* clst;
     double *listener;

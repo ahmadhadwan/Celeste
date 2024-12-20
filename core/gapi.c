@@ -1,4 +1,5 @@
 #include "internal/gapi.h"
+#include "internal/celeste.h"
 
 #include <celeste/celeste.h>
 #include "gapi.h"

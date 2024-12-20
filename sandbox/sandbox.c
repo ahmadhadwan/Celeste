@@ -6,9 +6,9 @@
 #include "../res/shaders/fb.c"
 #include "../res/icons/celeste_48x48.h"
 
-static void destroy_window(void *winalive)
+static void destroy_window(void *_)
 {
-    *((int*)winalive) = 0;
+    clstSetWindowAlive(0);
 }
 
 static CLSTlayer *setup_framebuffer_layer(CLSTframebuffer **fb, CLSTtexture **fbtex, CLSTshader **fbshader)
@@ -71,7 +71,7 @@ int main()
     clstAudioPlayerSetPitch(audio_player, 0.6f);
     clstAudioPlayerPlay(audio_player);
 
-    clstKeyAddCallback((CLSTkey){CELESTE_KEY_ESCAPE, destroy_window, &(clst->window.alive)});
+    clstKeyAddCallback((CLSTkey){CELESTE_KEY_ESCAPE, destroy_window, NULL});
     clstInputSetListener(input_str, 1024);
 
     memset(input_str, 0, sizeof(input_str));
@@ -105,16 +105,17 @@ int main()
 
     clstLoaderSaveData(loader);
 
-    clst->last_physics_update = prevtime = prevtime2 = clstTime();
+    clstResetPhysics();
+    prevtime = prevtime2 = clstGetTime();
     frames = 0;
-    while (clst->window.alive)
+    while (clstGetWindowAlive())
     {
         clstWindowClear();
 
         if (clstKey(CELESTE_KEY_LEFT_CONTROL))
             clstFrameBufferBind(fb);
 
-        clstSceneRender(clst->scene);
+        clstSceneRender(clstGetScene());
 
         if (clstKey(CELESTE_KEY_LEFT_SHIFT))
             clstLayerRender(layer_debug);
@@ -124,23 +125,23 @@ int main()
             clstLayerRender(fblayer);
         }
 
-        if (!clst->window.focused)
+        if (!clstGetWindowFocused())
             clstWaitEv(clst);
         clstUpdate(clst);
 
         frames++;
-        if ((clstTime() - prevtime) >= 1.0)
+        if ((clstGetTime() - prevtime) >= 1.0)
         {
-            prevtime = clstTime();
+            prevtime = clstGetTime();
             sprintf(fps_text, "%d fps", frames);
             clstLabelSetText(fps, fps_text);
             CELESTE_LOG("%d fps\n", frames);
             frames = 0;
         }
 
-        if ((clstTime() - prevtime2) >= 0.1)
+        if ((clstGetTime() - prevtime2) >= 0.1)
         {
-            prevtime2 = clstTime();
+            prevtime2 = clstGetTime();
             float pan = clstAudioPlayerGetPan(audio_player);
             if (pan >= 1.0f)
                 pantoright = 0;
@@ -166,7 +167,7 @@ int main()
                 button_label->color = 0x88BBBBBB;
                 break;
             case CELESTE_BUTTON_STATUS_CLICKED:
-                clst->window.alive = 0;
+                clstSetWindowAlive(0);
                 break;
         }
 

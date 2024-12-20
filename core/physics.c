@@ -1,4 +1,4 @@
-#include "celeste.h"
+#include "internal/celeste.h"
 #include "physics.h"
 #include <string.h>
 
@@ -87,12 +87,12 @@ void clstPhysicsUpdate(CLST *clst)
     float delta;
 
     if (!clst->window.focused) {
-        clst->last_physics_update = clstTime();
+        clst->last_physics_update = clstGetTime();
         return;
     }
 
     count = clst->scene->bodies->count;
-    delta = clstTime() - clst->last_physics_update;
+    delta = clstGetTime() - clst->last_physics_update;
     for (int i = 0; i < count; i++)
     {
         body = ((CLSTbody **)clst->scene->bodies->items)[i];
@@ -180,5 +180,5 @@ void clstPhysicsUpdate(CLST *clst)
         if ((body->flags & CELESTE_BODY_GRAVITY) && clst->world_gravity > 0.0f)
             body->velocity[1] -= clst->world_gravity * delta;
     }
-    clst->last_physics_update = clstTime();
+    clst->last_physics_update = clstGetTime();
 }

@@ -1,12 +1,11 @@
 #include "internal/gapi.h"
 #include "internal/renderer.h"
+#include "internal/celeste.h"
 
-#include "celeste.h"
 #include <glad/glad.h>
 #include "renderer.h"
 #include <stdlib.h>
 #include <string.h>
-#include "window.h"
 
 static uint32_t submit_texture(CLSTrenderer *renderer, uint32_t tid);
 
@@ -252,7 +251,7 @@ void clstRendererFlush(CLSTrenderer *renderer)
     renderer->texture_slots_size = 0;
 }
 
-uint32_t submit_texture(CLSTrenderer *renderer, uint32_t tid)
+static uint32_t submit_texture(CLSTrenderer *renderer, uint32_t tid)
 {
     int ts;
 
