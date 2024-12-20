@@ -37,20 +37,24 @@ CLST *clstInit(const char *window_title)
     }
 
     clst = calloc(1, sizeof(CLST));
+    clst->keys = clstListCreate();
+    clst->clicks = clstListCreate();
+    clst->scroll_listeners = clstListCreate();
+    celeste_instance = clst;
+
     if (clstWindowCreate(clst, window_title) != CELESTE_OK) {
         CELESTE_LOG_ERROR("Failed to create window!");
+        clstListDestroy(clst->scroll_listeners, (CLSTitemdestroy)free);
+        clstListDestroy(clst->clicks, (CLSTitemdestroy)free);
+        clstListDestroy(clst->keys, (CLSTitemdestroy)free);
         free(clst);
         return NULL;
     }
 
-    clst->keys = clstListCreate();
-    clst->clicks = clstListCreate();
-    clst->scroll_listeners = clstListCreate();
     clst->default_renderer = clstRenderer();
     clst->default_shader = clstShaderConstSrc((const char *)default_shader_src);
     clst->aumanager = gau_manager_create();
     clst->aumixer = gau_manager_mixer(clst->aumanager);
-    celeste_instance = clst;
 
 #ifdef CELESTE_PTHREAD
     pthread_create(&(clst->audio_thread), NULL, &audio_manager_update, NULL);

@@ -32,7 +32,7 @@ CLSTresult clstWindowCreate(void *clstptr, const char *title)
 
     if (!glfwInit()) {
         CELESTE_LOG_ERROR("Failed to initialize GLFW!");
-        return 1;
+        return !CELESTE_OK;
     }
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -53,7 +53,7 @@ CLSTresult clstWindowCreate(void *clstptr, const char *title)
     if (window == NULL) {
         CELESTE_LOG_ERROR("Failed to create GLFW window!");
         glfwTerminate();
-        return 1;
+        return !CELESTE_OK;
     }
 
     clst->window.glfw_window = window;
@@ -79,7 +79,7 @@ CLSTresult clstWindowCreate(void *clstptr, const char *title)
     {
         CELESTE_LOG_ERROR("Failed to initialize GLAD!");
         clstWindowDestroy();
-        return 1;
+        return !CELESTE_OK;
     }
 
     glEnable(GL_BLEND);
@@ -94,8 +94,6 @@ CLSTresult clstWindowCreate(void *clstptr, const char *title)
     );
 
     clst->window.title = title;
-    clst->window.alive = 1;
-    clst->window.focused = 1;
     glfwShowWindow(window);
     return CELESTE_OK;
 }
@@ -108,17 +106,17 @@ void clstWindowDestroy()
 
 uint32_t clstGetWindowAlive()
 {
-    return clstInstance()->window.alive;
+    return !glfwWindowShouldClose(clstInstance()->window.glfw_window);
 }
 
 void clstSetWindowAlive(uint32_t alive)
 {
-    clstInstance()->window.alive = alive;
+    glfwSetWindowShouldClose(clstInstance()->window.glfw_window, !alive);
 }
 
 uint32_t clstGetWindowFocused()
 {
-    return clstInstance()->window.focused;
+    return glfwGetWindowAttrib(clstInstance()->window.glfw_window, GLFW_FOCUSED);
 }
 
 void clstWindowFocus()
@@ -260,7 +258,6 @@ static void cursor_position_callback(GLFWwindow *window, double xpos, double ypo
 
 static void window_focus_callback(GLFWwindow *window, int focused)
 {
-    clstInstance()->window.focused = focused;
 }
 
 static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)

@@ -1,6 +1,7 @@
 #include "internal/celeste.h"
 #include "physics.h"
 #include <stdlib.h>
+#include <string.h>
 
 CLSTbody *clstBody(uint32_t layer, uint32_t flags, vec2 position, vec2 size, char *name)
 {
@@ -12,12 +13,13 @@ CLSTbody *clstBody(uint32_t layer, uint32_t flags, vec2 position, vec2 size, cha
     glm_vec2_copy(position, body->position);
     glm_vec2_copy(size, body->size);
     glm_vec2_copy((vec2){ 0.0f, 0.0f }, body->velocity);
-    body->name = name;
+    body->name = strdup(name);
     return body;
 }
 
 void clstBodyDestroy(CLSTbody *body)
 {
+    free(body->name);
     free(body);
 }
 
@@ -86,7 +88,7 @@ void clstPhysicsUpdate(CLST *clst)
     uint32_t count;
     float delta;
 
-    if (!clst->window.focused) {
+    if (!clstGetWindowFocused()) {
         clst->last_physics_update = clstGetTime();
         return;
     }

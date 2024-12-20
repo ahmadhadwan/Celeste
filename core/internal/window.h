@@ -10,8 +10,6 @@
 typedef struct {
     GLFWwindow *glfw_window;
     const char *title;
-    uint32_t    alive;
-    uint32_t    focused;
     uint32_t    width;
     uint32_t    height;
     struct {
