@@ -51,11 +51,8 @@ int main()
     char input_str[1024];
     CLSTlabel *input_label;
 
-    clst = clstInit();
+    clst = clstInit("Celeste Engine Sandbox");
     if (clst == NULL)
-        return 1;
-
-    if (clstWindow("Celeste Engine Sandbox") != CELESTE_OK)
         return 1;
 
     loader = clstLoader("sandbox.clst");
@@ -219,7 +216,6 @@ int main()
 
     clstLoaderDestroy(loader);
 
-    clstWindowDestroy();
     clstTerminate();
     return 0;
 }

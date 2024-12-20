@@ -7,7 +7,7 @@
     typedef struct CLST CLST;
 #endif /* __CELESTE_INTERNAL_H__ */
 
-CLST *clstInit();
+CLST *clstInit(const char *window_title);
 void clstTerminate();
 
 CLST *clstInstance();

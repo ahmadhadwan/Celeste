@@ -9,9 +9,6 @@
 
 typedef struct CLSTcursor CLSTcursor;
 
-CLSTresult clstWindow(const char *title);
-void clstWindowDestroy();
-
 uint32_t clstGetWindowAlive();
 void clstSetWindowAlive(uint32_t alive);
 

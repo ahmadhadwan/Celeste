@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "../res/shaders/default.c"
+
 static CLST *celeste_instance = NULL;
 
 #ifdef CELESTE_PTHREAD
@@ -15,7 +17,7 @@ static CLST *celeste_instance = NULL;
 
 void clstPhysicsUpdate(CLST *clst);
 
-CLST *clstInit()
+CLST *clstInit(const char *window_title)
 {
     CLST *clst;
 
@@ -29,30 +31,32 @@ CLST *clstInit()
     setenv("__GLX_VENDOR_LIBRARY_NAME", "nvidia", 0);
 #endif /* __linux__ */
 
-    if (!glfwInit()) {
-        CELESTE_LOG_ERROR("Failed to initialize GLFW!");
-        return NULL;
-    }
-
     if (gc_initialize(0) != GC_SUCCESS) {
         CELESTE_LOG_ERROR("Failed to initialize Gorilla Audio!");
         return NULL;    
     }
 
     clst = calloc(1, sizeof(CLST));
+    if (clstWindowCreate(clst, window_title) != CELESTE_OK) {
+        CELESTE_LOG_ERROR("Failed to create window!");
+        free(clst);
+        return NULL;
+    }
+
     clst->keys = clstListCreate();
     clst->clicks = clstListCreate();
     clst->scroll_listeners = clstListCreate();
+    clst->default_renderer = clstRenderer();
+    clst->default_shader = clstShaderConstSrc((const char *)default_shader_src);
     clst->aumanager = gau_manager_create();
     clst->aumixer = gau_manager_mixer(clst->aumanager);
+    celeste_instance = clst;
 
 #ifdef CELESTE_PTHREAD
     pthread_create(&(clst->audio_thread), NULL, &audio_manager_update, NULL);
 #elif defined(CELESTE_WINTHREAD) /* CELESTE_PTHREAD */
     clst->audio_thread = CreateThread(NULL, 0, audio_manager_update, NULL, 0, NULL);
 #endif /* CELESTE_WINTHREAD */
-
-    celeste_instance = clst;
     return clst;
 }
 
@@ -77,7 +81,7 @@ void clstTerminate()
     clstShaderDestroy(clst->default_shader);
     clstRendererDestroy(clst->default_renderer);
 
-    glfwTerminate();
+    clstWindowDestroy();
 
     clstListDestroy(clst->scroll_listeners, (CLSTitemdestroy)free);
     clstListDestroy(clst->clicks, (CLSTitemdestroy)free);

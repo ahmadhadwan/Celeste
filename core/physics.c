@@ -1,6 +1,6 @@
 #include "internal/celeste.h"
 #include "physics.h"
-#include <string.h>
+#include <stdlib.h>
 
 CLSTbody *clstBody(uint32_t layer, uint32_t flags, vec2 position, vec2 size, char *name)
 {

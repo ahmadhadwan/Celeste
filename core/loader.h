@@ -65,5 +65,4 @@ void clstGroupSave(CLSTgroup *group);
 
 CLSTlayer *clstLayerCameraSave(CLSTcamera *camera, float right, float top, char *name);
 
-
 #endif /* __CELESTE_LOADER_H__ */

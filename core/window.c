@@ -2,17 +2,14 @@
 #include "internal/window.h"
 #include "internal/celeste.h"
 
-#include "window.h"
 #include "input.h"
 #include <stb/stb_image.h>
-#include <stb/stb_image_write.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 
 #include "../res/icons/celeste_48x48.c"
-#include "../res/shaders/default.c"
 
 static void window_close_callback    (GLFWwindow *window);
 static void window_resize_callback   (GLFWwindow *window, int width, int height);
@@ -24,7 +21,7 @@ static void mouse_button_callback    (GLFWwindow *window, int button, int action
 static void character_callback       (GLFWwindow *window, unsigned int codepoint);
 static void mouse_scroll_callback    (GLFWwindow* window, double xoffset, double yoffset);
 
-CLSTresult clstWindow(const char *title)
+CLSTresult clstWindowCreate(void *clstptr, const char *title)
 {
     CLST *clst;
     GLFWmonitor *glfw_monitor;
@@ -32,6 +29,11 @@ CLSTresult clstWindow(const char *title)
     GLFWwindow *window;
     GLFWimage icon;
     int icon_bpp;
+
+    if (!glfwInit()) {
+        CELESTE_LOG_ERROR("Failed to initialize GLFW!");
+        return 1;
+    }
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -43,14 +45,14 @@ CLSTresult clstWindow(const char *title)
     glfw_monitor = glfwGetPrimaryMonitor();
     glfw_vidmode = glfwGetVideoMode(glfw_monitor);
 
-    clst = clstInstance();
+    clst = (CLST *)clstptr;
     clst->window.width = glfw_vidmode->width;
     clst->window.height = glfw_vidmode->height;
 
     window = glfwCreateWindow(glfw_vidmode->width, glfw_vidmode->height, title, glfw_monitor, NULL);
     if (window == NULL) {
         CELESTE_LOG_ERROR("Failed to create GLFW window!");
-        clstTerminate();
+        glfwTerminate();
         return 1;
     }
 
@@ -77,7 +79,6 @@ CLSTresult clstWindow(const char *title)
     {
         CELESTE_LOG_ERROR("Failed to initialize GLAD!");
         clstWindowDestroy();
-        clstTerminate();
         return 1;
     }
 
@@ -95,8 +96,6 @@ CLSTresult clstWindow(const char *title)
     clst->window.title = title;
     clst->window.alive = 1;
     clst->window.focused = 1;
-    clst->default_renderer = clstRenderer();
-    clst->default_shader = clstShaderConstSrc((const char *)default_shader_src);
     glfwShowWindow(window);
     return CELESTE_OK;
 }
@@ -104,6 +103,7 @@ CLSTresult clstWindow(const char *title)
 void clstWindowDestroy()
 {
     glfwDestroyWindow(clstInstance()->window.glfw_window);
+    glfwTerminate();
 }
 
 uint32_t clstGetWindowAlive()

@@ -26,6 +26,9 @@ typedef struct {
 
 #include "../window.h"
 
+CLSTresult clstWindowCreate(void *clstptr, const char *title);
+void clstWindowDestroy();
+
 void clstWindowStartListening();
 void clstWindowStopListening();
 
