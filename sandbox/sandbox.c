@@ -205,6 +205,8 @@ int main()
         glm_vec2_copy(body1->position, quad1->position);
     }
 
+    clstKeyRemoveCallback(CELESTE_KEY_ESCAPE);
+
     clstShaderDestroy(fbshader);
     clstLayerDestroy(fblayer);
     clstTextureDestroy(fbtex);

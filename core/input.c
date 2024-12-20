@@ -31,14 +31,11 @@ void clstKeyRemoveCallback(uint32_t key)
         _key = ((CLSTkey **)keylist->items)[i];
         if (_key->key == key)
         {
+            clstListRemove(keylist, _key);
             free(_key);
-            memmove(keylist->items + i, keylist->items + i + sizeof(void *), (keylist->count - i - 1) * sizeof(void *));
-            keylist->items = realloc(keylist->items, (keylist->count - 1) * sizeof(void *));
-            keylist->count--;
             break;
         }
     }
-
 }
 
 uint32_t clstKey(uint32_t key)
@@ -70,10 +67,8 @@ void clstClickRemoveCallback(uint32_t click)
         _click = ((CLSTclick **)clicklist->items)[i];
         if (_click->click == click)
         {
+            clstListRemove(clicklist, _click);
             free(_click);
-            memmove(clicklist->items + i, clicklist->items + i + sizeof(void *), (clicklist->count - i - 1) * sizeof(void *));
-            clicklist->items = realloc(clicklist->items, (clicklist->count - 1) * sizeof(void *));
-            clicklist->count--;
             break;
         }
     }

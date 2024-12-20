@@ -309,8 +309,11 @@ CLSTgroup *clstDeserializeGroup(void *data, uint32_t *data_size)
                 renderable = (CLSTrenderable *)clstDeserializeAnimation(data + renderable_offset, &renderable_size);
                 break;
             case CELESTE_RENDERABLE_GROUP:
-                renderable = (CLSTrenderable *)clstDeserializeGroup(data + renderable_offset, &renderable_size);
-                break;
+                CELESTE_LOG_ERROR("Unimplemented renderable deserialization!\n");
+                clstTerminate();
+                exit(1);
+                // renderable = (CLSTrenderable *)clstDeserializeGroup(data + renderable_offset, &renderable_size);
+                // break;
             case CELESTE_RENDERABLE_BUTTON:
                 renderable = (CLSTrenderable *)clstDeserializeButton(data + renderable_offset, &renderable_size);
                 break;
@@ -319,11 +322,22 @@ CLSTgroup *clstDeserializeGroup(void *data, uint32_t *data_size)
                 clstTerminate();
                 exit(1);
         }
+        
+        // if (renderable_type == CELESTE_RENDERABLE_GROUP) {
+        //     CLSTgroup *g = (CLSTgroup *)renderable;
+            
+        //     CELESTE_LOG("    -- Deserializing group has %u renderables, size `%u`\n", g->renderables->count, renderable_size);
+        //     CELESTE_LOG("    -- %8X\n", *((uint32_t *)data + renderable_offset));
+        //     renderable_size -= sizeof(uint32_t) * g->renderables->count;
+        // }
 
         clstGroupAddRenderable(group, renderable);
         renderable_offset += renderable_size;
     }
 
+    // CELESTE_LOG("Group `%s` is of size `%u`.\n", group->name, renderable_offset);
+
+    *data_size = renderable_offset;
     return group;
 }
 
