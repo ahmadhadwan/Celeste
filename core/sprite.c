@@ -99,23 +99,23 @@ CLSTsprite *clstSpriteTexAtlas(vec2 position, vec2 size, CLSTtexture *texture_at
     glm_vec2_copy(size, sprite->size);
 
     glm_vec2_copy((float[]){
-            (offset[0]       * texsize[0]) / texture_atlas->width,
-            (offset[1]       * texsize[1]) / texture_atlas->height
+            (offset[0]       * texsize[0]) / texture_atlas->width + 0.0001f,
+            (offset[1]       * texsize[1]) / texture_atlas->height + 0.0001f
     }, sprite->uv[0]);
 
     glm_vec2_copy((float[]){
-            (offset[0]       * texsize[0]) / texture_atlas->width,
-            ((offset[1] + 1) * texsize[1]) / texture_atlas->height
+            (offset[0]       * texsize[0]) / texture_atlas->width + 0.0001f,
+            ((offset[1] + 1) * texsize[1]) / texture_atlas->height - 0.0001f
     }, sprite->uv[1]);
 
     glm_vec2_copy((float[]){
-            ((offset[0] + 1) * texsize[0]) / texture_atlas->width,
-            ((offset[1] + 1) * texsize[1]) / texture_atlas->height
+            ((offset[0] + 1) * texsize[0]) / texture_atlas->width - 0.0001f,
+            ((offset[1] + 1) * texsize[1]) / texture_atlas->height - 0.0001f
     }, sprite->uv[2]);
 
     glm_vec2_copy((float[]){
-            ((offset[0] + 1) * texsize[0]) / texture_atlas->width,
-            (offset[1]       * texsize[1]) / texture_atlas->height
+            ((offset[0] + 1) * texsize[0]) / texture_atlas->width - 0.0001f,
+            (offset[1]       * texsize[1]) / texture_atlas->height + 0.0001f
     }, sprite->uv[3]);
 
     sprite->texture = texture_atlas;

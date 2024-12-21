@@ -88,6 +88,18 @@ void clstLayerAddRenderable(CLSTlayer *layer, void *renderable)
     clstListAdd(layer->renderables, renderable);
 }
 
+void clstLayerRemoveRenderable(CLSTlayer *layer, char *name)
+{
+    CLSTrenderable **renderables;
+
+    renderables = (CLSTrenderable **)layer->renderables->items;
+    for (int i = 0; i < layer->renderables->count; i++)
+    {
+        if (strcmp(renderables[i]->name, name) == 0)
+            clstListRemove(layer->renderables, renderables[i]);
+    }
+}
+
 CLSTrenderable *clstListGetRenderable(CLSTlist *list, char *name)
 {
     CLSTrenderable **renderables, *renderable;
@@ -116,7 +128,7 @@ CLSTrenderable *clstListGetRenderable(CLSTlist *list, char *name)
     return NULL;
 }
 
-CLSTrenderable *clstLayerGetRenderable(CLSTlayer *layer, char *name)
+void *clstLayerGetRenderable(CLSTlayer *layer, char *name)
 {
     CLSTrenderable *renderable;
 
