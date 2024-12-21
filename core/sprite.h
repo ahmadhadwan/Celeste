@@ -74,44 +74,19 @@ typedef struct {
     mat4         translation;
 } CLSTbutton;
 
-/*
- * Creates a textured sprite.
- */
 CLSTsprite *clstSprite(vec2 position, vec2 size, CLSTtexture *texture, char *name);
-
-/*
- * Creates a textured sprite from an atlas.
- */
+CLSTsprite *clstSpriteTexAtlaspx(vec2 position, vec2 size, CLSTtexture *texture_atlas, vec2 startpx, vec2 endpx, char *name);
 CLSTsprite *clstSpriteTexAtlas(vec2 position, vec2 size, CLSTtexture *texture_atlas, vec2 offset, vec2 texsize, char *name);
-
-/*
- * Creates a colored sprite.
- */
 CLSTsprite *clstSpriteCol(vec2 position, vec2 size, uint32_t color, char *name);
 
-/*
- * Destroys the sprite, and frees its memory.
- */
+void clstSpriteFlipX(CLSTsprite *sprite);
+void clstSpriteFlipY(CLSTsprite *sprite);
+
 void clstSpriteDestroy(CLSTsprite *sprite);
 
-/*
- * Creates a label from the text with the font.
- */
 CLSTlabel *clstLabel(vec2 position, char *text, CLSTfont *font, char *name);
-
-/*
- * Creates a colored label from the text with the font.
- */
 CLSTlabel *clstLabelCol(vec2 position, char *text, CLSTfont *font, uint32_t color, char *name);
-
-/*
- * Sets the label's text.
- */
 void clstLabelSetText(CLSTlabel *label, char *text);
-
-/*
- * Destroys the label, and frees its memory.
- */
 void clstLabelDestroy(CLSTlabel *label);
 
 /*

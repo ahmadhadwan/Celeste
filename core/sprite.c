@@ -88,6 +88,32 @@ CLSTsprite *clstSprite(vec2 position, vec2 size, CLSTtexture *texture, char *nam
     return sprite;
 }
 
+CLSTsprite *clstSpriteTexAtlaspx(vec2 position, vec2 size, CLSTtexture *texture_atlas, vec2 startpx, vec2 endpx, char *name)
+{
+    CLSTsprite *sprite;
+    float u1, v1, u2, v2;
+
+    sprite = malloc(sizeof(CLSTsprite));
+    sprite->draw = (CLSTdrawfunc)draw_sprite;
+    sprite->name = strdup(name);
+    glm_vec2_copy(position, sprite->position);
+    glm_vec2_copy(size, sprite->size);
+
+    u1 = startpx[0] / texture_atlas->width;
+    v1 = startpx[1] / texture_atlas->height;
+    u2 = endpx[0] / texture_atlas->width;
+    v2 = endpx[1] / texture_atlas->height;
+
+    glm_vec2_copy((float[]){u1, v1}, sprite->uv[0]);
+    glm_vec2_copy((float[]){u1, v2}, sprite->uv[1]);
+    glm_vec2_copy((float[]){u2, v2}, sprite->uv[2]);
+    glm_vec2_copy((float[]){u2, v1}, sprite->uv[3]);
+
+    sprite->texture = texture_atlas;
+    sprite->color = 0xFFFFFFFF;
+    return sprite;
+}
+
 CLSTsprite *clstSpriteTexAtlas(vec2 position, vec2 size, CLSTtexture *texture_atlas, vec2 offset, vec2 texsize, char *name)
 {
     CLSTsprite *sprite;
@@ -136,6 +162,32 @@ CLSTsprite *clstSpriteCol(vec2 position, vec2 size, uint32_t color, char *name)
     sprite->texture = NULL;
     sprite->color = color;
     return sprite;
+}
+
+void clstSpriteFlipX(CLSTsprite *sprite)
+{
+    float u1, u2;
+
+    u1 = sprite->uv[0][0];
+    u2 = sprite->uv[2][0];
+
+    sprite->uv[0][0] = u2;
+    sprite->uv[1][0] = u2;
+    sprite->uv[2][0] = u1;
+    sprite->uv[3][0] = u1;
+}
+
+void clstSpriteFlipY(CLSTsprite *sprite)
+{
+    float v1, v2;
+
+    v1 = sprite->uv[0][1];
+    v2 = sprite->uv[1][1];
+
+    sprite->uv[0][1] = v2;
+    sprite->uv[1][1] = v1;
+    sprite->uv[2][1] = v1;
+    sprite->uv[3][1] = v2;
 }
 
 void clstSpriteDestroy(CLSTsprite *sprite)
