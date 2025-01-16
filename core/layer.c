@@ -50,7 +50,7 @@ CLSTlayer *clstLayerCameraMat4(CLSTcamera *camera, mat4 projection, char *name)
 CLSTlayer *clstLayerCustom(CLSTrenderer *renderer, CLSTshader *shader, CLSTcamera *camera, mat4 projection, char *name)
 {
     CLSTlayer *layer;
-    GLuint textures_uni;
+    vec3 normalized_color;
     int textures_array[32];
 
     layer = malloc(sizeof(CLSTlayer));
@@ -63,13 +63,19 @@ CLSTlayer *clstLayerCustom(CLSTrenderer *renderer, CLSTshader *shader, CLSTcamer
     layer->projection.top    =  (1 - projection[1][3]) / projection[1][1];
     layer->projection.right  =  (1 + projection[0][3]) / projection[0][0];
 
-    for (int i = 0; i < sizeof(textures_array) / sizeof(int); i++) {
+    layer->ambient.color = 0xFFFFFFFF;
+    layer->ambient.strength = 1.0f;
+    normalized_color[0] = (layer->ambient.color & 0xFF) / 255.0f;
+    normalized_color[1] = ((layer->ambient.color & 0xFF00) >> 8) / 255.0f;
+    normalized_color[2] = ((layer->ambient.color & 0xFF0000) >> 16) / 255.0f;
+
+    for (int i = 0; i < sizeof(textures_array) / sizeof(int); i++)
         textures_array[i] = i;
-    }
 
     clstShaderActivate(shader);
-    textures_uni = glGetUniformLocation(shader->id, "textures");
-    glUniform1iv(textures_uni, 32, textures_array);
+    clstShaderUniformIntArray(shader, "textures", textures_array, (sizeof(textures_array) / sizeof(int)));
+    clstShaderUniformVec3(shader, "ambient_light_color", normalized_color);
+    clstShaderUniformFloat(shader, "ambient_strength", layer->ambient.strength);
     clstShaderUniformMat4(shader, "projection", projection);
 
     return layer;
@@ -138,6 +144,15 @@ void *clstLayerGetRenderable(CLSTlayer *layer, char *name)
         CELESTE_LOG_ERROR("Renderable doesn't exist!");
     }
     return renderable;
+}
+
+void clstLayerSetAmbientLight(CLSTlayer *layer, uint32_t color, float strength)
+{
+    vec3 normalized_color = { (color & 0xFF) / 255.0f, ((color & 0xFF00) >> 8) / 255.0f, ((color & 0xFF0000) >> 16) / 255.0f };
+    layer->ambient.color = color;
+    layer->ambient.strength = strength;
+    clstShaderUniformVec3(layer->shader, "ambient_light_color", normalized_color);
+    clstShaderUniformFloat(layer->shader, "ambient_strength", strength);
 }
 
 void clstLayerRender(CLSTlayer *layer)

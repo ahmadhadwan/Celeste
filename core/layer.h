@@ -26,8 +26,10 @@ void clstLayerDestroy(CLSTlayer *layer);
 
 void clstLayerAddRenderable(CLSTlayer *layer, void *renderable);
 void clstLayerRemoveRenderable(CLSTlayer *layer, char *name);
-
 void *clstLayerGetRenderable(CLSTlayer *layer, char *name);
+
+void clstLayerSetAmbientLight(CLSTlayer *layer, uint32_t color, float strength);
+
 void clstLayerRender(CLSTlayer *layer);
 
 #endif /* __CELESTE_LAYER_H__ */

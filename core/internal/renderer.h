@@ -11,6 +11,7 @@ typedef struct {
     vec2     uv;
     float    tid;
     uint32_t color;
+    vec3     normal;
 } CLSTvertexdata;
 
 typedef struct {
@@ -38,5 +39,6 @@ typedef struct {
 #define SHADER_UV_INDEX		1
 #define SHADER_TID_INDEX	2
 #define SHADER_COLOR_INDEX	3
+#define SHADER_NORMAL_INDEX	4
 
 #endif /* __CELESTE_INTERNAL_RENDERER_H__ */

@@ -25,11 +25,17 @@ layout (location = 3)
 #endif
 in vec4 color;
 
+#ifdef EXPLICIT_ATTRIB_LOCATION
+layout (location = 4)
+#endif
+in vec3 normal;
+
 out DATA {
     vec3 position;
     vec2 uv;
     float tid;
     vec4 color;
+    vec3 normal;
 } vs_out;
 
 uniform mat4 projection;
@@ -41,6 +47,7 @@ void main()
     vs_out.uv = uv;
     vs_out.tid = tid;
     vs_out.color = color;
+    vs_out.normal = normal;
 }
 
 #type fragment
@@ -60,9 +67,12 @@ in DATA {
     vec2 uv;
     float tid;
     vec4 color;
+    vec3 normal;
 } fs_in;
 
 uniform sampler2D textures[32];
+uniform vec3 ambient_light_color;
+uniform float ambient_strength;
 
 void main()
 {
@@ -166,4 +176,6 @@ void main()
     } else {
         color = fs_in.color;
     }
+    vec3 ambient = ambient_light_color * ambient_strength;
+    color = vec4(color.rgb * ambient, color.a);
 }

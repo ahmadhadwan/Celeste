@@ -280,7 +280,12 @@ void clstShaderUniformInt(CLSTshader *shader, char *uniform_name, int value)
     glUniform1i(glGetUniformLocation(shader->id, uniform_name), value);
 }
 
-void clstShaderUniformIntFloat(CLSTshader *shader, char *uniform_name, float value)
+void clstShaderUniformIntArray(CLSTshader *shader, char *uniform_name, int *value, int array_len)
+{
+    glUniform1iv(glGetUniformLocation(shader->id, uniform_name), array_len, value);
+}
+
+void clstShaderUniformFloat(CLSTshader *shader, char *uniform_name, float value)
 {
     glUniform1f(glGetUniformLocation(shader->id, uniform_name), value);
 }

@@ -47,6 +47,7 @@ int main()
     float speed = 8.0f;
     float jump = 18.0f;
     int pantoright = 1;
+    float ambient_str = 1.0f;
 
     char input_str[1024];
     CLSTlabel *input_label;
@@ -166,6 +167,15 @@ int main()
             case CELESTE_BUTTON_STATUS_CLICKED:
                 clstSetWindowAlive(0);
                 break;
+        }
+
+        if (clstKey(CELESTE_KEY_UP)) {
+            ambient_str += 0.002f;
+            clstLayerSetAmbientLight(clstSceneGetLayer(scene, "Base Layer"), 0xFFFFFFFF, ambient_str);
+        }
+        else if (clstKey(CELESTE_KEY_DOWN)) {
+            ambient_str -= 0.002f;
+            clstLayerSetAmbientLight(clstSceneGetLayer(scene, "Base Layer"), 0xFFFFFFFF, ambient_str);
         }
 
         if (clstKey(CELESTE_KEY_LEFT))

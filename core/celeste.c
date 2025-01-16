@@ -52,7 +52,7 @@ CLST *clstInit(const char *window_title)
     }
 
     clst->default_renderer = clstRenderer();
-    clst->default_shader = clstShaderConstSrc((const char *)default_shader_src);
+    clst->default_shader = clstShaderConstSrc((const char *)default_glsl);
     clst->aumanager = gau_manager_create();
     clst->aumixer = gau_manager_mixer(clst->aumanager);
 

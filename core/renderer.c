@@ -29,11 +29,13 @@ CLSTrenderer *clstRenderer()
     glEnableVertexAttribArray(SHADER_UV_INDEX);
     glEnableVertexAttribArray(SHADER_TID_INDEX);
     glEnableVertexAttribArray(SHADER_COLOR_INDEX);
+    // glEnableVertexAttribArray(SHADER_NORMAL_INDEX);
 
     glVertexAttribPointer(SHADER_VERTEX_INDEX, 3, GL_FLOAT, GL_FALSE, RENDERER_VERTEX_SIZE, (const GLvoid*)0);
     glVertexAttribPointer(SHADER_UV_INDEX, 2, GL_FLOAT, GL_FALSE, RENDERER_VERTEX_SIZE, (const GLvoid*)(offsetof(CLSTvertexdata, uv)));
     glVertexAttribPointer(SHADER_TID_INDEX, 1, GL_FLOAT, GL_FALSE, RENDERER_VERTEX_SIZE, (const GLvoid*)(offsetof(CLSTvertexdata, tid)));
     glVertexAttribPointer(SHADER_COLOR_INDEX, 4, GL_UNSIGNED_BYTE, GL_TRUE, RENDERER_VERTEX_SIZE, (const GLvoid*)(offsetof(CLSTvertexdata, color)));
+    // glVertexAttribPointer(SHADER_NORMAL_INDEX, 3, GL_FLOAT, GL_FALSE, RENDERER_VERTEX_SIZE, (const GLvoid*)(offsetof(CLSTvertexdata, normal)));
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -114,35 +116,31 @@ void clstRendererDrawQuad(CLSTrenderer *renderer, vec2 position, vec2 size, CLST
     const float size_x = size[0];
     const float size_y = size[1];
 
-    int ts;
+    vec4 *transformation = renderer->transformation_back[renderer->transformation_back_size - 1];
 
-    ts = 0;
+    int ts = 0;
     if (texture)
         ts = submit_texture(renderer, texture->id);
 
-    glm_vec3_copy((float[]){ position_x, position_y, 0.0f }, renderer->buffer->vertex);
-    glm_mat4_mulv3(renderer->transformation_back[renderer->transformation_back_size - 1], renderer->buffer->vertex, 1.0f, renderer->buffer->vertex);
+    glm_mat4_mulv3(transformation, (float[]){ position_x, position_y, 0.0f }, 1.0f, renderer->buffer->vertex);
     glm_vec2_copy(uv[0], renderer->buffer->uv);
     renderer->buffer->tid = ts;
     renderer->buffer->color = color;
     renderer->buffer++;
 
-    glm_vec3_copy((float[]){ position_x, position_y + size_y, 0.0f }, renderer->buffer->vertex);
-    glm_mat4_mulv3(renderer->transformation_back[renderer->transformation_back_size - 1], renderer->buffer->vertex, 1.0f, renderer->buffer->vertex);
+    glm_mat4_mulv3(transformation, (float[]){ position_x, position_y + size_y, 0.0f }, 1.0f, renderer->buffer->vertex);
     glm_vec2_copy(uv[1], renderer->buffer->uv);
     renderer->buffer->tid = ts;
     renderer->buffer->color = color;
     renderer->buffer++;
 
-    glm_vec3_copy((float[]){ position_x + size_x, position_y + size_y, 0.0f }, renderer->buffer->vertex);
-    glm_mat4_mulv3(renderer->transformation_back[renderer->transformation_back_size - 1], renderer->buffer->vertex, 1.0f, renderer->buffer->vertex);
+    glm_mat4_mulv3(transformation, (float[]){ position_x + size_x, position_y + size_y, 0.0f }, 1.0f, renderer->buffer->vertex);
     glm_vec2_copy(uv[2], renderer->buffer->uv);
     renderer->buffer->tid = ts;
     renderer->buffer->color = color;
     renderer->buffer++;
 
-    glm_vec3_copy((float[]){ position_x + size_x, position_y, 0.0f }, renderer->buffer->vertex);
-    glm_mat4_mulv3(renderer->transformation_back[renderer->transformation_back_size - 1], renderer->buffer->vertex, 1.0f, renderer->buffer->vertex);
+    glm_mat4_mulv3(transformation, (float[]){ position_x + size_x, position_y, 0.0f }, 1.0f, renderer->buffer->vertex);
     glm_vec2_copy(uv[3], renderer->buffer->uv);
     renderer->buffer->tid = ts;
     renderer->buffer->color = color;
@@ -157,6 +155,8 @@ void clstRendererDrawString(CLSTrenderer *renderer, vec2 position, vec2 uv[4], C
     const int screen_height = 1080;
     const float scaleX = screen_width / renderer->projection_x;
     const float scaleY = screen_height / renderer->projection_y;
+
+    vec4 *transformation = renderer->transformation_back[renderer->transformation_back_size - 1];
 
     int ts;
     float x;
@@ -190,29 +190,25 @@ void clstRendererDrawString(CLSTrenderer *renderer, vec2 position, vec2 uv[4], C
             float u1 = glyph->s1;
             float v1 = glyph->t1;
 
-            glm_vec3_copy((float[]){ x0, y0, 0.0f }, renderer->buffer->vertex);
-            glm_mat4_mulv3(renderer->transformation_back[renderer->transformation_back_size - 1], renderer->buffer->vertex, 1.0f, renderer->buffer->vertex);
+            glm_mat4_mulv3(transformation, (float[]){ x0, y0, 0.0f }, 1.0f, renderer->buffer->vertex);
             glm_vec2_copy((float[]){ u0, v0 }, renderer->buffer->uv);
             renderer->buffer->tid = ts;
             renderer->buffer->color = color;
             renderer->buffer++;
 
-            glm_vec3_copy((float[]){ x0, y1, 0.0f }, renderer->buffer->vertex);
-            glm_mat4_mulv3(renderer->transformation_back[renderer->transformation_back_size - 1], renderer->buffer->vertex, 1.0f, renderer->buffer->vertex);
+            glm_mat4_mulv3(transformation, (float[]){ x0, y1, 0.0f }, 1.0f, renderer->buffer->vertex);
             glm_vec2_copy((float[]){ u0, v1 }, renderer->buffer->uv);
             renderer->buffer->tid = ts;
             renderer->buffer->color = color;
             renderer->buffer++;
 
-            glm_vec3_copy((float[]){ x1, y1, 0.0f }, renderer->buffer->vertex);
-            glm_mat4_mulv3(renderer->transformation_back[renderer->transformation_back_size - 1], renderer->buffer->vertex, 1.0f, renderer->buffer->vertex);
+            glm_mat4_mulv3(transformation, (float[]){ x1, y1, 0.0f }, 1.0f, renderer->buffer->vertex);
             glm_vec2_copy((float[]){ u1, v1 }, renderer->buffer->uv);
             renderer->buffer->tid = ts;
             renderer->buffer->color = color;
             renderer->buffer++;
 
-            glm_vec3_copy((float[]){ x1, y0, 0.0f }, renderer->buffer->vertex);
-            glm_mat4_mulv3(renderer->transformation_back[renderer->transformation_back_size - 1], renderer->buffer->vertex, 1.0f, renderer->buffer->vertex);
+            glm_mat4_mulv3(transformation, (float[]){ x1, y0, 0.0f }, 1.0f, renderer->buffer->vertex);
             glm_vec2_copy((float[]){ u1, v0 }, renderer->buffer->uv);
             renderer->buffer->tid = ts;
             renderer->buffer->color = color;

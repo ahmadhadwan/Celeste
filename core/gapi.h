@@ -74,10 +74,12 @@ void clstShaderDeactivate();
  */
 void clstShaderUniformInt(CLSTshader *shader, char *uniform_name, int value);
 
+void clstShaderUniformIntArray(CLSTshader *shader, char *uniform_name, int *value, int array_len);
+
 /*
  * Sets a uniform float for the shader.
  */
-void clstShaderUniformIntFloat(CLSTshader *shader, char *uniform_name, float value);
+void clstShaderUniformFloat(CLSTshader *shader, char *uniform_name, float value);
 
 /*
  * Sets a uniform vec2 for the shader.

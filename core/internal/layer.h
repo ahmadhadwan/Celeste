@@ -17,6 +17,10 @@ typedef struct {
         float right;
         float top;
     } projection;
+    struct {
+        uint32_t color;
+        float strength;
+    } ambient;
 } CLSTlayer;
 
 #endif /* __CELESTE_INTERNAL_LAYER_H__ */
